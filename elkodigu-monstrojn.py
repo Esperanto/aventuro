@@ -1,20 +1,10 @@
 #!/usr/bin/python3
 
 import sys
+from elkodigu import elkodigu_ĉenon
 
 N_MONSTROJ = 4
 GRANDECO_MONSTRO = 57
-
-ĈENO_KODOJ = {
-    0x92: "ĥ",
-    0xa5: "ŝ",
-    0x90: "ĝ",
-    0x80: "ĉ",
-    0x97: "ŭ",
-    0xa7: "ŝ",
-    0x91: "ĝ",
-    0x9a: "ŭ",
-}
 
 TIPOJ = {
     0: "viro",
@@ -45,15 +35,6 @@ PARTOJ = [
     "l:lokotipo",
     "b:loko",
 ]
-
-def elkodigu_ĉenobajton(bajto):
-    try:
-        return ĈENO_KODOJ[bajto]
-    except KeyError:
-        return chr(bajto)
-
-def elkodigu_ĉenon(bajtoj):
-    return "".join(map(elkodigu_ĉenobajton, bajtoj))
 
 def elkodigu_monstron(monstro):
     p = 0
