@@ -1,0 +1,158 @@
+Alfabeto
+========
+
+Ŝajne la esperantaj literoj ne estas kodigitaj laŭ lia alfabeto en la dosiero.
+
+kh = 0x92
+sh = 0xa5
+gh = 0x90
+ch = 0x80
+jh = jh ?
+w  = 0x97
+
+KH = 0x92 (same kiel kh?)
+SH = 0xa7
+GH = 0x91
+CH = 0x8e
+JH = JH ?
+W  = 0x9a
+
+Salonoj
+=======
+
+La salonoj komenciĝas ĉe 0x101.
+
+Eble estas 31 bajtoj por ĉiu salono. Eble tiel:
+
+1   Longeco de nomo
+20  Nomo + rubaĵo ĝis 20 bajtoj
+2   Ĉenonombro por la priskribo
+1   ?
+1   Norden
+1   Orienten
+1   Suden
+1   Okcidenten
+1   Supren
+1   Suben
+1   Elen
+
+La nombroj de la ĉambro komenciĝas je 1. Nulo signifas ke oni ne povas iri tiudirekten.
+
+Ŝanĝi la lumon ne ŝajnas efiki la 31 bajtojn. Eble tiu informo estas aliloke? Same por ecoj. Kaj direktoj. Kaj ludfino.
+
+La maksimuma kvanto de salonoj ŝajne estas 149. Ŝajnas ke se estas malpli da salonoj estas rubaĵo post tio.
+
+Post la salonoj estas ankoraŭ 31 bajtoj kiuj aspektas kiel rubaĵo. Ĉu estas spaco por 150 salonoj sed la kompililo permesas nur 149?
+
+Direktoj
+========
+
+Sekve, ĉe 0x132b ŝajne estas la direktoj.
+
+Estas 25 bajtoj por ĉiu direkto:
+
+1   Longeco de nomo
+20  Nomo + rubaĵo ĝis 20 bajtoj
+    La nomo en la fontokodo devas finiĝi per /oj?n?/ sed ŝajne sendepende de tio kion oni metas en la fontokodo ĝi finiĝas per “o” en la rezulta dosiero. La “o” ne inkluziĝas en la longeco.
+2   Ĉenonombro por la vido.
+1   Fonta salono.
+1   Cela salono.
+
+La kompililo ŝajne permesas maksimume 499 direktojn.
+
+Aĵoj
+====
+
+Ĉe 0x43ff
+
+Estas 62 bajtoj por aĵo.
+
+1   Longeco de nomo
+20  Nomo + rubaĵo. La longeco inkluzivas la “o”.
+1   Longeco de adjektivo
+20  Adjektivo + rubaĵo. La longeco inkluzivas la “a”.
+2   Ĉenonombro por la priskribo.
+1   0=Viro, 1=Ino, 2=Besto, 3=Pluralo
+1   Poentoj
+1   Pezo
+1   Grando
+1   Perpafi
+1   Ŝargo
+1   Perbati
+1   Perpiki
+2   Ĉenonombro por legi.
+1   Manĝeblo
+1   Trinkeblo
+1   Fajrodaŭro
+1   Fino
+1   0=en loko, 0x10=Kunportanta, 0x0f=Nenie, 3=ĉe monstro, 1=en aĵo
+1   Loko
+1   0x09=enhava, 0x0c=normala, 0x00=enirebla
+1   Enhava kvanto aŭ enira salonnombro
+
+Se oni nomas la aĵon kun “j” la kompililo igis ĝin pluralo. Sed estas PLURALO en la kodo ĝi kontrolas ĉu estas “j”.
+
+La numero de la aĵo ŝajne ne aperas en la rezulta dosiero. Eble ĝi simple estas por permesi havi dufoje la saman aĵon kaj la programo distingis inter ili per interna numero. Io stranga okazas al la cetero de la datumoj se estas numero. Ĉu nur la unua havas datumojn?
+
+Ŝajne estas spaco por 150 aĵoj sed la komputilo permesas maksimume 149.
+
+Sinonimoj
+=========
+
+Komenciĝas ĉe 0x6853.
+
+23 bajtoj.
+
+1   Nomolongo
+20  Nomo + rubaĵo. Nomo inkluzivas la “o”.
+1   1=aĵo, 3=monstro
+1   Aĵo/monstro
+
+Estas spaco por 400 sinonimoj sed la komputilo permesas maksimume 399.
+
+Monstroj
+========
+
+Komenciĝas ĉe 0x8c43.
+
+57 bajtoj.
+
+1   Longeco de nomo
+20  Nomo + rubaĵo. La longeco inkluzivas la “o”.
+1   Longeco de adjektivo
+20  Adjektivo + rubaĵo. La longeco inkluzivas la “a”.
+2   Ĉenonombro por la priskribo.
+1   0=Viro, 1=Ino, 2=Besto, 3=Pluralo
+1   Mortinta aĵonumero
+1   Manĝemo
+1   Trinkemo
+2   Agreso
+1   Atako
+1   Protekto
+1   Vivoj
+1   Fuĝemo
+1   Vagemo
+1   0=en loko, 0x10=Kunportanta, 0x0f=Nenie, 3=ĉe monstro, 1=en aĵo
+1   Loko
+
+Estas spaco por 74 monstroj (73 de la kompililo).
+
+Fenomenoj
+=========
+
+Eble komenciĝas ĉe 0x9cbd.
+
+Ecoj
+====
+
+ecoj de aĵoj ĉirkaŭ 0xc520
+monstroj ĉirkaŭ 0xc690
+ludaj ecoj ĉirkaŭ 0xc8do en bitoj?
+salonaj ecoj ĉirkaŭ 0xc7a0
+
+Ĉenoj
+=====
+
+Komenciĝas ĉe 0xca80.
+
+Estas 128 bajtoj por ĉiu ĉeno. Ĝi komenciĝas per bajto kiu montras la longecon inkluvize de la “@”? Ŝajne estas rubaĵo post la ĉeno.
