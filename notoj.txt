@@ -137,12 +137,24 @@ Komenciĝas ĉe 0x8c43.
 1   0=en loko, 0x10=Kunportanta, 0x0f=Nenie, 3=ĉe monstro, 1=en aĵo
 1   Loko
 
-Estas spaco por 74 monstroj (73 de la kompililo).
+Estas spaco por 75 monstroj (73 de la kompililo (??)).
 
 Fenomenoj
 =========
 
-Eble komenciĝas ĉe 0x9cbd.
+Komenciĝas ĉe 0x9cf6. 20 bajtoj.
+
+1   Numero de verbo.
+2   regulo pri loko
+2   regulo pri aĵo
+2   regulo pri pero
+2   regulo pri monstro
+2   ĉenonombro
+2   nova loko
+2   nova aĵo
+2   nova pero
+2   nova monstro
+1   poentoj
 
 Verboj
 ======
