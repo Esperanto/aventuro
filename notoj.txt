@@ -144,6 +144,16 @@ Fenomenoj
 
 Eble komenciĝas ĉe 0x9cbd.
 
+Verboj
+======
+
+Ŝajne estas listo de verboj ĉe 0xbc41.
+
+Estas 11 bajtoj:
+
+1   Longeco
+10  Verbo sen finaĵo + nuloj
+
 Ecoj
 ====
 
