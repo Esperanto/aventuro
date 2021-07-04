@@ -10,12 +10,14 @@ ch = 0x80
 jh = jh ?
 w  = 0x97
 
-KH = 0x92 (same kiel kh?)
+KH = 0x99
 SH = 0xa7
 GH = 0x91
 CH = 0x8e
 JH = JH ?
 W  = 0x9a
+
+Se oni skribas laŭ la alfabeto priskribita en AVENTURO.DOK, la kompililo ŝajne aŭtomate konvertas la suprajn literojn sed ial ne konvertas “jh”. Tamen la litero “ĵ” ja aperas en la dosiero de La Insulo Texel kiel 0x96.
 
 Salonoj
 =======
