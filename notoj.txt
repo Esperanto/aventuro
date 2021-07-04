@@ -40,8 +40,6 @@ Eble estas 31 bajtoj por ĉiu salono. Eble tiel:
 
 La nombroj de la ĉambro komenciĝas je 1. Nulo signifas ke oni ne povas iri tiudirekten.
 
-Ŝanĝi la lumon ne ŝajnas efiki la 31 bajtojn. Eble tiu informo estas aliloke? Same por ecoj. Kaj direktoj. Kaj ludfino.
-
 La maksimuma kvanto de salonoj ŝajne estas 149. Ŝajnas ke se estas malpli da salonoj estas rubaĵo post tio.
 
 Post la salonoj estas ankoraŭ 31 bajtoj kiuj aspektas kiel rubaĵo. Ĉu estas spaco por 150 salonoj sed la kompililo permesas nur 149?
