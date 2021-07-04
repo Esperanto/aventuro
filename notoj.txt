@@ -156,6 +156,70 @@ Komenciĝas ĉe 0x9cf6. 20 bajtoj.
 2   nova monstro
 1   poentoj
 
+Reguloj:
+
+0x00  Negravas (ŝajne akceptata nur por loko)
+0x01  Aĵo estas
+0x02  Alia aĵo ĉeestas
+0x03  Monstro estas
+0x04  Alia monstro ĉeestas
+0x06  Ŝargo
+0x07  Pezo
+0x08  Grando
+0x09  Enhavo
+0x0a  Fajrodaŭro
+0x0b  Io
+0x0c  Nenio (defaŭlto por ĉio krom loko)
+0x0f  Defaŭlto por loko
+0x11  Eco de aĵo
+0x12  Malvera eco de aĵo
+0x13  Eco de salono
+0x14  Malvera eco de salono
+0x15  Eco de monstro
+0x16  Malvera eco de monstro
+0x17  Eco de ludanto
+0x18  Malvera eco de ludanto
+0x19  Ŝanco
+0x1b  La uzata aĵo havas saman adjektivon
+0x1c  La uzata monstro havas saman adjektivon
+0x1d  La uzata aĵo havas saman nomon
+0x1e  La uzata monstro havas saman nomon
+0x1f  La uzata aĵo havas samajn advektivon kaj nomon
+0x20  La uzata monstro havas samajn advektivon kaj nomon
+
+Agoj:
+
+0x00  Alien
+0x01  Aĵo anstataŭiĝu
+0x02  Aĵo estiĝu
+0x03  Monstro anstataŭiĝu
+0x04  Monstro estiĝu
+0x05  Ŝanĝi finon
+0x06  Ŝanĝi ŝargon
+0x07  Ŝanĝi pezon
+0x08  Ŝanĝi grandon
+0x09  Ŝanĝi enhavon
+0x0a  Ŝanĝi fajrodaŭro
+0x0c  Nenio (defaŭlta por ĉio krom loko)
+0x0f  Defaŭlto por loko
+0x10  Kunportiĝu
+0x11  Aĵo ekhavu econ
+0x12  Aĵo ekmalhavu econ
+0x13  Salono ekhavu econ
+0x14  Salono ekmalhavu econ
+0x15  Monstro ekhavu econ
+0x16  Monstro ekmalhavu econ
+0x17  Ludanto ekhavu econ
+0x18  Ludanto ekmalhavu econ
+0x1b  Ŝanĝu adjektivon de aĵo
+0x1c  Ŝanĝu adjektivon de monstro
+0x1d  Ŝanĝu nomon de aĵo
+0x1e  Ŝanĝu nomon de monstro
+0x1f  Kopiu aĵon
+0x20  Kopiu monstron
+
+La kompililo permesas maksimume 199 fenomenojn.
+
 Verboj
 ======
 
@@ -165,6 +229,8 @@ Estas 11 bajtoj:
 
 1   Longeco
 10  Verbo sen finaĵo + nuloj
+
+La kompililo permesas maksimume 59 verbojn.
 
 Ecoj
 ====
