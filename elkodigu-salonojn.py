@@ -21,6 +21,8 @@ def elkodigu_salonon(salono):
 for fn in sys.argv[1:]:
     with open(fn, 'rb') as f:
         f.seek(0x101)
-        for i in range(N_SALONOJ):
+        while True:
             salono = f.read(GRANDECO_SALONO)
+            if salono[0] == 0:
+                break
             elkodigu_salonon(salono)
