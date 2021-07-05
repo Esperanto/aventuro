@@ -267,4 +267,6 @@ Sekve ĉe 0xc8da estas 6 bajtoj por la ludaj ecoj. Unu bito por ĉiu eco. La kom
 
 Komenciĝas ĉe 0xca80.
 
-Estas 128 bajtoj por ĉiu ĉeno. Ĝi komenciĝas per bajto kiu montras la longecon inkluvize de la “@”? Ŝajne estas rubaĵo post la ĉeno.
+Estas 128 bajtoj por ĉiu ĉeno. Ĝi komenciĝas per bajto kiu montras la longecon inkluvize de la “@”.
+
+Se oni skribas tekston pli longan ol 128 bajtoj en la fontokodo, ŝajne la kompililo dividos ĝin en plurajn ĉenojn. Eble se la ĉeno ne finiĝas per “@” la programo simple montros ankaŭ la sekvan ĉenon.
