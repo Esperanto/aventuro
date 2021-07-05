@@ -18,8 +18,9 @@ def elkodigu_salonon(salono):
 
     print("Nomo: {}, ĉeno: {}, rest: {}".format(nomo, ĉeno, rest))
 
-with open('MIA.AVT', 'rb') as f:
-    f.seek(0x101)
-    for i in range(N_SALONOJ):
-        salono = f.read(GRANDECO_SALONO)
-        elkodigu_salonon(salono)
+for fn in sys.argv[1:]:
+    with open(fn, 'rb') as f:
+        f.seek(0x101)
+        for i in range(N_SALONOJ):
+            salono = f.read(GRANDECO_SALONO)
+            elkodigu_salonon(salono)
