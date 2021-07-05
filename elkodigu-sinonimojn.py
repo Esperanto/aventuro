@@ -3,7 +3,6 @@
 import sys
 from elkodigu import elkodigu_ĉenon
 
-N_SINONIMOJ = 18
 GRANDECO_SINONIMO = 23
 
 TIPOJ = {
@@ -36,6 +35,8 @@ def elkodigu_sinonimon(sinonimo):
 for fn in sys.argv[1:]:
     with open(fn, 'rb') as f:
         f.seek(0x6853)
-        for i in range(N_SINONIMOJ):
+        while True:
             sinonimo = f.read(GRANDECO_SINONIMO)
+            if sinonimo[0] == 0:
+                break
             elkodigu_sinonimon(sinonimo)

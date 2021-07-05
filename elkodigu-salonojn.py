@@ -2,7 +2,6 @@
 
 import sys
 
-N_SALONOJ = 7
 GRANDECO_SALONO = 31
 
 def elkodigu_salonon(salono):

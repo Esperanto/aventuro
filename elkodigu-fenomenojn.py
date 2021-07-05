@@ -3,7 +3,6 @@
 import sys
 from elkodigu import elkodigu_ĉenon
 
-N_FENOMENOJ = 4
 GRANDECO_FENOMENO = 20
 
 REGULOJ = {

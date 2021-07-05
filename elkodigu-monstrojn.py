@@ -3,7 +3,6 @@
 import sys
 from elkodigu import elkodigu_ĉenon
 
-N_MONSTROJ = 4
 GRANDECO_MONSTRO = 57
 
 TIPOJ = {

@@ -3,7 +3,6 @@
 import sys
 from elkodigu import elkodigu_ĉenon
 
-N_AĴOJ = 57
 GRANDECO_AĴO = 62
 
 TIPOJ = {
