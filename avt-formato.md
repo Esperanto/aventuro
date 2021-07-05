@@ -1,3 +1,5 @@
+# La formato AVT
+
 ## Alfabeto
 
 Ŝajne la esperantaj literoj ne estas kodigitaj laŭ lia alfabeto en la dosiero.
