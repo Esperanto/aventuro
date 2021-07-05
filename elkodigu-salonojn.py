@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import sys
+from elkodigu import elkodigu_ĉenon
 
 GRANDECO_SALONO = 31
 
@@ -8,7 +9,7 @@ def elkodigu_salonon(salono):
     p = 0
     nomlongo = salono[p]
     p += 1
-    nomo = salono[p : p + nomlongo].decode('utf-8')
+    nomo = elkodigu_ĉenon(salono[p : p + nomlongo])
     p += 20
     ĉeno = salono[p]
     p += 1
