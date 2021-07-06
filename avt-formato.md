@@ -272,3 +272,5 @@ Komenciĝas ĉe 0xca80.
 Estas 128 bajtoj por ĉiu ĉeno. Ĝi komenciĝas per bajto kiu montras la longecon inkluvize de la “@”.
 
 Se oni skribas tekston pli longan ol 128 bajtoj en la fontokodo, ŝajne la kompililo dividos ĝin en plurajn ĉenojn. Eble se la ĉeno ne finiĝas per “@” la programo simple montros ankaŭ la sekvan ĉenon.
+
+La ĉenonombro en aliaj lokoj ŝajne estas la logika numero de la ĉeno en la listo de ĉenoj, ne nombro de bajtoj de la komenco por facile trovi ĝin. Ekzemple se la unua ĉeno bezonas du arojn de 128 bajtoj, la sekva ĉeno komenciĝos ĉe la 3a aro sed ĝi havos la numeron 2.
