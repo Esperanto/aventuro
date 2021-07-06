@@ -57,7 +57,7 @@ Estas 25 bajtoj por ĉiu direkto:
 | Bajtoj | Klarigoj |
 | ------ | -------- |
 | 1   | Longeco de nomo         |
-| 20  | Nomo + rubaĵo ĝis 20 bajtoj. La nomo en la fontokodo devas finiĝi per /oj?n?/ sed ŝajne sendepende de tio kion oni metas en la fontokodo ĝi finiĝas per “o” en la rezulta dosiero. La “o” ne inkluziĝas en la longeco. |
+| 20  | Nomo + rubaĵo ĝis 20 bajtoj. La nomo en la fontokodo devas finiĝi per /oj?n?/ sed ŝajne sendepende de tio kion oni metas en la fontokodo ĝi finiĝas per “o” en la rezulta dosiero. La “o” ja inkluziĝas en la longeco. |
 | 2   | Ĉenonombro por la vido. |
 | 1   | Fonta salono.           |
 | 1   | Cela salono.            |
