@@ -265,6 +265,14 @@ La ecoj estas unu listo de bitoj po eco. La nomoj de la ecoj ŝajne perdiĝas. �
 
 Sekve ĉe 0xc8da estas 6 bajtoj por la ludaj ecoj. Unu bito por ĉiu eco. La kompililo permesas 49 ludajn ecojn.
 
+## Informoj
+
+| Adreso | Signifo                          |
+| ------ | -------------------------------- |
+| 0xc910 | 2 bajtoj por la komenca soifo    |
+| 0xc912 | 2 bajtoj por la komenca malsato  |
+| 0xc914 | 1=Debug, 0=Ne debug              |
+
 ## Ĉenoj
 
 Komenciĝas ĉe 0xca80.
