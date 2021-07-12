@@ -201,6 +201,9 @@ parse_noun_part(struct parse_pos *pos_in_out,
 
         switch (to_lower(part->word.start[part->word.length - 1])) {
         case 'a':
+                /* “La” is not an adjective */
+                if (is_word(part->word.start, part->word.length, "la"))
+                        return false;
                 part->adjective = true;
                 break;
         case 'o':

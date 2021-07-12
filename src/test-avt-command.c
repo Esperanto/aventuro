@@ -52,14 +52,14 @@ check_word_order(const char *phrase)
 }
 
 static void
-check_word_order_no_adjective(const char *phrase)
+check_word_order_no_adjective(const char *phrase, bool article)
 {
         struct pcx_avt_command command;
 
         assert(pcx_avt_command_parse(phrase, &command));
 
         assert(command.has_subject);
-        assert(!command.subject.article);
+        assert(command.subject.article == article);
         assert(!command.subject.plural);
         assert(!command.subject.accusative);
         assert(command.subject.name.length == 4);
@@ -67,7 +67,7 @@ check_word_order_no_adjective(const char *phrase)
         assert(command.subject.adjective.start == NULL);
 
         assert(command.has_object);
-        assert(!command.object.article);
+        assert(command.object.article == article);
         assert(!command.object.plural);
         assert(command.object.accusative);
         assert(command.object.name.length == 3);
@@ -226,8 +226,11 @@ main(int argc, char **argv)
         check_word_order("katon nigran blanka hundo");
         check_word_order("katon nigran hundo blanka");
 
-        check_word_order_no_adjective("hundo katon");
-        check_word_order_no_adjective("katon hundo");
+        check_word_order_no_adjective("hundo katon", false);
+        check_word_order_no_adjective("katon hundo", false);
+
+        check_word_order_no_adjective("la hundo la katon", true);
+        check_word_order_no_adjective("la katon la hundo", true);
 
         return EXIT_SUCCESS;
 }
