@@ -8,6 +8,16 @@ test_utf8 = executable('test-utf8', test_utf8_src,
                        include_directories: configinc)
 test('utf8', test_utf8)
 
+test_avt_command_src = [
+        'pcx-utf8.c',
+        'pcx-avt-command.c',
+        'test-avt-command.c',
+]
+
+test_avt_command = executable('test-avt-command', test_avt_command_src,
+                              include_directories: configinc)
+test('avt-command', test_avt_command)
+
 avt_load_src = [
         'pcx-util.c',
         'pcx-file-error.c',
