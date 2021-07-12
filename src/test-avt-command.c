@@ -232,5 +232,20 @@ main(int argc, char **argv)
         check_word_order_no_adjective("la hundo la katon", true);
         check_word_order_no_adjective("la katon la hundo", true);
 
+        assert(pcx_avt_command_parse("al la urbo hundo iros", &command));
+        assert(command.has_direction);
+        assert(command.direction.length == 3);
+        assert(!memcmp(command.direction.start, "urb", 3));
+        assert(command.has_subject);
+        assert(!command.subject.article);
+        assert(!command.subject.plural);
+        assert(!command.subject.accusative);
+        assert(command.subject.adjective.start == NULL);
+        assert(command.subject.name.length == 4);
+        assert(!memcmp(command.subject.name.start, "hund", 4));
+        assert(command.has_verb);
+        assert(command.verb.length == 2);
+        assert(!memcmp(command.verb.start, "ir", 2));
+
         return EXIT_SUCCESS;
 }

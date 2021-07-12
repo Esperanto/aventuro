@@ -248,11 +248,9 @@ parse_noun(struct parse_pos *pos_in_out,
         struct parse_pos after_part2 = pos;
 
         if (parse_noun_part(&after_part2, &part2) &&
-            part1.accusative == part2.accusative) {
-                if (part1.adjective == part2.adjective ||
-                    part1.plural != part2.plural)
-                        return false;
-
+            part1.accusative == part2.accusative &&
+            part1.adjective != part2.adjective &&
+            part1.plural == part2.plural) {
                 const struct noun_part *adjective, *name;
 
                 if (part1.adjective) {
