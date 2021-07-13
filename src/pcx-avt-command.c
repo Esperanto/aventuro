@@ -587,3 +587,10 @@ pcx_avt_command_parse(const char *text,
 
         return true;
 }
+
+bool
+pcx_avt_command_word_equal(const struct pcx_avt_command_word *word1,
+                           const char *word2)
+{
+        return is_word(word1->start, word1->length, word2);
+}

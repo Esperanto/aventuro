@@ -76,4 +76,8 @@ bool
 pcx_avt_command_parse(const char *text,
                       struct pcx_avt_command *command);
 
+bool
+pcx_avt_command_word_equal(const struct pcx_avt_command_word *word1,
+                           const char *word2);
+
 #endif /* PCX_AVT_COMMAND */
