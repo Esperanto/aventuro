@@ -521,10 +521,47 @@ parse_in(struct parse_pos *pos_in_out,
         return true;
 }
 
+static const char *
+handle_shortcut(const char *text)
+{
+        while (*text == ' ')
+                text++;
+
+        int len = strlen(text);
+
+        while (len > 0 && text[len - 1] == ' ')
+                len--;
+
+        static const struct {
+                const char *in;
+                const char *out;
+        } shortcuts[] = {
+                { "n", "mi iras norden" },
+                { "s", "mi iras suden" },
+                { "o", "mi iras orienten" },
+                { "okc", "mi iras okcidenten" },
+                { "e", "mi iras orienten" },
+                { "u", "mi iras okcidenten" },
+                { "ĉ", "mi ĉesas" },
+                { "h", "helpu min" },
+                { "r", "rigardu" },
+                { "v", "mi vidas" },
+        };
+
+        for (int i = 0; i < PCX_N_ELEMENTS(shortcuts); i++) {
+                if (is_word(text, len, shortcuts[i].in))
+                        return shortcuts[i].out;
+        }
+
+        return text;
+}
+
 bool
 pcx_avt_command_parse(const char *text,
                       struct pcx_avt_command *command)
 {
+        text = handle_shortcut(text);
+
         struct parse_pos pos = { .p = text };
 
         memset(command, 0, sizeof *command);
