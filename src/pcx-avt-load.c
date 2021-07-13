@@ -631,6 +631,19 @@ done:
         return ret;
 }
 
+static void
+normalize_direction(char *dir)
+{
+        int len = strlen(dir);
+
+        if (len >= 2 && dir[len - 1] == 'j')
+                len--;
+        if (len >= 2 && dir[len - 1] == 'o')
+                len--;
+
+        dir[len] = '\0';
+}
+
 static bool
 extract_directions(struct load_data *data,
                    struct pcx_avt_direction *directions,
@@ -643,6 +656,8 @@ extract_directions(struct load_data *data,
 
                 if (directions[i].name == NULL)
                         return false;
+
+                normalize_direction(directions[i].name);
 
                 const uint8_t *desc = p + PCX_AVT_LOAD_DIRECTION_DESCRIPTION;
 

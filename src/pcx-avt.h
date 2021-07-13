@@ -103,7 +103,7 @@ struct pcx_avt_monster {
 };
 
 struct pcx_avt_direction {
-        /* Owned by this */
+        /* Owned by this. This is the root word without any endings */
         char *name;
         /* Owned by the parent pcx_avt. Can be NULL */
         const char *description;
