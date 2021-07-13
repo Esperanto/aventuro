@@ -36,6 +36,7 @@ check_word_order(const char *phrase)
         assert(!command.subject.article);
         assert(!command.subject.plural);
         assert(!command.subject.accusative);
+        assert(!command.subject.is_pronoun);
         assert(command.subject.name.length == 4);
         assert(!memcmp(command.subject.name.start, "hund", 4));
         assert(command.subject.adjective.length == 5);
@@ -45,6 +46,7 @@ check_word_order(const char *phrase)
         assert(!command.object.article);
         assert(!command.object.plural);
         assert(command.object.accusative);
+        assert(!command.object.is_pronoun);
         assert(command.object.name.length == 3);
         assert(!memcmp(command.object.name.start, "kat", 3));
         assert(command.object.adjective.length == 4);
@@ -62,6 +64,7 @@ check_word_order_no_adjective(const char *phrase, bool article)
         assert(command.subject.article == article);
         assert(!command.subject.plural);
         assert(!command.subject.accusative);
+        assert(!command.subject.is_pronoun);
         assert(command.subject.name.length == 4);
         assert(!memcmp(command.subject.name.start, "hund", 4));
         assert(command.subject.adjective.start == NULL);
@@ -70,9 +73,33 @@ check_word_order_no_adjective(const char *phrase, bool article)
         assert(command.object.article == article);
         assert(!command.object.plural);
         assert(command.object.accusative);
+        assert(!command.object.is_pronoun);
         assert(command.object.name.length == 3);
         assert(!memcmp(command.object.name.start, "kat", 3));
         assert(command.object.adjective.start == NULL);
+}
+
+static void
+check_pronoun(const char *pronoun,
+              int person,
+              int genders,
+              bool plural)
+{
+        struct pcx_avt_command command;
+
+        assert(pcx_avt_command_parse(pronoun, &command));
+        assert(command.has_subject);
+        assert(!command.subject.article);
+        assert(command.subject.plural == plural);
+        assert(!command.subject.accusative);
+        assert(command.subject.is_pronoun);
+        assert(command.subject.adjective.start == NULL);
+        assert(command.subject.name.length == strlen(pronoun));
+        assert(!memcmp(command.subject.name.start, pronoun, strlen(pronoun)));
+
+        assert(command.subject.pronoun.person == person);
+        assert(command.subject.pronoun.genders == genders);
+        assert(command.subject.pronoun.plural == plural);
 }
 
 int
@@ -90,6 +117,7 @@ main(int argc, char **argv)
         assert(command.subject.article);
         assert(!command.subject.plural);
         assert(!command.subject.accusative);
+        assert(!command.subject.is_pronoun);
         assert(command.subject.name.length == 4);
         assert(!memcmp(command.subject.name.start, "hund", 4));
         assert(command.subject.adjective.start == NULL);
@@ -102,6 +130,7 @@ main(int argc, char **argv)
         assert(command.object.article);
         assert(!command.object.plural);
         assert(command.object.accusative);
+        assert(!command.object.is_pronoun);
         assert(command.object.name.length == 3);
         assert(!memcmp(command.object.name.start, "rat", 3));
         assert(command.object.adjective.start == NULL);
@@ -114,6 +143,7 @@ main(int argc, char **argv)
         assert(command.tool.article);
         assert(!command.tool.plural);
         assert(!command.tool.accusative);
+        assert(!command.tool.is_pronoun);
         assert(command.tool.name.length == 7);
         assert(!memcmp(command.tool.name.start, "aviadil", 7));
         assert(command.tool.adjective.start == NULL);
@@ -123,6 +153,7 @@ main(int argc, char **argv)
         assert(command.subject.article);
         assert(!command.subject.plural);
         assert(!command.subject.accusative);
+        assert(!command.subject.is_pronoun);
         assert(command.subject.adjective.start);
         assert(command.subject.adjective.length == 4);
         assert(!memcmp(command.subject.adjective.start, "griz", 4));
@@ -134,6 +165,7 @@ main(int argc, char **argv)
         assert(!command.subject.article);
         assert(command.subject.plural);
         assert(!command.subject.accusative);
+        assert(!command.subject.is_pronoun);
         assert(command.subject.adjective.start);
         assert(command.subject.adjective.length == 4);
         assert(!memcmp(command.subject.adjective.start, "griz", 4));
@@ -145,6 +177,7 @@ main(int argc, char **argv)
         assert(!command.subject.article);
         assert(command.subject.plural);
         assert(!command.subject.accusative);
+        assert(!command.subject.is_pronoun);
         assert(command.subject.adjective.start);
         assert(command.subject.adjective.length == 4);
         assert(!memcmp(command.subject.adjective.start, "griz", 4));
@@ -158,6 +191,7 @@ main(int argc, char **argv)
         assert(command.object.article);
         assert(!command.object.plural);
         assert(command.object.accusative);
+        assert(!command.object.is_pronoun);
         assert(command.object.adjective.start);
         assert(command.object.adjective.length == 4);
         assert(!memcmp(command.object.adjective.start, "griz", 4));
@@ -171,6 +205,7 @@ main(int argc, char **argv)
         assert(command.in.article);
         assert(!command.in.plural);
         assert(command.in.accusative);
+        assert(!command.in.is_pronoun);
         assert(command.in.adjective.start);
         assert(command.in.adjective.length == 5);
         assert(!memcmp(command.in.adjective.start, "blank", 5));
@@ -182,6 +217,7 @@ main(int argc, char **argv)
         assert(command.in.article);
         assert(command.in.plural);
         assert(!command.in.accusative);
+        assert(!command.in.is_pronoun);
         assert(command.in.adjective.start == NULL);
         assert(command.in.name.length == 6);
         assert(!memcmp(command.in.name.start, "skatol", 6));
@@ -240,12 +276,63 @@ main(int argc, char **argv)
         assert(!command.subject.article);
         assert(!command.subject.plural);
         assert(!command.subject.accusative);
+        assert(!command.subject.is_pronoun);
         assert(command.subject.adjective.start == NULL);
         assert(command.subject.name.length == 4);
         assert(!memcmp(command.subject.name.start, "hund", 4));
         assert(command.has_verb);
         assert(command.verb.length == 2);
         assert(!memcmp(command.verb.start, "ir", 2));
+
+        check_pronoun("mi",
+                      1,
+                      PCX_AVT_COMMAND_GENDER_MAN |
+                      PCX_AVT_COMMAND_GENDER_WOMAN |
+                      PCX_AVT_COMMAND_GENDER_THING,
+                      false);
+        check_pronoun("ni",
+                      1,
+                      PCX_AVT_COMMAND_GENDER_MAN |
+                      PCX_AVT_COMMAND_GENDER_WOMAN |
+                      PCX_AVT_COMMAND_GENDER_THING,
+                      true);
+        check_pronoun("vi",
+                      2,
+                      PCX_AVT_COMMAND_GENDER_MAN |
+                      PCX_AVT_COMMAND_GENDER_WOMAN |
+                      PCX_AVT_COMMAND_GENDER_THING,
+                      false);
+        check_pronoun("li",
+                      3,
+                      PCX_AVT_COMMAND_GENDER_MAN,
+                      false);
+        check_pronoun("ŝi",
+                      3,
+                      PCX_AVT_COMMAND_GENDER_WOMAN,
+                      false);
+        check_pronoun("ĝi",
+                      3,
+                      PCX_AVT_COMMAND_GENDER_THING,
+                      false);
+        check_pronoun("GXi",
+                      3,
+                      PCX_AVT_COMMAND_GENDER_THING,
+                      false);
+        check_pronoun("RI",
+                      3,
+                      PCX_AVT_COMMAND_GENDER_MAN |
+                      PCX_AVT_COMMAND_GENDER_WOMAN,
+                      false);
+        check_pronoun("ili",
+                      3,
+                      PCX_AVT_COMMAND_GENDER_MAN |
+                      PCX_AVT_COMMAND_GENDER_WOMAN |
+                      PCX_AVT_COMMAND_GENDER_THING,
+                      true);
+
+        assert(!pcx_avt_command_parse("griza ĝi", &command));
+        assert(!pcx_avt_command_parse("la ĝi", &command));
+        assert(!pcx_avt_command_parse("ĝij", &command));
 
         return EXIT_SUCCESS;
 }

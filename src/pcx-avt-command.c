@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "pcx-utf8.h"
+#include "pcx-util.h"
 
 struct parse_pos {
         const char *p;
@@ -32,7 +33,91 @@ struct noun_part {
         bool accusative;
         bool plural;
         bool adjective;
+        bool is_pronoun;
+        struct pcx_avt_command_pronoun pronoun;
         struct pcx_avt_command_word word;
+};
+
+struct pronoun_name {
+        const char *word;
+        struct pcx_avt_command_pronoun value;
+};
+
+static const struct pronoun_name
+pronoun_names[] = {
+        {
+                "mi",
+                {
+                        .person = 1,
+                        PCX_AVT_COMMAND_GENDER_MAN |
+                        PCX_AVT_COMMAND_GENDER_WOMAN |
+                        PCX_AVT_COMMAND_GENDER_THING,
+                        .plural = false,
+                },
+        },
+        {
+                "ni",
+                {
+                        .person = 1,
+                        PCX_AVT_COMMAND_GENDER_MAN |
+                        PCX_AVT_COMMAND_GENDER_WOMAN |
+                        PCX_AVT_COMMAND_GENDER_THING,
+                        .plural = true,
+                },
+        },
+        {
+                "vi",
+                {
+                        .person = 2,
+                        PCX_AVT_COMMAND_GENDER_MAN |
+                        PCX_AVT_COMMAND_GENDER_WOMAN |
+                        PCX_AVT_COMMAND_GENDER_THING,
+                        .plural = false,
+                },
+        },
+        {
+                "li",
+                {
+                        .person = 3,
+                        PCX_AVT_COMMAND_GENDER_MAN,
+                        .plural = false,
+                },
+        },
+        {
+                "ŝi",
+                {
+                        .person = 3,
+                        PCX_AVT_COMMAND_GENDER_WOMAN,
+                        .plural = false,
+                },
+        },
+        {
+                "ĝi",
+                {
+                        .person = 3,
+                        PCX_AVT_COMMAND_GENDER_THING,
+                        .plural = false,
+                },
+        },
+        {
+                "ri",
+                {
+                        .person = 3,
+                        PCX_AVT_COMMAND_GENDER_MAN |
+                        PCX_AVT_COMMAND_GENDER_WOMAN,
+                        .plural = false,
+                },
+        },
+        {
+                "ili",
+                {
+                        .person = 3,
+                        PCX_AVT_COMMAND_GENDER_MAN |
+                        PCX_AVT_COMMAND_GENDER_WOMAN |
+                        PCX_AVT_COMMAND_GENDER_THING,
+                        .plural = true,
+                },
+        },
 };
 
 static bool
@@ -205,16 +290,37 @@ parse_noun_part(struct parse_pos *pos_in_out,
                 if (is_word(part->word.start, part->word.length, "la"))
                         return false;
                 part->adjective = true;
+                part->is_pronoun = false;
+                part->word.length--;
                 break;
         case 'o':
                 part->adjective = false;
+                part->is_pronoun = false;
+                part->word.length--;
                 break;
         default:
+                if (part->plural)
+                        return false;
+
+                for (int i = 0; i < PCX_N_ELEMENTS(pronoun_names); i++) {
+                        if (is_word(part->word.start,
+                                    part->word.length,
+                                    pronoun_names[i].word)) {
+                                part->pronoun = pronoun_names[i].value;
+                                goto found;
+                        }
+                }
+
                 return false;
+
+        found:
+                part->adjective = false;
+                part->is_pronoun = true;
+                part->plural = part->pronoun.plural;
+                break;
         }
 
         *pos_in_out = pos;
-        part->word.length--;
 
         return true;
 }
@@ -246,13 +352,12 @@ parse_noun(struct parse_pos *pos_in_out,
 
         struct noun_part part2;
         struct parse_pos after_part2 = pos;
+        const struct noun_part *adjective, *name;
 
         if (parse_noun_part(&after_part2, &part2) &&
             part1.accusative == part2.accusative &&
             part1.adjective != part2.adjective &&
             part1.plural == part2.plural) {
-                const struct noun_part *adjective, *name;
-
                 if (part1.adjective) {
                         adjective = &part1;
                         name = &part2;
@@ -261,13 +366,29 @@ parse_noun(struct parse_pos *pos_in_out,
                         name = &part1;
                 }
 
-                noun->name = name->word;
-                noun->adjective = adjective->word;
                 pos = after_part2;
         } else if (part1.adjective) {
                 return false;
         } else {
-                noun->name = part1.word;
+                name = &part1;
+                adjective = NULL;
+        }
+
+        noun->name = name->word;
+        noun->is_pronoun = name->is_pronoun;
+        if (noun->is_pronoun) {
+                if (noun->article)
+                        return false;
+
+                noun->pronoun = name->pronoun;
+        }
+
+        if (adjective) {
+                if (noun->is_pronoun)
+                        return false;
+
+                noun->adjective = adjective->word;
+        } else {
                 noun->adjective.start = NULL;
                 noun->adjective.length = 0;
         }

@@ -23,18 +23,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "pcx-avt.h"
+
 struct pcx_avt_command_word {
         const char *start;
         size_t length;
+};
+
+enum pcx_avt_command_gender {
+        PCX_AVT_COMMAND_GENDER_MAN = (1 << 0),
+        PCX_AVT_COMMAND_GENDER_WOMAN = (1 << 1),
+        PCX_AVT_COMMAND_GENDER_THING = (1 << 2),
+};
+
+struct pcx_avt_command_pronoun {
+        int person; /* 1, 2 or 3 */
+        int genders;
+        bool plural;
 };
 
 struct pcx_avt_command_noun {
         bool article;
         bool plural;
         bool accusative;
+        bool is_pronoun;
+
         struct pcx_avt_command_word name;
         /* Can be NULL */
         struct pcx_avt_command_word adjective;
+
+        /* Only used if is_pronoun is true */
+        struct pcx_avt_command_pronoun pronoun;
 };
 
 struct pcx_avt_command {
