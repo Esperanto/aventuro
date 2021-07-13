@@ -40,17 +40,25 @@ enum pcx_avt_location_type {
         PCX_AVT_LOCATION_TYPE_IN_OBJECT = 0x01,
 };
 
-struct pcx_avt_object {
+struct pcx_avt_movable {
         /* Owned by this */
         char *name, *adjective;
         /* Owned by the parent pcx_avt. Can be NULL. */
         const char *description;
+
+        enum pcx_avt_pronoun pronoun;
+
+        enum pcx_avt_location_type location_type;
+        uint8_t location;
+};
+
+struct pcx_avt_object {
+        struct pcx_avt_movable base;
+
         /* Text that gets shown when the object is read. Owned by the
          * parent pcx_avt. Can be NULL.
          */
         const char *read_text;
-
-        enum pcx_avt_pronoun pronoun;
 
         uint8_t points;
         uint8_t weight;
@@ -73,18 +81,10 @@ struct pcx_avt_object {
          * be entered.
          */
         uint8_t enter_room;
-
-        enum pcx_avt_location_type location_type;
-        uint8_t location;
 };
 
 struct pcx_avt_monster {
-        /* Owned by this */
-        char *name, *adjective;
-        /* Owned by the parent pcx_avt. Can be NULL. */
-        const char *description;
-
-        enum pcx_avt_pronoun pronoun;
+        struct pcx_avt_movable base;
 
         /* The object that replaces the monster when it dies */
         uint8_t dead_object;
@@ -97,9 +97,6 @@ struct pcx_avt_monster {
         uint8_t lives;
         uint8_t escape;
         uint8_t wander;
-
-        enum pcx_avt_location_type location_type;
-        uint8_t location;
 };
 
 struct pcx_avt_direction {

@@ -278,6 +278,61 @@ extract_location_type(const uint8_t *buf,
         return false;
 }
 
+static const uint8_t *
+extract_movable_base(struct load_data *data,
+                     const uint8_t *movable_data,
+                     struct pcx_avt_movable *movable,
+                     struct pcx_error **error)
+{
+        movable->name = extract_string(movable_data, 20, error);
+
+        if (movable->name == NULL)
+                return NULL;
+
+        movable_data += 21;
+
+        movable->adjective = extract_string(movable_data, 20, error);
+
+        if (movable->adjective == NULL)
+                return NULL;
+
+        movable_data += 21;
+
+        if (!extract_optional_string_num(data,
+                                         movable_data,
+                                         &movable->description,
+                                         error))
+                return NULL;
+
+        movable_data += 2;
+
+        if (!extract_pronoun(movable_data,
+                             &movable->pronoun,
+                             error))
+                return NULL;
+
+        movable_data++;
+
+        return movable_data;
+}
+
+static const uint8_t *
+extract_movable_location(const uint8_t *movable_data,
+                         struct pcx_avt_movable *movable,
+                         struct pcx_error **error)
+{
+        if (!extract_location_type(movable_data,
+                                   &movable->location_type,
+                                   error))
+                return NULL;
+
+        movable_data++;
+
+        movable->location = *(movable_data++);
+
+        return movable_data;
+}
+
 static bool
 load_monsters(struct load_data *data,
               struct pcx_error **error)
@@ -308,42 +363,15 @@ load_monsters(struct load_data *data,
                 const uint8_t *monster_data =
                         buf.data + obj * PCX_AVT_LOAD_MONSTER_SIZE;
 
-                monster->name = extract_string(monster_data, 20, error);
+                monster_data = extract_movable_base(data,
+                                                    monster_data,
+                                                    &monster->base,
+                                                    error);
 
-                if (monster->name == NULL) {
+                if (monster_data == NULL) {
                         ret = false;
                         goto done;
                 }
-
-                monster_data += 21;
-
-                monster->adjective = extract_string(monster_data, 20, error);
-
-                if (monster->name == NULL) {
-                        ret = false;
-                        goto done;
-                }
-
-                monster_data += 21;
-
-                if (!extract_optional_string_num(data,
-                                                 monster_data,
-                                                 &monster->description,
-                                                 error)) {
-                        ret = false;
-                        goto done;
-                }
-
-                monster_data += 2;
-
-                if (!extract_pronoun(monster_data,
-                                     &monster->pronoun,
-                                     error)) {
-                        ret = false;
-                        goto done;
-                }
-
-                monster_data++;
 
                 monster->dead_object = *(monster_data++);
 
@@ -371,16 +399,14 @@ load_monsters(struct load_data *data,
                 monster->escape = *(monster_data++);
                 monster->wander = *(monster_data++);
 
-                if (!extract_location_type(monster_data,
-                                           &monster->location_type,
-                                           error)) {
+                monster_data = extract_movable_location(monster_data,
+                                                        &monster->base,
+                                                        error);
+
+                if (monster_data == NULL) {
                         ret = false;
                         goto done;
                 }
-
-                monster_data++;
-
-                monster->location = *(monster_data++);
         }
 
 done:
@@ -448,42 +474,15 @@ load_objects(struct load_data *data,
                 const uint8_t *object_data =
                         buf.data + obj * PCX_AVT_LOAD_OBJECT_SIZE;
 
-                object->name = extract_string(object_data, 20, error);
+                object_data = extract_movable_base(data,
+                                                   object_data,
+                                                   &object->base,
+                                                   error);
 
-                if (object->name == NULL) {
+                if (object_data == NULL) {
                         ret = false;
                         goto done;
                 }
-
-                object_data += 21;
-
-                object->adjective = extract_string(object_data, 20, error);
-
-                if (object->name == NULL) {
-                        ret = false;
-                        goto done;
-                }
-
-                object_data += 21;
-
-                if (!extract_optional_string_num(data,
-                                                 object_data,
-                                                 &object->description,
-                                                 error)) {
-                        ret = false;
-                        goto done;
-                }
-
-                object_data += 2;
-
-                if (!extract_pronoun(object_data,
-                                     &object->pronoun,
-                                     error)) {
-                        ret = false;
-                        goto done;
-                }
-
-                object_data++;
 
                 object->points = *(object_data++);
                 object->weight = *(object_data++);
@@ -508,16 +507,14 @@ load_objects(struct load_data *data,
                 object->burn_time = *(object_data++);
                 object->end = *(object_data++);
 
-                if (!extract_location_type(object_data,
-                                           &object->location_type,
-                                           error)) {
+                object_data = extract_movable_location(object_data,
+                                                       &object->base,
+                                                       error);
+
+                if (object_data == NULL) {
                         ret = false;
                         goto done;
                 }
-
-                object_data++;
-
-                object->location = *(object_data++);
 
                 if (!extract_insideness(data,
                                         object_data,
@@ -849,17 +846,17 @@ load_strings(struct load_data *data,
 
 static bool
 validate_location(struct load_data *data,
-                  enum pcx_avt_location_type type,
-                  uint8_t *location,
+                  struct pcx_avt_movable *movable,
                   struct pcx_error **error)
 {
-        switch (type) {
+        switch (movable->location_type) {
         case PCX_AVT_LOCATION_TYPE_CARRYING:
         case PCX_AVT_LOCATION_TYPE_NOWHERE:
         case PCX_AVT_LOCATION_TYPE_IN_ROOM:
                 return true;
         case PCX_AVT_LOCATION_TYPE_WITH_MONSTER:
-                if (*location < 1 || *location > data->avt->n_monsters) {
+                if (movable->location < 1 ||
+                    movable->location > data->avt->n_monsters) {
                         pcx_set_error(error,
                                       &pcx_avt_load_error,
                                       PCX_AVT_LOAD_ERROR_INVALID_ROOM,
@@ -867,10 +864,11 @@ validate_location(struct load_data *data,
                                       "referenced");
                         return false;
                 }
-                (*location)--;
+                movable->location--;
                 return true;
         case PCX_AVT_LOCATION_TYPE_IN_OBJECT:
-                if (*location < 1 || *location > data->avt->n_objects) {
+                if (movable->location < 1 ||
+                    movable->location > data->avt->n_objects) {
                         pcx_set_error(error,
                                       &pcx_avt_load_error,
                                       PCX_AVT_LOAD_ERROR_INVALID_OBJECT,
@@ -878,7 +876,7 @@ validate_location(struct load_data *data,
                                       "referenced");
                         return false;
                 }
-                (*location)--;
+                movable->location--;
                 return true;
         }
 
@@ -891,16 +889,14 @@ validate_locations(struct load_data *data,
 {
         for (size_t i = 0; i < data->avt->n_objects; i++) {
                 if (!validate_location(data,
-                                       data->avt->objects[i].location_type,
-                                       &data->avt->objects[i].location,
+                                       &data->avt->objects[i].base,
                                        error))
                         return false;
         }
 
         for (size_t i = 0; i < data->avt->n_monsters; i++) {
                 if (!validate_location(data,
-                                       data->avt->monsters[i].location_type,
-                                       &data->avt->monsters[i].location,
+                                       &data->avt->monsters[i].base,
                                        error))
                         return false;
         }

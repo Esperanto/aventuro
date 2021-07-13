@@ -46,8 +46,8 @@ pcx_avt_free(struct pcx_avt *avt)
         for (size_t i = 0; i < avt->n_objects; i++) {
                 struct pcx_avt_object *object = avt->objects + i;
 
-                pcx_free(object->name);
-                pcx_free(object->adjective);
+                pcx_free(object->base.name);
+                pcx_free(object->base.adjective);
         }
 
         pcx_free(avt->objects);
@@ -55,8 +55,8 @@ pcx_avt_free(struct pcx_avt *avt)
         for (size_t i = 0; i < avt->n_monsters; i++) {
                 struct pcx_avt_monster *monster = avt->monsters + i;
 
-                pcx_free(monster->name);
-                pcx_free(monster->adjective);
+                pcx_free(monster->base.name);
+                pcx_free(monster->base.adjective);
         }
 
         pcx_free(avt->monsters);
