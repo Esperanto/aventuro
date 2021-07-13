@@ -581,6 +581,16 @@ load_rooms(struct load_data *data,
         }
 
         data->avt->n_rooms = buf.length / PCX_AVT_LOAD_ROOM_SIZE;
+
+        if (data->avt->n_rooms == 0) {
+                pcx_set_error(error,
+                              &pcx_avt_load_error,
+                              PCX_AVT_LOAD_ERROR_INVALID_ROOM,
+                              "No rooms are defined");
+                ret = false;
+                goto done;
+        }
+
         data->avt->rooms = pcx_calloc(data->avt->n_rooms *
                                       sizeof (struct pcx_avt_room));
 
