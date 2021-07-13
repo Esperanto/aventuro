@@ -165,6 +165,15 @@ handle_direction(struct pcx_avt_state *state,
                 }
         }
 
+        for (int i = 0; i < room->n_directions; i++) {
+                if (pcx_avt_command_word_equal(&command->direction,
+                                               room->directions[i].name)) {
+                        state->current_room = room->directions[i].target;
+                        send_room_description(state);
+                        return true;
+                }
+        }
+
         return false;
 }
 
