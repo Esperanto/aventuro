@@ -18,14 +18,17 @@ test_avt_command = executable('test-avt-command', test_avt_command_src,
                               include_directories: configinc)
 test('avt-command', test_avt_command)
 
-avt_load_src = [
+play_avt_src = [
         'pcx-util.c',
         'pcx-file-error.c',
         'pcx-error.c',
         'pcx-avt.c',
         'pcx-avt-load.c',
         'pcx-buffer.c',
-        'avt-load.c',
+        'play-avt.c',
+        'pcx-avt-state.c',
+        'pcx-avt-command.c',
+        'pcx-utf8.c',
 ]
-avt_load = executable('avt-load', avt_load_src,
+play_avt = executable('play-avt', play_avt_src,
                       include_directories: configinc)

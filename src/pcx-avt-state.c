@@ -31,9 +31,6 @@ struct pcx_avt_state {
 
         int current_room;
 
-        struct pcx_avt_state_callbacks callbacks;
-        void *user_data;
-
         /* Queue of messages to report with
          * pcx_avt_state_get_next_message. Each message is a
          * zero-terminated string.
