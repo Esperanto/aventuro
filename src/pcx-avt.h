@@ -25,6 +25,23 @@
 #define PCX_AVT_N_DIRECTIONS 7
 #define PCX_AVT_DIRECTION_BLOCKED UINT8_MAX
 
+#define PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE (1 << 1)
+#define PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE (1 << 2)
+#define PCX_AVT_OBJECT_ATTRIBUTE_CLOSED (1 << 3)
+#define PCX_AVT_OBJECT_ATTRIBUTE_LIGHTABLE (1 << 4)
+#define PCX_AVT_OBJECT_ATTRIBUTE_LIT (1 << 5)
+#define PCX_AVT_OBJECT_ATTRIBUTE_FLAMMABLE (1 << 6)
+#define PCX_AVT_OBJECT_ATTRIBUTE_LIGHTER (1 << 7)
+#define PCX_AVT_OBJECT_ATTRIBUTE_BURNING (1 << 8)
+#define PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT (1 << 9)
+#define PCX_AVT_OBJECT_ATTRIBUTE_EDIBLE (1 << 10)
+#define PCX_AVT_OBJECT_ATTRIBUTE_DRINKABLE (1 << 11)
+#define PCX_AVT_OBJECT_ATTRIBUTE_POISONOUS (1 << 12)
+
+#define PCX_AVT_ROOM_ATTRIBUTE_LIT (1 << 1)
+#define PCX_AVT_ROOM_ATTRIBUTE_UNLIGHTABLE (1 << 2)
+#define PCX_AVT_ROOM_ATTRIBUTE_GAME_OVER (1 << 3)
+
 enum pcx_avt_pronoun {
         PCX_AVT_PRONOUN_MAN,
         PCX_AVT_PRONOUN_WOMAN,
@@ -50,6 +67,8 @@ struct pcx_avt_movable {
 
         enum pcx_avt_location_type location_type;
         uint8_t location;
+
+        uint32_t attributes;
 };
 
 struct pcx_avt_object {
@@ -124,6 +143,8 @@ struct pcx_avt_room {
 
         size_t n_directions;
         struct pcx_avt_direction *directions;
+
+        uint32_t attributes;
 };
 
 struct pcx_avt {
@@ -135,6 +156,7 @@ struct pcx_avt {
         struct pcx_avt_object *objects;
         size_t n_monsters;
         struct pcx_avt_monster *monsters;
+        uint64_t game_attributes;
 };
 
 void

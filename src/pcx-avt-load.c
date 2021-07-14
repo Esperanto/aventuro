@@ -49,6 +49,15 @@
 #define PCX_AVT_LOAD_DIRECTION_SOURCE 23
 #define PCX_AVT_LOAD_DIRECTION_TARGET 24
 
+#define PCX_AVT_LOAD_ATTRIBUTES_OFFSET 0xc51a
+
+#define PCX_AVT_LOAD_N_OBJECT_ATTRIBUTES 20
+#define PCX_AVT_LOAD_BYTES_PER_OBJECT_ATTRIBUTE 19
+#define PCX_AVT_LOAD_N_MONSTER_ATTRIBUTES 20
+#define PCX_AVT_LOAD_BYTES_PER_MONSTER_ATTRIBUTE 10
+#define PCX_AVT_LOAD_N_ROOM_ATTRIBUTES 20
+#define PCX_AVT_LOAD_BYTES_PER_ROOM_ATTRIBUTE 19
+
 struct pcx_error_domain
 pcx_avt_load_error;
 
@@ -412,6 +421,115 @@ load_monsters(struct load_data *data,
 done:
         pcx_buffer_destroy(&buf);
         return ret;
+}
+
+static bool
+load_attributes_array(struct load_data *data,
+                      void *array,
+                      size_t array_size,
+                      size_t attributes_offset,
+                      size_t array_entry_size,
+                      size_t n_attributes,
+                      size_t bytes_per_attribute,
+                      struct pcx_error **error)
+{
+        assert(array_size <= bytes_per_attribute * 8);
+
+        uint8_t *bytes = alloca(bytes_per_attribute);
+
+        for (int att = 0; att < n_attributes; att++) {
+                size_t got = fread(bytes, 1, bytes_per_attribute, data->file);
+
+                if (got < bytes_per_attribute) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_ATTRIBUTES,
+                                      "Invalid attributes");
+                        return false;
+                }
+
+                for (int i = 1; i <= array_size; i++) {
+                        if ((bytes[i / 8] & (1 << (i % 8)))) {
+                                uint32_t *mask = ((uint32_t *)
+                                                  ((uint8_t *) array +
+                                                   (i - 1) * array_entry_size +
+                                                   attributes_offset));
+                                /* First attribute is called 1 in the
+                                 * phenomenons so let’s use bit 1.
+                                 */
+                                *mask |= UINT32_C(2) << att;
+                        }
+                }
+        }
+
+        return true;
+}
+
+static bool
+load_game_attributes(struct load_data *data,
+                     struct pcx_error **error)
+{
+        uint8_t bytes[6];
+        size_t got = fread(bytes, 1, sizeof bytes, data->file);
+
+        if (got < sizeof bytes) {
+                pcx_set_error(error,
+                              &pcx_avt_load_error,
+                              PCX_AVT_LOAD_ERROR_INVALID_ATTRIBUTES,
+                              "Invalid attributes");
+                return false;
+        }
+
+
+        for (int i = 0; i < sizeof bytes; i++)
+                data->avt->game_attributes |= ((uint64_t) bytes[i]) << (8 * i);
+
+        return true;
+}
+
+static bool
+load_attributes(struct load_data *data,
+                struct pcx_error **error)
+{
+        if (!seek_or_error(data, PCX_AVT_LOAD_ATTRIBUTES_OFFSET, error))
+                return false;
+
+        if (!load_attributes_array(data,
+                                   data->avt->objects,
+                                   data->avt->n_objects,
+                                   offsetof(struct pcx_avt_object,
+                                            base.attributes),
+                                   sizeof(struct pcx_avt_object),
+                                   PCX_AVT_LOAD_N_OBJECT_ATTRIBUTES,
+                                   PCX_AVT_LOAD_BYTES_PER_OBJECT_ATTRIBUTE,
+                                   error))
+                return false;
+
+        if (!load_attributes_array(data,
+                                   data->avt->monsters,
+                                   data->avt->n_monsters,
+                                   offsetof(struct pcx_avt_monster,
+                                            base.attributes),
+                                   sizeof(struct pcx_avt_monster),
+                                   PCX_AVT_LOAD_N_MONSTER_ATTRIBUTES,
+                                   PCX_AVT_LOAD_BYTES_PER_MONSTER_ATTRIBUTE,
+                                   error))
+                return false;
+
+        if (!load_attributes_array(data,
+                                   data->avt->rooms,
+                                   data->avt->n_rooms,
+                                   offsetof(struct pcx_avt_room, attributes),
+                                   sizeof(struct pcx_avt_room),
+                                   PCX_AVT_LOAD_N_ROOM_ATTRIBUTES,
+                                   PCX_AVT_LOAD_BYTES_PER_ROOM_ATTRIBUTE,
+                                   error))
+                return false;
+
+        if (!load_game_attributes(data, error))
+                return false;
+
+        return true;
 }
 
 static bool
@@ -961,6 +1079,11 @@ pcx_avt_load(const char *filename,
         }
 
         if (!validate_locations(&data, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_attributes(&data, error)) {
                 ret = false;
                 goto done;
         }
