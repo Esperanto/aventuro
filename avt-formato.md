@@ -42,27 +42,27 @@ Estas 31 bajtoj por ĉiu salono:
 | 1   | Suben                       |
 | 1   | Elen                        |
 
-La nombroj de la ĉambro komenciĝas je 1. Nulo signifas ke oni ne povas iri tiudirekten.
+La numeroj de la ĉambroj komenciĝas je 1. Nulo signifas ke oni ne povas iri tiudirekten.
 
-La maksimuma kvanto de salonoj ŝajne estas 149. Ŝajnas ke se estas malpli da salonoj estas rubaĵo post tio.
+La maksimuma kvanto de salonoj ŝajne estas 149. Se estas malpli da salonoj estas rubaĵo post tio.
 
-Post la salonoj estas ankoraŭ 31 bajtoj kiuj aspektas kiel rubaĵo. Ĉu estas spaco por 150 salonoj sed la kompililo permesas nur 149?
+Post la lasta salono estas spaco por alia salono kun 0 por la longeco de la nomo por marki la finon. Tial estas 150×31 bajtoj por la salonoj.
 
 ## Direktoj
 
-Sekve, ĉe 0x132b ŝajne estas la direktoj.
+Sekve, ĉe 0x132b estas la direktoj.
 
 Estas 25 bajtoj por ĉiu direkto:
 
 | Bajtoj | Klarigoj |
 | ------ | -------- |
 | 1   | Longeco de nomo         |
-| 20  | Nomo + rubaĵo ĝis 20 bajtoj. La nomo en la fontokodo devas finiĝi per /oj?n?/ sed ŝajne sendepende de tio kion oni metas en la fontokodo ĝi finiĝas per “o” en la rezulta dosiero. La “o” ja inkluziĝas en la longeco. |
+| 20  | Nomo + rubaĵo ĝis 20 bajtoj. La nomo en la fontokodo devas finiĝi per /oj?n?/. La finaĵo ja inkluziĝas en la longeco. |
 | 2   | Ĉenonombro por la vido. |
 | 1   | Fonta salono.           |
 | 1   | Cela salono.            |
 
-La kompililo ŝajne permesas maksimume 499 direktojn.
+La kompililo permesas maksimume 499 direktojn.
 
 ## Aĵoj
 
@@ -95,11 +95,11 @@ Estas 62 bajtoj por aĵo.
 | 1   | 0x09=enhava, 0x0c=normala, 0x00=enirebla                        |
 | 1   | Enhava kvanto aŭ enira salonnombro                              |
 
-Se oni nomas la aĵon kun “j” la kompililo igis ĝin pluralo. Sed estas `PLURALO` en la kodo ĝi kontrolas ĉu estas “j”.
+Se oni nomas la aĵon kun “j” la kompililo igas ĝin pluralo. Sed estas `PLURALO` en la kodo ĝi kontrolas ĉu estas “j”.
 
 La numero de la aĵo ŝajne ne aperas en la rezulta dosiero. Eble ĝi simple estas por permesi havi dufoje la saman aĵon kaj la programo distingis inter ili per interna numero. Io stranga okazas al la cetero de la datumoj se estas numero. Ĉu nur la unua havas datumojn?
 
-Ŝajne estas spaco por 150 aĵoj sed la komputilo permesas maksimume 149.
+La kompililo permesas maksimume 149 aĵojn kaj estas spaco por 150 en la dosiero por inkluzivi la finan markilon.
 
 ## Sinonimoj
 
@@ -255,7 +255,7 @@ La kompililo permesas maksimume 59 verbojn, sed ankaŭ estas aliaj verboj kiujn 
 
 La ecoj estas unu listo de bitoj po eco. La nomoj de la ecoj ŝajne perdiĝas. Ĉiu bito reprezentas ĉu la koncerna objekto havas la econ. La bito 0 ne uziĝas ĉar la unua objekto estas numero 1.
 
-Ŝajne estas maksimume 19 ecoj. La ecoj estas apartaj por ĉiu tipo de afero. Salonoj kaj aĵoj jam havas kelkajn ecojn antaŭdifinitajn de la kompililo.
+La ecoj estas apartaj por ĉiu tipo de afero. Ĉiu tipo havas malsaman maksimuman kvanton de ecoj. Salonoj kaj aĵoj jam havas kelkajn ecojn antaŭdifinitajn de la kompililo.
 
 | Tipo | Loko |
 | ---- | ---- |
