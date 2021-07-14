@@ -852,7 +852,18 @@ validate_location(struct load_data *data,
         switch (movable->location_type) {
         case PCX_AVT_LOCATION_TYPE_CARRYING:
         case PCX_AVT_LOCATION_TYPE_NOWHERE:
+                return true;
         case PCX_AVT_LOCATION_TYPE_IN_ROOM:
+                if (movable->location < 1 ||
+                    movable->location > data->avt->n_rooms) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_ROOM,
+                                      "An invalid room number was "
+                                      "referenced");
+                        return false;
+                }
+                movable->location--;
                 return true;
         case PCX_AVT_LOCATION_TYPE_WITH_MONSTER:
                 if (movable->location < 1 ||
