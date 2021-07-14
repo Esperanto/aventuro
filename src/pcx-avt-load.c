@@ -870,7 +870,7 @@ validate_location(struct load_data *data,
                     movable->location > data->avt->n_monsters) {
                         pcx_set_error(error,
                                       &pcx_avt_load_error,
-                                      PCX_AVT_LOAD_ERROR_INVALID_ROOM,
+                                      PCX_AVT_LOAD_ERROR_INVALID_MONSTER,
                                       "An invalid monster number was "
                                       "referenced");
                         return false;
