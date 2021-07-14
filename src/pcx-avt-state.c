@@ -60,6 +60,8 @@ struct pcx_avt_state_movable {
 struct pcx_avt_state_room {
         /* Things that are in this room */
         struct pcx_list contents;
+
+        uint32_t attributes;
 };
 
 struct pcx_avt_state {
@@ -91,6 +93,8 @@ struct pcx_avt_state {
          */
         struct pcx_buffer message_buf;
         size_t message_buf_pos;
+
+        uint64_t game_attributes;
 };
 
 static void
@@ -254,8 +258,10 @@ pcx_avt_state_new(const struct pcx_avt *avt)
 
         state->rooms = pcx_alloc(avt->n_rooms * sizeof *state->rooms);
 
-        for (int i = 0; i < avt->n_rooms; i++)
+        for (int i = 0; i < avt->n_rooms; i++) {
                 pcx_list_init(&state->rooms[i].contents);
+                state->rooms[i].attributes = avt->rooms[i].attributes;
+        }
 
         create_objects(state);
         create_monsters(state);
@@ -263,6 +269,8 @@ pcx_avt_state_new(const struct pcx_avt *avt)
         position_movables(state);
 
         send_room_description(state);
+
+        state->game_attributes = avt->game_attributes;
 
         return state;
 }
