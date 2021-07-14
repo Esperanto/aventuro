@@ -260,7 +260,7 @@ La ecoj estas unu listo de bitoj po eco. La nomoj de la ecoj ŝajne perdiĝas. �
 | Tipo | Loko |
 | ---- | ---- |
 | aĵaj:     | ĉe 0xc51a, 19 bajtoj por ĉiu eco. |
-| monstraj: | ĉe 0xc696, 20 bajtoj por ĉiu eco. |
+| monstraj: | ĉe 0xc696, 10 bajtoj por ĉiu eco. |
 | salonaj:  | ĉe 0xc75e, 19 bajtoj por ĉiu eco. |
 
 Sekve ĉe 0xc8da estas 6 bajtoj por la ludaj ecoj. Unu bito por ĉiu eco. La kompililo permesas 49 ludajn ecojn.
