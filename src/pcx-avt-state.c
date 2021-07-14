@@ -111,11 +111,42 @@ send_message(struct pcx_avt_state *state,
 }
 
 static void
+add_movables_to_message(struct pcx_avt_state *state,
+                        struct pcx_list *list)
+{
+        struct pcx_avt_state_movable *object;
+
+        pcx_list_for_each(object, list, location_node) {
+                if (object->location_node.prev != list) {
+                        const char *sep =
+                                object->location_node.next == list ?
+                                " kaj " :
+                                ", ";
+                        pcx_buffer_append_string(&state->message_buf, sep);
+                }
+
+                pcx_buffer_append_printf(&state->message_buf,
+                                         "%sn %sn",
+                                         object->base.adjective,
+                                         object->base.name);
+        }
+}
+
+static void
 send_room_description(struct pcx_avt_state *state)
 {
-        send_message(state,
-                     "%s",
-                     state->avt->rooms[state->current_room].description);
+        const char *desc = state->avt->rooms[state->current_room].description;
+
+        pcx_buffer_append_string(&state->message_buf, desc);
+
+        struct pcx_avt_state_room *room = state->rooms + state->current_room;
+
+        if (!pcx_list_empty(&room->contents)) {
+                pcx_buffer_append_string(&state->message_buf, " Vi vidas ");
+                add_movables_to_message(state, &room->contents);
+        }
+
+        pcx_buffer_append_c(&state->message_buf, '\0');
 }
 
 static void
