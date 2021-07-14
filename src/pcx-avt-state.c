@@ -25,11 +25,65 @@
 #include "pcx-util.h"
 #include "pcx-avt-command.h"
 #include "pcx-buffer.h"
+#include "pcx-list.h"
+
+enum pcx_avt_state_movable_type {
+        PCX_AVT_STATE_MOVABLE_TYPE_OBJECT,
+        PCX_AVT_STATE_MOVABLE_TYPE_MONSTER,
+};
+
+/* This is a copy of either a monster or an object from pcx_avt. They
+ * are all allocated individually and will have their stats updated as
+ * the game progresses.
+ */
+struct pcx_avt_state_movable {
+        /* Node avt->all_movables */
+        struct pcx_list all_node;
+
+        /* Node in the list of the containing object. All movables
+         * will always be in some list. If they aren’t in the game any
+         * more then that list will be avt->nowhere.
+         */
+        struct pcx_list location_node;
+
+        struct pcx_list contents;
+
+        enum pcx_avt_state_movable_type type;
+
+        union {
+                struct pcx_avt_movable base;
+                struct pcx_avt_object object;
+                struct pcx_avt_monster monster;
+        };
+};
+
+struct pcx_avt_state_room {
+        /* Things that are in this room */
+        struct pcx_list contents;
+};
 
 struct pcx_avt_state {
         const struct pcx_avt *avt;
 
         int current_room;
+
+        struct pcx_avt_state_room *rooms;
+
+        /* Things that the player is carrying */
+        struct pcx_list carrying;
+
+        /* Things that are nowhere */
+        struct pcx_list nowhere;
+
+        /* All things */
+        struct pcx_list all_movables;
+
+        /* The objects and monsters that are originally created from
+         * the pcx_avt will be directly referenced by number and so
+         * have an index for them here.
+         */
+        struct pcx_avt_state_movable **object_index;
+        struct pcx_avt_state_movable **monster_index;
 
         /* Queue of messages to report with
          * pcx_avt_state_get_next_message. Each message is a
@@ -64,6 +118,89 @@ send_room_description(struct pcx_avt_state *state)
                      state->avt->rooms[state->current_room].description);
 }
 
+static void
+init_movable(struct pcx_avt_state *state,
+             struct pcx_avt_state_movable *movable)
+{
+        movable->base.name = pcx_strdup(movable->base.name);
+        movable->base.adjective = pcx_strdup(movable->base.adjective);
+
+        pcx_list_init(&movable->contents);
+
+        pcx_list_insert(state->all_movables.prev, &movable->all_node);
+        pcx_list_insert(state->nowhere.prev, &movable->location_node);
+}
+
+static void
+create_objects(struct pcx_avt_state *state)
+{
+        state->object_index =
+                pcx_alloc(state->avt->n_objects *
+                          sizeof (struct pcx_avt_state_movable *));
+
+        for (size_t i = 0; i < state->avt->n_objects; i++) {
+                struct pcx_avt_state_movable *movable =
+                        pcx_alloc(sizeof *movable);
+                state->object_index[i] = movable;
+                movable->type = PCX_AVT_STATE_MOVABLE_TYPE_OBJECT;
+                movable->object = state->avt->objects[i];
+                init_movable(state, movable);
+        }
+}
+
+static void
+create_monsters(struct pcx_avt_state *state)
+{
+        state->monster_index =
+                pcx_alloc(state->avt->n_monsters *
+                          sizeof (struct pcx_avt_state_movable *));
+
+        for (size_t i = 0; i < state->avt->n_monsters; i++) {
+                struct pcx_avt_state_movable *movable =
+                        pcx_alloc(sizeof *movable);
+                state->monster_index[i] = movable;
+                movable->type = PCX_AVT_STATE_MOVABLE_TYPE_MONSTER;
+                movable->monster = state->avt->monsters[i];
+                init_movable(state, movable);
+        }
+}
+
+static void
+position_movables(struct pcx_avt_state *state)
+{
+        struct pcx_avt_state_movable *movable;
+
+        pcx_list_for_each(movable, &state->all_movables, all_node) {
+                uint8_t loc = movable->base.location;
+
+                switch (movable->base.location_type) {
+                case PCX_AVT_LOCATION_TYPE_IN_ROOM:
+                        pcx_list_remove(&movable->location_node);
+                        pcx_list_insert(state->rooms[loc].contents.prev,
+                                        &movable->location_node);
+                        break;
+                case PCX_AVT_LOCATION_TYPE_CARRYING:
+                        pcx_list_remove(&movable->location_node);
+                        pcx_list_insert(&state->carrying,
+                                        &movable->location_node);
+                        break;
+                case PCX_AVT_LOCATION_TYPE_NOWHERE:
+                        /* This is the default */
+                        break;
+                case PCX_AVT_LOCATION_TYPE_WITH_MONSTER:
+                        pcx_list_remove(&movable->location_node);
+                        pcx_list_insert(&state->monster_index[loc]->contents,
+                                        &movable->location_node);
+                        break;
+                case PCX_AVT_LOCATION_TYPE_IN_OBJECT:
+                        pcx_list_remove(&movable->location_node);
+                        pcx_list_insert(&state->object_index[loc]->contents,
+                                        &movable->location_node);
+                        break;
+                }
+        }
+}
+
 struct pcx_avt_state *
 pcx_avt_state_new(const struct pcx_avt *avt)
 {
@@ -73,6 +210,20 @@ pcx_avt_state_new(const struct pcx_avt *avt)
 
         state->avt = avt;
         state->current_room = 0;
+
+        pcx_list_init(&state->carrying);
+        pcx_list_init(&state->nowhere);
+        pcx_list_init(&state->all_movables);
+
+        state->rooms = pcx_alloc(avt->n_rooms * sizeof *state->rooms);
+
+        for (int i = 0; i < avt->n_rooms; i++)
+                pcx_list_init(&state->rooms[i].contents);
+
+        create_objects(state);
+        create_monsters(state);
+
+        position_movables(state);
 
         send_room_description(state);
 
@@ -258,10 +409,28 @@ pcx_avt_state_get_next_message(struct pcx_avt_state *state)
         return ret;
 }
 
+static void
+free_movables(struct pcx_avt_state *state)
+{
+        struct pcx_avt_state_movable *movable, *tmp;
+
+        pcx_list_for_each_safe(movable, tmp, &state->all_movables, all_node) {
+                pcx_free(movable->base.name);
+                pcx_free(movable->base.adjective);
+                pcx_free(movable);
+        }
+}
+
 void
 pcx_avt_state_free(struct pcx_avt_state *state)
 {
         pcx_buffer_destroy(&state->message_buf);
+
+        free_movables(state);
+
+        pcx_free(state->object_index);
+        pcx_free(state->monster_index);
+        pcx_free(state->rooms);
 
         pcx_free(state);
 }

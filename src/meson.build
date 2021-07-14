@@ -29,6 +29,7 @@ play_avt_src = [
         'pcx-avt-state.c',
         'pcx-avt-command.c',
         'pcx-utf8.c',
+        'pcx-list.c',
 ]
 play_avt = executable('play-avt', play_avt_src,
                       include_directories: configinc)
