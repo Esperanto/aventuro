@@ -93,6 +93,12 @@ struct pcx_avt_state {
         size_t message_buf_pos;
 };
 
+static void
+end_message(struct pcx_avt_state *state)
+{
+        pcx_buffer_append_c(&state->message_buf, '\0');
+}
+
 static PCX_PRINTF_FORMAT(2, 3) void
 send_message(struct pcx_avt_state *state,
              const char *message,
@@ -106,8 +112,7 @@ send_message(struct pcx_avt_state *state,
 
         va_end(ap);
 
-        /* Make the zero-termination be included in the length */
-        state->message_buf.length++;
+        end_message(state);
 }
 
 static void
@@ -147,7 +152,7 @@ send_room_description(struct pcx_avt_state *state)
                 pcx_buffer_append_c(&state->message_buf, '.');
         }
 
-        pcx_buffer_append_c(&state->message_buf, '\0');
+        end_message(state);
 }
 
 static void
@@ -395,7 +400,8 @@ handle_inventory(struct pcx_avt_state *state,
                 add_movables_to_message(state, &state->carrying);
 
         pcx_buffer_append_c(&state->message_buf, '.');
-        pcx_buffer_append_c(&state->message_buf, '\0');
+
+        end_message(state);
 
         return true;
 }
@@ -467,7 +473,7 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
         if (buf->length == 0)
                 pcx_buffer_append_c(buf, '?');
 
-        pcx_buffer_append_c(buf, '\0');
+        end_message(state);
 }
 
 const char *
