@@ -46,6 +46,13 @@ struct pcx_avt_state_movable {
          */
         struct pcx_list location_node;
 
+        /* Parent movable if this is contained in another movable, or
+         * NULL if it is somewhile else. The base.location_type enum
+         * will also be kept up-to-date to determine where the node is
+         * when this is NULL.
+         */
+        struct pcx_avt_state_movable *container;
+
         struct pcx_list contents;
 
         enum pcx_avt_state_movable_type type;
@@ -207,6 +214,48 @@ create_monsters(struct pcx_avt_state *state)
 }
 
 static void
+put_movable_in_room(struct pcx_avt_state *state,
+                    struct pcx_avt_state_room *room,
+                    struct pcx_avt_state_movable *movable)
+{
+        pcx_list_remove(&movable->location_node);
+        pcx_list_insert(room->contents.prev, &movable->location_node);
+        movable->container = NULL;
+        movable->base.location_type = PCX_AVT_LOCATION_TYPE_IN_ROOM;
+}
+
+static void
+carry_movable(struct pcx_avt_state *state,
+              struct pcx_avt_state_movable *movable)
+{
+        pcx_list_remove(&movable->location_node);
+        pcx_list_insert(state->carrying.prev, &movable->location_node);
+        movable->container = NULL;
+        movable->base.location_type = PCX_AVT_LOCATION_TYPE_CARRYING;
+}
+
+static void
+reparent_movable(struct pcx_avt_state *state,
+                 struct pcx_avt_state_movable *parent,
+                 struct pcx_avt_state_movable *movable)
+{
+        pcx_list_remove(&movable->location_node);
+        pcx_list_insert(parent->contents.prev, &movable->location_node);
+        movable->container = parent;
+
+        switch (parent->type) {
+        case PCX_AVT_STATE_MOVABLE_TYPE_OBJECT:
+                movable->base.location_type =
+                        PCX_AVT_LOCATION_TYPE_IN_OBJECT;
+                break;
+        case PCX_AVT_STATE_MOVABLE_TYPE_MONSTER:
+                movable->base.location_type =
+                        PCX_AVT_LOCATION_TYPE_WITH_MONSTER;
+                break;
+        }
+}
+
+static void
 position_movables(struct pcx_avt_state *state)
 {
         struct pcx_avt_state_movable *movable;
@@ -216,27 +265,25 @@ position_movables(struct pcx_avt_state *state)
 
                 switch (movable->base.location_type) {
                 case PCX_AVT_LOCATION_TYPE_IN_ROOM:
-                        pcx_list_remove(&movable->location_node);
-                        pcx_list_insert(state->rooms[loc].contents.prev,
-                                        &movable->location_node);
+                        put_movable_in_room(state,
+                                            state->rooms + loc,
+                                            movable);
                         break;
                 case PCX_AVT_LOCATION_TYPE_CARRYING:
-                        pcx_list_remove(&movable->location_node);
-                        pcx_list_insert(&state->carrying,
-                                        &movable->location_node);
+                        carry_movable(state, movable);
                         break;
                 case PCX_AVT_LOCATION_TYPE_NOWHERE:
                         /* This is the default */
                         break;
                 case PCX_AVT_LOCATION_TYPE_WITH_MONSTER:
-                        pcx_list_remove(&movable->location_node);
-                        pcx_list_insert(&state->monster_index[loc]->contents,
-                                        &movable->location_node);
+                        reparent_movable(state,
+                                         state->monster_index[loc],
+                                         movable);
                         break;
                 case PCX_AVT_LOCATION_TYPE_IN_OBJECT:
-                        pcx_list_remove(&movable->location_node);
-                        pcx_list_insert(&state->object_index[loc]->contents,
-                                        &movable->location_node);
+                        reparent_movable(state,
+                                         state->object_index[loc],
+                                         movable);
                         break;
                 }
         }
