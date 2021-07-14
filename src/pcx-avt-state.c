@@ -359,6 +359,46 @@ handle_direction(struct pcx_avt_state *state,
         return false;
 }
 
+static bool
+handle_inventory(struct pcx_avt_state *state,
+                 const struct pcx_avt_command *command)
+{
+        if (command->has_direction ||
+            command->has_tool ||
+            command->has_in)
+                return false;
+
+        if (command->has_subject &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural))
+                return false;
+
+        if (!command->has_object ||
+            command->object.is_pronoun ||
+            command->object.article ||
+            command->object.adjective.start ||
+            !pcx_avt_command_word_equal(&command->object.name, "ki"))
+                return false;
+
+        if (command->has_verb &&
+            !pcx_avt_command_word_equal(&command->verb, "hav"))
+                return false;
+
+        pcx_buffer_append_string(&state->message_buf,
+                                 "Vi kunportas ");
+
+        if (pcx_list_empty(&state->carrying))
+                pcx_buffer_append_string(&state->message_buf, "nenion");
+        else
+                add_movables_to_message(state, &state->carrying);
+
+        pcx_buffer_append_c(&state->message_buf, '.');
+        pcx_buffer_append_c(&state->message_buf, '\0');
+
+        return true;
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -380,6 +420,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
         }
 
         if (handle_direction(state, &command))
+                return;
+
+        if (handle_inventory(state, &command))
                 return;
 
         struct pcx_buffer *buf = &state->message_buf;
