@@ -287,6 +287,19 @@ extract_location_type(const uint8_t *buf,
         return false;
 }
 
+static void
+normalize_ending(char *dir, char ending)
+{
+        int len = strlen(dir);
+
+        if (len >= 2 && dir[len - 1] == 'j')
+                len--;
+        if (len >= 2 && dir[len - 1] == ending)
+                len--;
+
+        dir[len] = '\0';
+}
+
 static const uint8_t *
 extract_movable_base(struct load_data *data,
                      const uint8_t *movable_data,
@@ -298,12 +311,16 @@ extract_movable_base(struct load_data *data,
         if (movable->name == NULL)
                 return NULL;
 
+        normalize_ending(movable->name, 'o');
+
         movable_data += 21;
 
         movable->adjective = extract_string(movable_data, 20, error);
 
         if (movable->adjective == NULL)
                 return NULL;
+
+        normalize_ending(movable->adjective, 'a');
 
         movable_data += 21;
 
@@ -746,19 +763,6 @@ done:
         return ret;
 }
 
-static void
-normalize_direction(char *dir)
-{
-        int len = strlen(dir);
-
-        if (len >= 2 && dir[len - 1] == 'j')
-                len--;
-        if (len >= 2 && dir[len - 1] == 'o')
-                len--;
-
-        dir[len] = '\0';
-}
-
 static bool
 extract_directions(struct load_data *data,
                    struct pcx_avt_direction *directions,
@@ -772,7 +776,7 @@ extract_directions(struct load_data *data,
                 if (directions[i].name == NULL)
                         return false;
 
-                normalize_direction(directions[i].name);
+                normalize_ending(directions[i].name, 'o');
 
                 const uint8_t *desc = p + PCX_AVT_LOAD_DIRECTION_DESCRIPTION;
 

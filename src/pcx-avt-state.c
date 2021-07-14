@@ -127,6 +127,28 @@ send_message(struct pcx_avt_state *state,
 }
 
 static void
+add_movable_to_message(struct pcx_avt_state *state,
+                       const struct pcx_avt_movable *movable,
+                       const char *suffix)
+{
+        pcx_buffer_append_string(&state->message_buf, movable->adjective);
+        pcx_buffer_append_c(&state->message_buf, 'a');
+        if (movable->pronoun == PCX_AVT_PRONOUN_PLURAL)
+                pcx_buffer_append_c(&state->message_buf, 'j');
+        if (suffix)
+                pcx_buffer_append_string(&state->message_buf, suffix);
+
+        pcx_buffer_append_c(&state->message_buf, ' ');
+
+        pcx_buffer_append_string(&state->message_buf, movable->name);
+        pcx_buffer_append_c(&state->message_buf, 'o');
+        if (movable->pronoun == PCX_AVT_PRONOUN_PLURAL)
+                pcx_buffer_append_c(&state->message_buf, 'j');
+        if (suffix)
+                pcx_buffer_append_string(&state->message_buf, suffix);
+}
+
+static void
 add_movables_to_message(struct pcx_avt_state *state,
                         struct pcx_list *list)
 {
@@ -141,10 +163,7 @@ add_movables_to_message(struct pcx_avt_state *state,
                         pcx_buffer_append_string(&state->message_buf, sep);
                 }
 
-                pcx_buffer_append_printf(&state->message_buf,
-                                         "%sn %sn",
-                                         object->base.adjective,
-                                         object->base.name);
+                add_movable_to_message(state, &object->base, "n");
         }
 }
 

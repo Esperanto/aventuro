@@ -58,7 +58,7 @@ enum pcx_avt_location_type {
 };
 
 struct pcx_avt_movable {
-        /* Owned by this */
+        /* Owned by this. These will have the ending removed. */
         char *name, *adjective;
         /* Owned by the parent pcx_avt. Can be NULL. */
         const char *description;
