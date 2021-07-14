@@ -144,6 +144,7 @@ send_room_description(struct pcx_avt_state *state)
         if (!pcx_list_empty(&room->contents)) {
                 pcx_buffer_append_string(&state->message_buf, " Vi vidas ");
                 add_movables_to_message(state, &room->contents);
+                pcx_buffer_append_c(&state->message_buf, '.');
         }
 
         pcx_buffer_append_c(&state->message_buf, '\0');
