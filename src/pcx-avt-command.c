@@ -412,6 +412,7 @@ parse_verb(struct parse_pos *pos_in_out,
                 return false;
 
         switch (to_lower(word.start[word.length - 1])) {
+        case 'i':
         case 'u':
                 word.length--;
                 break;
@@ -573,13 +574,6 @@ pcx_avt_command_parse(const char *text,
                 if (*pos.p == '\0')
                         break;
 
-                if (parse_verb(&pos, &command->verb)) {
-                        if (command->has_verb)
-                                return false;
-                        command->has_verb = true;
-                        continue;
-                }
-
                 struct pcx_avt_command_noun noun;
 
                 if (parse_noun(&pos, &noun)) {
@@ -596,6 +590,13 @@ pcx_avt_command_parse(const char *text,
                                 command->subject = noun;
                                 continue;
                         }
+                }
+
+                if (parse_verb(&pos, &command->verb)) {
+                        if (command->has_verb)
+                                return false;
+                        command->has_verb = true;
+                        continue;
                 }
 
                 if (parse_tool(&pos, &command->tool)) {

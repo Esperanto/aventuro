@@ -251,6 +251,11 @@ main(int argc, char **argv)
         assert(command.verb.length == 2);
         assert(!memcmp(command.verb.start, "ir", 2));
 
+        assert(pcx_avt_command_parse("iri", &command));
+        assert(command.has_verb);
+        assert(command.verb.length == 2);
+        assert(!memcmp(command.verb.start, "ir", 2));
+
         assert(!pcx_avt_command_parse("iris", &command));
 
         check_word_order("blanka hundo nigran katon");
