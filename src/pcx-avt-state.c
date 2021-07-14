@@ -102,6 +102,9 @@ struct pcx_avt_state {
         size_t message_buf_pos;
 
         uint64_t game_attributes;
+
+        /* Temporary stack for searching for items */
+        struct pcx_buffer stack;
 };
 
 static void
@@ -314,6 +317,7 @@ pcx_avt_state_new(const struct pcx_avt *avt)
         struct pcx_avt_state *state = pcx_calloc(sizeof *state);
 
         pcx_buffer_init(&state->message_buf);
+        pcx_buffer_init(&state->stack);
 
         state->avt = avt;
         state->current_room = 0;
@@ -339,6 +343,104 @@ pcx_avt_state_new(const struct pcx_avt *avt)
         state->game_attributes = avt->game_attributes;
 
         return state;
+}
+
+static bool
+movable_matches_noun(const struct pcx_avt_movable *movable,
+                     const struct pcx_avt_command_noun *noun)
+{
+        if (noun->plural != (movable->pronoun == PCX_AVT_PRONOUN_PLURAL))
+                return false;
+
+        if (noun->adjective.start &&
+            !pcx_avt_command_word_equal(&noun->adjective, movable->adjective))
+                return false;
+
+        return pcx_avt_command_word_equal(&noun->name, movable->name);
+}
+
+struct stack_entry {
+        struct pcx_list *parent;
+        struct pcx_list *child;
+};
+
+static struct stack_entry *
+get_stack_top(struct pcx_avt_state *state)
+{
+        return (struct stack_entry *) ((state->stack.data +
+                                        state->stack.length -
+                                        sizeof (struct stack_entry)));
+}
+
+static void
+push_list_onto_stack(struct pcx_avt_state *state,
+                     struct pcx_list *list)
+{
+        pcx_buffer_set_length(&state->stack,
+                              state->stack.length +
+                              sizeof (struct stack_entry));
+
+        struct stack_entry *entry = get_stack_top(state);
+
+        entry->parent = list;
+        entry->child = list->next;
+}
+
+static struct pcx_avt_state_movable *
+find_movable_in_list(struct pcx_avt_state *state,
+                     struct pcx_list *list,
+                     const struct pcx_avt_command_noun *noun)
+{
+        pcx_buffer_set_length(&state->stack, 0);
+
+        struct pcx_avt_state_movable *ret = NULL;
+
+        push_list_onto_stack(state, list);
+
+        while (state->stack.length > 0) {
+                struct stack_entry *entry = get_stack_top(state);
+
+                /* Have we reached the end of the list? */
+                if (entry->child == entry->parent) {
+                        /* Pop the stack */
+                        state->stack.length -= sizeof (struct stack_entry);
+                        continue;
+                }
+
+                struct pcx_avt_state_movable *child =
+                        pcx_container_of(entry->child,
+                                         struct pcx_avt_state_movable,
+                                         location_node);
+
+                if (movable_matches_noun(&child->base, noun)) {
+                        ret = child;
+                        break;
+                }
+
+                entry->child = entry->child->next;
+
+                if (child->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+                    (child->base.attributes &
+                     PCX_AVT_OBJECT_ATTRIBUTE_CLOSED) == 0)
+                        push_list_onto_stack(state, &child->contents);
+        }
+
+        return ret;
+}
+
+static struct pcx_avt_state_movable *
+find_movable(struct pcx_avt_state *state,
+             const struct pcx_avt_command_noun *noun)
+{
+        struct pcx_avt_state_movable *found;
+
+        found = find_movable_in_list(state, &state->carrying, noun);
+        if (found)
+                return found;
+
+        return find_movable_in_list(state,
+                                    &state->rooms[state->current_room].contents,
+                                    noun);
 }
 
 static void
@@ -480,6 +582,51 @@ handle_inventory(struct pcx_avt_state *state,
         return true;
 }
 
+static bool
+handle_look(struct pcx_avt_state *state,
+            const struct pcx_avt_command *command)
+{
+        if (command->has_direction ||
+            command->has_tool ||
+            command->has_in)
+                return false;
+
+        if (command->has_subject &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural))
+                return false;
+
+        if (command->has_verb &&
+            !pcx_avt_command_word_equal(&command->verb, "rigard"))
+                return false;
+
+        if (!command->has_object) {
+                send_room_description(state);
+                return true;
+        }
+
+        struct pcx_avt_state_movable *movable =
+                find_movable(state, &command->object);
+
+        if (movable == NULL)
+                return false;
+
+        if (movable->base.description) {
+                send_message(state, "%s", movable->base.description);
+        } else {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi vidas nenion specialan pri la ");
+                add_movable_to_message(state,
+                                       &movable->base,
+                                       NULL /* suffix */);
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+        }
+
+        return true;
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -501,6 +648,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
         }
 
         if (handle_direction(state, &command))
+                return;
+
+        if (handle_look(state, &command))
                 return;
 
         if (handle_inventory(state, &command))
@@ -586,6 +736,8 @@ pcx_avt_state_free(struct pcx_avt_state *state)
         pcx_free(state->object_index);
         pcx_free(state->monster_index);
         pcx_free(state->rooms);
+
+        pcx_buffer_destroy(&state->stack);
 
         pcx_free(state);
 }
