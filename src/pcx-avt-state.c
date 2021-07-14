@@ -345,6 +345,23 @@ pcx_avt_state_new(const struct pcx_avt *avt)
         return state;
 }
 
+static const char *
+get_pronoun_name(enum pcx_avt_pronoun pronoun)
+{
+        switch (pronoun) {
+        case PCX_AVT_PRONOUN_MAN:
+                return "li";
+        case PCX_AVT_PRONOUN_WOMAN:
+                return "ŝi";
+        case PCX_AVT_PRONOUN_PLURAL:
+                return "ili";
+        case PCX_AVT_PRONOUN_ANIMAL:
+                break;
+        }
+
+        return "ĝi";
+}
+
 static bool
 movable_matches_noun(const struct pcx_avt_movable *movable,
                      const struct pcx_avt_command_noun *noun)
@@ -613,7 +630,8 @@ handle_look(struct pcx_avt_state *state,
                 return false;
 
         if (movable->base.description) {
-                send_message(state, "%s", movable->base.description);
+                pcx_buffer_append_string(&state->message_buf,
+                                         movable->base.description);
         } else {
                 pcx_buffer_append_string(&state->message_buf,
                                          "Vi vidas nenion specialan pri la ");
@@ -621,8 +639,20 @@ handle_look(struct pcx_avt_state *state,
                                        &movable->base,
                                        NULL /* suffix */);
                 pcx_buffer_append_c(&state->message_buf, '.');
-                end_message(state);
         }
+
+        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+            (movable->base.attributes & PCX_AVT_OBJECT_ATTRIBUTE_CLOSED) == 0 &&
+            !pcx_list_empty(&movable->contents)) {
+                const char *pronoun = get_pronoun_name(movable->base.pronoun);
+                pcx_buffer_append_printf(&state->message_buf,
+                                         " En %s vi vidas ",
+                                         pronoun);
+                add_movables_to_message(state, &movable->contents);
+                pcx_buffer_append_c(&state->message_buf, '.');
+        }
+
+        end_message(state);
 
         return true;
 }
