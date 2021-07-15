@@ -600,6 +600,35 @@ handle_inventory(struct pcx_avt_state *state,
 }
 
 static bool
+handle_look_direction(struct pcx_avt_state *state,
+                      const struct pcx_avt_command_noun *noun)
+{
+        if (noun->adjective.start)
+                return false;
+
+        const struct pcx_avt_room *room =
+                state->avt->rooms + state->current_room;
+
+        for (size_t i = 0; i < room->n_directions; i++) {
+                const char *description = room->directions[i].description;
+
+                if (description == NULL)
+                        continue;
+
+                if (!pcx_avt_command_word_equal(&noun->name,
+                                                room->directions[i].name))
+                        continue;
+
+                pcx_buffer_append_string(&state->message_buf, description);
+                end_message(state);
+
+                return true;
+        }
+
+        return false;
+}
+
+static bool
 handle_look(struct pcx_avt_state *state,
             const struct pcx_avt_command *command)
 {
@@ -622,6 +651,9 @@ handle_look(struct pcx_avt_state *state,
                 send_room_description(state);
                 return true;
         }
+
+        if (handle_look_direction(state, &command->object))
+                return true;
 
         struct pcx_avt_state_movable *movable =
                 find_movable(state, &command->object);
