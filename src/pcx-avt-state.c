@@ -580,6 +580,7 @@ handle_inventory(struct pcx_avt_state *state,
             command->object.is_pronoun ||
             command->object.article ||
             command->object.adjective.start ||
+            command->object.plural ||
             !pcx_avt_command_word_equal(&command->object.name, "ki"))
                 return false;
 
