@@ -58,6 +58,9 @@
 #define PCX_AVT_LOAD_N_ROOM_ATTRIBUTES 20
 #define PCX_AVT_LOAD_BYTES_PER_ROOM_ATTRIBUTE 19
 
+#define PCX_AVT_LOAD_STRING_POINTERS_OFFSET 0xac96
+#define PCX_AVT_LOAD_MAX_N_STRINGS 1002
+
 struct pcx_error_domain
 pcx_avt_load_error;
 
@@ -895,32 +898,71 @@ done:
         return ret;
 }
 
-static bool
-load_strings(struct load_data *data,
-             struct pcx_error **error)
+static int
+count_strings(struct load_data *data,
+              struct pcx_error **error)
 {
-        if (!seek_or_error(data, PCX_AVT_LOAD_TEXT_OFFSET, error))
-                return false;
+        if (!seek_or_error(data, PCX_AVT_LOAD_STRING_POINTERS_OFFSET, error))
+                return -1;
 
-        struct pcx_buffer tmp = PCX_BUFFER_STATIC_INIT;
-        struct pcx_buffer strings = PCX_BUFFER_STATIC_INIT;
-        bool ret = true;
+        uint32_t pointer;
+        int n_strings = 0;
+
+        /* There is a zero-terminated list of DOS-style far pointers
+         * in the file pointing to each string. This seems to be the
+         * only way to determine how many strings are in the file.
+         */
 
         while (true) {
-                uint8_t buf[PCX_AVT_LOAD_TEXT_CHUNK_SIZE];
+                if (n_strings >= PCX_AVT_LOAD_MAX_N_STRINGS) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_STRING,
+                                      "Too many strings");
+                        return -1;
+                }
 
+                size_t got = fread(&pointer, 1, sizeof pointer, data->file);
+
+                if (got < sizeof pointer) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_STRING,
+                                      "Failed to load string pointer table");
+                        return -1;
+                }
+
+                if (pointer == 0)
+                        break;
+
+                n_strings++;
+        }
+
+        return n_strings;
+}
+
+static bool
+read_string(struct load_data *data,
+            struct pcx_buffer *out_buf,
+            struct pcx_error **error)
+{
+        uint8_t buf[PCX_AVT_LOAD_TEXT_CHUNK_SIZE];
+        bool had_data = false;
+
+        while (true) {
                 size_t got = fread(buf, 1, sizeof buf, data->file);
 
                 if (got == 0) {
                         break;
-                } else if (got <PCX_AVT_LOAD_TEXT_CHUNK_SIZE) {
+                } else if (got < PCX_AVT_LOAD_TEXT_CHUNK_SIZE) {
                         pcx_set_error(error,
                                       &pcx_avt_load_error,
                                       PCX_AVT_LOAD_ERROR_INVALID_STRING,
                                       "Incomplete string chunk encountered");
-                        ret = false;
-                        break;
+                        return false;
                 }
+
+                had_data = true;
 
                 uint8_t chunk_len = buf[0];
 
@@ -930,8 +972,7 @@ load_strings(struct load_data *data,
                                       &pcx_avt_load_error,
                                       PCX_AVT_LOAD_ERROR_INVALID_STRING,
                                       "Invalid string chunk encountered");
-                        ret = false;
-                        break;
+                        return false;
                 }
 
                 bool is_end = false;
@@ -944,24 +985,58 @@ load_strings(struct load_data *data,
                                 chunk_len--;
                 }
 
-                if (!convert_string_chunk(&tmp, buf + 1, chunk_len, error)) {
+                if (!convert_string_chunk(out_buf, buf + 1, chunk_len, error))
+                        return false;
+
+                if (is_end)
+                        break;
+        }
+
+        if (had_data)
+                pcx_buffer_append_c(out_buf, '\0');
+
+        return true;
+}
+
+static bool
+load_strings(struct load_data *data,
+             struct pcx_error **error)
+{
+        int n_strings = count_strings(data, error);
+
+        if (n_strings < 0)
+                return false;
+
+        if (!seek_or_error(data, PCX_AVT_LOAD_TEXT_OFFSET, error))
+                return false;
+
+        struct pcx_buffer tmp = PCX_BUFFER_STATIC_INIT;
+        bool ret = true;
+
+        data->avt->n_strings = n_strings;
+        data->avt->strings = pcx_calloc(n_strings * sizeof (char *));
+
+        for (int i = 0; i < n_strings; i++) {
+                pcx_buffer_set_length(&tmp, 0);
+
+                if (!read_string(data, &tmp, error)) {
                         ret = false;
                         break;
                 }
 
-                if (is_end) {
-                        pcx_buffer_append_c(&tmp, '\0');
-                        char *s = pcx_memdup(tmp.data, tmp.length);
-                        pcx_buffer_append(&strings, &s, sizeof s);
-
-                        pcx_buffer_set_length(&tmp, 0);
+                if (tmp.length <= 0) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_STRING,
+                                      "Not enough strings in the file");
+                        ret = false;
+                        break;
                 }
+
+                data->avt->strings[i] = pcx_strdup((char *) tmp.data);
         }
 
         pcx_buffer_destroy(&tmp);
-
-        data->avt->n_strings = strings.length / sizeof (char *);
-        data->avt->strings = (char **) strings.data;
 
         return ret;
 }
