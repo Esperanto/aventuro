@@ -27,6 +27,9 @@
 #include "pcx-buffer.h"
 #include "pcx-list.h"
 
+#define PCX_AVT_STATE_MAX_CARRYING_WEIGHT 100
+#define PCX_AVT_STATE_MAX_CARRYING_SIZE 100
+
 enum pcx_avt_state_movable_type {
         PCX_AVT_STATE_MOVABLE_TYPE_OBJECT,
         PCX_AVT_STATE_MOVABLE_TYPE_MONSTER,
@@ -463,6 +466,89 @@ find_movable(struct pcx_avt_state *state,
                                     noun);
 }
 
+static int
+get_weight_of_list(struct pcx_avt_state *state,
+                   struct pcx_list *list)
+{
+        int weight = 0;
+
+        pcx_buffer_set_length(&state->stack, 0);
+
+        push_list_onto_stack(state, list);
+
+        while (state->stack.length > 0) {
+                struct stack_entry *entry = get_stack_top(state);
+
+                /* Have we reached the end of the list? */
+                if (entry->child == entry->parent) {
+                        /* Pop the stack */
+                        state->stack.length -= sizeof (struct stack_entry);
+                        continue;
+                }
+
+                struct pcx_avt_state_movable *child =
+                        pcx_container_of(entry->child,
+                                         struct pcx_avt_state_movable,
+                                         location_node);
+
+                if (child->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                        weight += child->object.weight;
+
+                entry->child = entry->child->next;
+
+                push_list_onto_stack(state, &child->contents);
+        }
+
+        return weight;
+}
+
+static int
+get_weight_of_movable(struct pcx_avt_state *state,
+                      struct pcx_avt_state_movable *movable)
+{
+        int weight = 0;
+
+        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                weight += movable->object.weight;
+
+        return weight + get_weight_of_list(state, &movable->contents);
+}
+
+static int
+get_carrying_size(struct pcx_avt_state *state)
+{
+        struct pcx_avt_state_movable *movable;
+        int size = 0;
+
+        pcx_list_for_each(movable, &state->carrying, location_node) {
+                if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                        size += movable->object.size;
+        }
+
+        return size;
+}
+
+static bool
+is_carrying_movable(struct pcx_avt_state *state,
+                    struct pcx_avt_state_movable *movable)
+{
+        while (true) {
+                switch (movable->base.location_type) {
+                case PCX_AVT_LOCATION_TYPE_NOWHERE:
+                case PCX_AVT_LOCATION_TYPE_IN_ROOM:
+                        return false;
+                case PCX_AVT_LOCATION_TYPE_CARRYING:
+                        return true;
+                case PCX_AVT_LOCATION_TYPE_WITH_MONSTER:
+                case PCX_AVT_LOCATION_TYPE_IN_OBJECT:
+                        movable = movable->container;
+                        continue;
+                }
+
+                return false;
+        }
+}
+
 static void
 add_noun(struct pcx_buffer *buf,
          const struct pcx_avt_command_noun *noun)
@@ -694,6 +780,113 @@ handle_look(struct pcx_avt_state *state,
         return true;
 }
 
+static bool
+is_verb_object_command(struct pcx_avt_state *state,
+                       const struct pcx_avt_command *command)
+{
+        if (command->has_direction ||
+            command->has_tool ||
+            command->has_in ||
+            !command->has_verb ||
+            !command->has_object)
+                return false;
+
+        if (command->has_subject &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural))
+                return false;
+
+        return true;
+}
+
+static bool
+validate_take(struct pcx_avt_state *state,
+              struct pcx_avt_state_movable *movable)
+{
+        if (movable->base.location_type == PCX_AVT_LOCATION_TYPE_CARRYING) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi jam portas la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return false;
+        }
+
+        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER ||
+            (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+             (movable->base.attributes &
+              PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) == 0)) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi ne povas porti la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return false;
+        }
+
+        if (!is_carrying_movable(state, movable) &&
+            get_weight_of_movable(state, movable) +
+            get_weight_of_list(state, &state->carrying) >
+            PCX_AVT_STATE_MAX_CARRYING_WEIGHT) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Kune kun tio kion vi jam portas la ");
+                add_movable_to_message(state, &movable->base, NULL);
+                pcx_buffer_append_string(&state->message_buf,
+                                         " estas tro peza");
+                if (movable->base.pronoun == PCX_AVT_PRONOUN_PLURAL)
+                        pcx_buffer_append_c(&state->message_buf, 'j');
+                pcx_buffer_append_string(&state->message_buf, " por porti.");
+                end_message(state);
+                return false;
+        }
+
+        if (movable->object.size + get_carrying_size(state) >
+            PCX_AVT_STATE_MAX_CARRYING_SIZE) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Kune kun tio kion vi jam portas la ");
+                add_movable_to_message(state, &movable->base, NULL);
+                pcx_buffer_append_string(&state->message_buf,
+                                         " estas tro granda");
+                if (movable->base.pronoun == PCX_AVT_PRONOUN_PLURAL)
+                        pcx_buffer_append_c(&state->message_buf, 'j');
+                pcx_buffer_append_string(&state->message_buf, " por teni.");
+                end_message(state);
+                return false;
+        }
+
+        return true;
+}
+
+static bool
+handle_take(struct pcx_avt_state *state,
+            const struct pcx_avt_command *command)
+{
+        if (!is_verb_object_command(state, command))
+                return false;
+
+        if (!pcx_avt_command_word_equal(&command->verb, "pren"))
+                return false;
+
+        struct pcx_avt_state_movable *movable =
+                find_movable(state, &command->object);
+
+        if (movable == NULL)
+                return false;
+
+        if (!validate_take(state, movable))
+                return true;
+
+        carry_movable(state, movable);
+
+        pcx_buffer_append_string(&state->message_buf, "Vi prenis la ");
+        add_movable_to_message(state, &movable->base, "n");
+        pcx_buffer_append_c(&state->message_buf, '.');
+        end_message(state);
+
+        return true;
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -718,6 +911,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_look(state, &command))
+                return;
+
+        if (handle_take(state, &command))
                 return;
 
         if (handle_inventory(state, &command))
