@@ -725,7 +725,8 @@ handle_look(struct pcx_avt_state *state,
 {
         if (command->has_direction ||
             command->has_tool ||
-            command->has_in)
+            command->has_in ||
+            !command->has_verb)
                 return false;
 
         if (command->has_subject &&
@@ -734,8 +735,7 @@ handle_look(struct pcx_avt_state *state,
              command->subject.pronoun.plural))
                 return false;
 
-        if (command->has_verb &&
-            !pcx_avt_command_word_equal(&command->verb, "rigard"))
+        if (!pcx_avt_command_word_equal(&command->verb, "rigard"))
                 return false;
 
         if (!command->has_object) {
