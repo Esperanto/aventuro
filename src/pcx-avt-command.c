@@ -24,6 +24,7 @@
 
 #include "pcx-utf8.h"
 #include "pcx-util.h"
+#include "pcx-avt-hat.h"
 
 struct parse_pos {
         const char *p;
@@ -148,70 +149,21 @@ is_alphabetic(uint32_t ch)
         return false;
 }
 
-static uint32_t
-to_lower(uint32_t ch)
-{
-        if (ch >= 'A' && ch <= 'Z')
-                return ch - 'A' + 'a';
-
-        switch (ch) {
-        case 0x0124: /* Ĥ */
-        case 0x015c: /* Ŝ */
-        case 0x011c: /* Ĝ */
-        case 0x0108: /* Ĉ */
-        case 0x0134: /* Ĵ */
-        case 0x016c: /* Ŭ */
-                return ch + 1;
-        }
-
-        return ch;
-}
-
 static bool
 is_word(const char *word,
         size_t length,
         const char *test)
 {
-        while (length > 0) {
+        struct pcx_avt_hat_iter iter;
+
+        pcx_avt_hat_iter_init(&iter, word, length);
+
+        while (!pcx_avt_hat_iter_finished(&iter)) {
                 if (*test == '\0')
                         return false;
 
-                uint32_t ch = to_lower(pcx_utf8_get_char(word));
-                const char *next = pcx_utf8_next(word);
-
-                length -= next - word;
-                word = next;
-
-                if (length > 0 && (*word == 'x' || *word == 'X')) {
-                        switch (ch) {
-                        case 'h':
-                                ch = 0x0125; /* ĥ */
-                                break;
-                        case 's':
-                                ch = 0x015d; /* ŝ */
-                                break;
-                        case 'g':
-                                ch = 0x011d; /* ĝ */
-                                break;
-                        case 'c':
-                                ch = 0x0109; /* ĉ */
-                                break;
-                        case 'j':
-                                ch = 0x0135; /* ĵ */
-                                break;
-                        case 'u':
-                                ch = 0x016d; /* ŭ */
-                                break;
-                        default:
-                                goto not_hat;
-                        }
-
-                        word++;
-                        length--;
-
-                not_hat:
-                        (void) 0;
-                }
+                uint32_t ch_upper = pcx_avt_hat_iter_next(&iter);
+                uint32_t ch = pcx_avt_hat_to_lower(ch_upper);
 
                 if (pcx_utf8_get_char(test) != ch)
                         return false;
@@ -263,7 +215,9 @@ parse_noun_part(struct parse_pos *pos_in_out,
         if (!get_next_word(&pos, &part->word))
                 return false;
 
-        if (to_lower(part->word.start[part->word.length - 1]) == 'n') {
+        const char *word = part->word.start;
+
+        if (pcx_avt_hat_to_lower(word[part->word.length - 1]) == 'n') {
                 part->accusative = true;
                 part->word.length--;
                 if (part->word.length < 1)
@@ -272,7 +226,7 @@ parse_noun_part(struct parse_pos *pos_in_out,
                 part->accusative = false;
         }
 
-        if (to_lower(part->word.start[part->word.length - 1]) == 'j') {
+        if (pcx_avt_hat_to_lower(word[part->word.length - 1]) == 'j') {
                 part->plural = true;
                 part->word.length--;
                 if (part->word.length < 1)
@@ -284,10 +238,10 @@ parse_noun_part(struct parse_pos *pos_in_out,
         if (part->word.length < 2)
                 return false;
 
-        switch (to_lower(part->word.start[part->word.length - 1])) {
+        switch (pcx_avt_hat_to_lower(word[part->word.length - 1])) {
         case 'a':
                 /* “La” is not an adjective */
-                if (is_word(part->word.start, part->word.length, "la"))
+                if (is_word(word, part->word.length, "la"))
                         return false;
                 part->adjective = true;
                 part->is_pronoun = false;
@@ -411,7 +365,7 @@ parse_verb(struct parse_pos *pos_in_out,
         if (word.length < 2)
                 return false;
 
-        switch (to_lower(word.start[word.length - 1])) {
+        switch (pcx_avt_hat_to_lower(word.start[word.length - 1])) {
         case 'i':
         case 'u':
                 word.length--;
@@ -419,7 +373,7 @@ parse_verb(struct parse_pos *pos_in_out,
         case 's':
                 if (word.length < 3)
                         return false;
-                switch (to_lower(word.start[word.length - 2])) {
+                switch (pcx_avt_hat_to_lower(word.start[word.length - 2])) {
                 case 'o':
                 case 'a':
                         break;

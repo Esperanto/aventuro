@@ -12,6 +12,7 @@ test_avt_command_src = [
         'pcx-utf8.c',
         'pcx-avt-command.c',
         'test-avt-command.c',
+        'pcx-avt-hat.c',
 ]
 
 test_avt_command = executable('test-avt-command', test_avt_command_src,
@@ -30,6 +31,7 @@ play_avt_src = [
         'pcx-avt-command.c',
         'pcx-utf8.c',
         'pcx-list.c',
+        'pcx-avt-hat.c',
 ]
 play_avt = executable('play-avt', play_avt_src,
                       include_directories: configinc)
