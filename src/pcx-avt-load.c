@@ -1036,6 +1036,18 @@ load_strings(struct load_data *data,
                 data->avt->strings[i] = pcx_strdup((char *) tmp.data);
         }
 
+        if (ret) {
+                pcx_buffer_set_length(&tmp, 0);
+
+                /* If there is another string after the main strings
+                 * then it is printed as the introductory text.
+                 */
+                if (!read_string(data, &tmp, error))
+                        ret = false;
+                else if (tmp.length > 0)
+                        data->avt->introduction = pcx_strdup((char *) tmp.data);
+        }
+
         pcx_buffer_destroy(&tmp);
 
         return ret;

@@ -61,5 +61,7 @@ pcx_avt_free(struct pcx_avt *avt)
 
         pcx_free(avt->monsters);
 
+        pcx_free(avt->introduction);
+
         pcx_free(avt);
 }

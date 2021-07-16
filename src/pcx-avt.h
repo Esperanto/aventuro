@@ -157,6 +157,9 @@ struct pcx_avt {
         size_t n_monsters;
         struct pcx_avt_monster *monsters;
         uint64_t game_attributes;
+
+        /* Text to be displayed at the start of the game. Can be NULL */
+        char *introduction;
 };
 
 void
