@@ -585,7 +585,8 @@ handle_inventory(struct pcx_avt_state *state,
                 return false;
 
         if (command->has_verb &&
-            !pcx_avt_command_word_equal(&command->verb, "hav"))
+            !pcx_avt_command_word_equal(&command->verb, "hav") &&
+            !pcx_avt_command_word_equal(&command->verb, "kunport"))
                 return false;
 
         pcx_buffer_append_string(&state->message_buf,
