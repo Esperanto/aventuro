@@ -26,6 +26,8 @@
 #include "pcx-avt-command.h"
 #include "pcx-buffer.h"
 #include "pcx-list.h"
+#include "pcx-avt-hat.h"
+#include "pcx-utf8.h"
 
 #define PCX_AVT_STATE_MAX_CARRYING_WEIGHT 100
 #define PCX_AVT_STATE_MAX_CARRYING_SIZE 100
@@ -171,6 +173,53 @@ add_movables_to_message(struct pcx_avt_state *state,
 
                 add_movable_to_message(state, &object->base, "n");
         }
+}
+
+static void
+add_word_to_message(struct pcx_avt_state *state,
+                    const struct pcx_avt_command_word *word)
+{
+        struct pcx_avt_hat_iter iter;
+
+        pcx_avt_hat_iter_init(&iter, word->start, word->length);
+
+        while (!pcx_avt_hat_iter_finished(&iter)) {
+                uint32_t ch_upper = pcx_avt_hat_iter_next(&iter);
+                uint32_t ch = pcx_avt_hat_to_lower(ch_upper);
+
+                pcx_buffer_ensure_size(&state->message_buf,
+                                       state->message_buf.length +
+                                       PCX_UTF8_MAX_CHAR_LENGTH);
+
+                int ch_length = pcx_utf8_encode(ch,
+                                                (char *)
+                                                state->message_buf.data +
+                                                state->message_buf.length);
+                state->message_buf.length += ch_length;
+        }
+}
+
+static void
+add_noun_to_message(struct pcx_avt_state *state,
+                    const struct pcx_avt_command_noun *noun,
+                    const char *suffix)
+{
+        if (noun->adjective.start) {
+                add_word_to_message(state, &noun->adjective);
+                pcx_buffer_append_c(&state->message_buf, 'a');
+                if (noun->plural)
+                        pcx_buffer_append_c(&state->message_buf, 'j');
+                if (suffix)
+                        pcx_buffer_append_string(&state->message_buf, suffix);
+                pcx_buffer_append_c(&state->message_buf, ' ');
+        }
+
+        add_word_to_message(state, &noun->name);
+        pcx_buffer_append_c(&state->message_buf, 'o');
+        if (noun->plural)
+                pcx_buffer_append_c(&state->message_buf, 'j');
+        if (suffix)
+                pcx_buffer_append_string(&state->message_buf, suffix);
 }
 
 static void
@@ -466,6 +515,22 @@ find_movable(struct pcx_avt_state *state,
                                     noun);
 }
 
+static struct pcx_avt_state_movable *
+find_movable_or_message(struct pcx_avt_state *state,
+                        const struct pcx_avt_command_noun *noun)
+{
+        struct pcx_avt_state_movable *movable = find_movable(state, noun);
+
+        if (movable == NULL) {
+                pcx_buffer_append_string(&state->message_buf, "Vi ne vidas ");
+                add_noun_to_message(state, noun, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+        }
+
+        return movable;
+}
+
 static int
 get_weight_of_list(struct pcx_avt_state *state,
                    struct pcx_list *list)
@@ -747,10 +812,10 @@ handle_look(struct pcx_avt_state *state,
                 return true;
 
         struct pcx_avt_state_movable *movable =
-                find_movable(state, &command->object);
+                find_movable_or_message(state, &command->object);
 
         if (movable == NULL)
-                return false;
+                return true;
 
         if (movable->base.description) {
                 pcx_buffer_append_string(&state->message_buf,
@@ -869,10 +934,10 @@ handle_take(struct pcx_avt_state *state,
                 return false;
 
         struct pcx_avt_state_movable *movable =
-                find_movable(state, &command->object);
+                find_movable_or_message(state, &command->object);
 
         if (movable == NULL)
-                return false;
+                return true;
 
         if (!validate_take(state, movable))
                 return true;
@@ -901,10 +966,10 @@ handle_drop(struct pcx_avt_state *state,
                 return false;
 
         struct pcx_avt_state_movable *movable =
-                find_movable(state, &command->object);
+                find_movable_or_message(state, &command->object);
 
         if (movable == NULL)
-                return false;
+                return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
             movable->base.location_type != PCX_AVT_LOCATION_TYPE_CARRYING) {
