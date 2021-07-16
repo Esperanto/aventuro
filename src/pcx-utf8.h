@@ -43,6 +43,8 @@
 
 #include "pcx-utf8.h"
 
+#define PCX_UTF8_MAX_CHAR_LENGTH 4
+
 uint32_t
 pcx_utf8_get_char(const char *p);
 
@@ -51,5 +53,8 @@ pcx_utf8_next(const char *p);
 
 bool
 pcx_utf8_is_valid_string(const char *p);
+
+int
+pcx_utf8_encode(uint32_t ch, char *str);
 
 #endif /* PCX_UTF8_H */
