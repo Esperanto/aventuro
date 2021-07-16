@@ -887,6 +887,45 @@ handle_take(struct pcx_avt_state *state,
         return true;
 }
 
+static bool
+handle_drop(struct pcx_avt_state *state,
+            const struct pcx_avt_command *command)
+{
+        if (!is_verb_object_command(state, command))
+                return false;
+
+        if (!pcx_avt_command_word_equal(&command->verb, "ĵet") &&
+            !pcx_avt_command_word_equal(&command->verb, "forĵet") &&
+            !pcx_avt_command_word_equal(&command->verb, "falig") &&
+            !pcx_avt_command_word_equal(&command->verb, "las"))
+                return false;
+
+        struct pcx_avt_state_movable *movable =
+                find_movable(state, &command->object);
+
+        if (movable == NULL)
+                return false;
+
+        if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+            movable->base.location_type != PCX_AVT_LOCATION_TYPE_CARRYING) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi ne portas la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        put_movable_in_room(state, state->rooms + state->current_room, movable);
+
+        pcx_buffer_append_string(&state->message_buf, "Vi ĵetis la ");
+        add_movable_to_message(state, &movable->base, "n");
+        pcx_buffer_append_c(&state->message_buf, '.');
+        end_message(state);
+
+        return true;
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -914,6 +953,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_take(state, &command))
+                return;
+
+        if (handle_drop(state, &command))
                 return;
 
         if (handle_inventory(state, &command))
