@@ -22,7 +22,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 
@@ -36,7 +35,6 @@ struct data {
         struct pcx_buffer command_buffer;
         struct pcx_avt *avt;
         struct pcx_avt_state *state;
-        bool quit;
         int retval;
 };
 
@@ -94,75 +92,53 @@ print_messages(struct data *data)
                 print_message(message);
 }
 
-static void
-read_chunk(struct data *data)
+static bool
+read_line(struct data *data)
 {
-        ssize_t got;
+        while (true) {
+                pcx_buffer_ensure_size(&data->command_buffer,
+                                       data->command_buffer.length + 64);
 
-        pcx_buffer_ensure_size(&data->command_buffer,
-                               data->command_buffer.length + 64);
+                char *read_start = (char *) (data->command_buffer.data +
+                                             data->command_buffer.length);
 
-        got = read(STDIN_FILENO,
-                   data->command_buffer.data + data->command_buffer.length,
-                   data->command_buffer.size - data->command_buffer.length);
+                if (fgets(read_start,
+                          data->command_buffer.size -
+                          data->command_buffer.length -
+                          1,
+                          stdin) == NULL)
+                        return false;
 
-        if (got == -1) {
-                if (errno == EAGAIN || errno == EINTR)
-                        return;
-                fprintf(stderr,
-                        "error reading from stdin: %s\n",
-                        strerror(errno));
-                data->quit = true;
-                data->retval = EXIT_FAILURE;
-                return;
-        }
+                size_t got = strlen(read_start);
 
-        if (got == 0) {
-                data->quit = true;
-                return;
-        }
+                data->command_buffer.length += got;
 
-        data->command_buffer.length += got;
-
-        size_t offset = 0;
-        uint8_t *end;
-
-        while ((end = memchr(data->command_buffer.data + offset,
-                             '\n',
-                             data->command_buffer.length - offset))) {
-                size_t end_offset = end - data->command_buffer.data;
-
-                *end = '\0';
-
-                if (end_offset > offset && end[-1] == '\r')
-                        end[-1] = '\0';
-
-                const char *command =
-                        (const char *) data->command_buffer.data + offset;
-
-                fputc('\n', stdout);
-
-                if (pcx_utf8_is_valid_string(command)) {
-                        pcx_avt_state_run_command(data->state, command);
-
-                        print_messages(data);
+                if (got > 0 && read_start[got - 1] == '\n') {
+                        read_start[got - 1] = '\0';
+                        return true;
                 }
-
-                offset = end_offset + 1;
         }
-
-        memmove(data->command_buffer.data,
-                data->command_buffer.data + offset,
-                data->command_buffer.length - offset);
-        data->command_buffer.length -= offset;
 }
 
 static void
 run_game(struct data *data)
 {
-        do
-                read_chunk(data);
-        while (!data->quit);
+        while (true) {
+                pcx_buffer_set_length(&data->command_buffer, 0);
+
+                if (!read_line(data))
+                        break;
+
+                const char *command = (const char *) data->command_buffer.data;
+
+                if (pcx_utf8_is_valid_string(command)) {
+                        fputc('\n', stdout);
+
+                        pcx_avt_state_run_command(data->state, command);
+
+                        print_messages(data);
+                }
+        }
 }
 
 int
@@ -175,7 +151,6 @@ main(int argc, char **argv)
 
         struct data data = {
                 .command_buffer = PCX_BUFFER_STATIC_INIT,
-                .quit = false,
                 .retval = EXIT_SUCCESS,
         };
         const char *avt_filename = argv[1];
