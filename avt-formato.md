@@ -230,9 +230,9 @@ Agoj:
 
 La kompililo permesas maksimume 199 fenomenojn.
 
-## Mistero
+## Indikiloj al ĉenoj
 
-Mi ne scias kio estas la datumoj kiuj komenciĝas ĉe 0xac96.
+Ĉe 0xac96 ŝajne estas listo de indikiloj al la ĉenoj. Estas po 4 bajtoj por ĉiu ĉeno. Mi supozas ke ili iel rilatas al la “far pointers” de DOS, sed mi ne scias ekzakte kiel. Mi kredas ke la listo finiĝas per adreso 0, kaj tiel oni povas uzi la liston por kalkuli kiom da ĉenoj estos ĉe la fino. Se oni aldonas pliajn ĉenojn ŝajne nur ĉi tiu tabelo ŝanĝiĝas do mi supozas ke tio estas la sola maniero por scii kiom da ĉenoj estas. Ne eblas simple rigardi la longecon de la dosiero ĉar post la lasta ĉeno estas plia ĉeno por la enkonduko al la ludo.
 
 ## Verboj
 
@@ -282,3 +282,5 @@ Estas 128 bajtoj por ĉiu ĉeno. Ĝi komenciĝas per bajto kiu montras la longec
 Se oni skribas tekston pli longan ol 128 bajtoj en la fontokodo, ŝajne la kompililo dividos ĝin en plurajn ĉenojn. Eble se la ĉeno ne finiĝas per “@” la programo simple montros ankaŭ la sekvan ĉenon.
 
 La ĉenonombro en aliaj lokoj ŝajne estas la logika numero de la ĉeno en la listo de ĉenoj, ne nombro de bajtoj de la komenco por facile trovi ĝin. Ekzemple se la unua ĉeno bezonas du arojn de 128 bajtoj, la sekva ĉeno komenciĝos ĉe la 3a aro sed ĝi havos la numeron 2.
+
+Oni povas scii kiom da ĉenoj estas per la listo de indikiloj klarigita supre. Post la lasta ĉeno se ankoraŭ estas plia ĉeno la programo montros ĝin je la komenco kiel enkondukon.
