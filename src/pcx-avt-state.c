@@ -417,6 +417,23 @@ get_pronoun_name(enum pcx_avt_pronoun pronoun)
         return "ĝi";
 }
 
+static const char *
+get_capital_pronoun_name(enum pcx_avt_pronoun pronoun)
+{
+        switch (pronoun) {
+        case PCX_AVT_PRONOUN_MAN:
+                return "Li";
+        case PCX_AVT_PRONOUN_WOMAN:
+                return "Ŝi";
+        case PCX_AVT_PRONOUN_PLURAL:
+                return "Ili";
+        case PCX_AVT_PRONOUN_ANIMAL:
+                break;
+        }
+
+        return "Ĝi";
+}
+
 static bool
 movable_matches_noun(const struct pcx_avt_movable *movable,
                      const struct pcx_avt_command_noun *noun)
@@ -841,15 +858,35 @@ handle_look(struct pcx_avt_state *state,
                 pcx_buffer_append_c(&state->message_buf, '.');
         }
 
-        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
-            (movable->base.attributes & PCX_AVT_OBJECT_ATTRIBUTE_CLOSED) == 0 &&
-            !pcx_list_empty(&movable->contents)) {
-                const char *pronoun = get_pronoun_name(movable->base.pronoun);
-                pcx_buffer_append_printf(&state->message_buf,
-                                         " En %s vi vidas ",
-                                         pronoun);
-                add_movables_to_message(state, &movable->contents);
-                pcx_buffer_append_c(&state->message_buf, '.');
+        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+                if ((movable->base.attributes &
+                     PCX_AVT_OBJECT_ATTRIBUTE_CLOSED)) {
+                        if ((movable->base.attributes &
+                             PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE)) {
+                                enum pcx_avt_pronoun pronoun =
+                                        movable->base.pronoun;
+                                const char *pronoun_name =
+                                        get_capital_pronoun_name(pronoun);
+                                pcx_buffer_append_printf(&state->message_buf,
+                                                         " %s estas fermita",
+                                                         pronoun_name);
+                                if (movable->base.pronoun ==
+                                    PCX_AVT_PRONOUN_PLURAL) {
+                                        pcx_buffer_append_c(&state->message_buf,
+                                                            'j');
+                                }
+                                pcx_buffer_append_c(&state->message_buf, '.');
+                        }
+                }
+                else if (!pcx_list_empty(&movable->contents)) {
+                        const char *pronoun =
+                                get_pronoun_name(movable->base.pronoun);
+                        pcx_buffer_append_printf(&state->message_buf,
+                                                 " En %s vi vidas ",
+                                                 pronoun);
+                        add_movables_to_message(state, &movable->contents);
+                        pcx_buffer_append_c(&state->message_buf, '.');
+                }
         }
 
         end_message(state);
