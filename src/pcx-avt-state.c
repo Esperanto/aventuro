@@ -846,11 +846,12 @@ handle_look(struct pcx_avt_state *state,
 }
 
 static bool
-is_verb_object_command(const struct pcx_avt_command *command)
+is_verb_command_and_has(const struct pcx_avt_command *command,
+                        enum pcx_avt_command_has has)
 {
-        /* Must have verb and object. Subject optional. */
+        /* Must have verb and extra flags. Subject optional. */
         if ((command->has & ~PCX_AVT_COMMAND_HAS_SUBJECT) !=
-            (PCX_AVT_COMMAND_HAS_VERB | PCX_AVT_COMMAND_HAS_OBJECT))
+            (PCX_AVT_COMMAND_HAS_VERB | has))
                 return false;
 
         if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
@@ -860,6 +861,12 @@ is_verb_object_command(const struct pcx_avt_command *command)
                 return false;
 
         return true;
+}
+
+static bool
+is_verb_object_command(const struct pcx_avt_command *command)
+{
+        return is_verb_command_and_has(command, PCX_AVT_COMMAND_HAS_OBJECT);
 }
 
 static bool
@@ -988,6 +995,45 @@ handle_drop(struct pcx_avt_state *state,
         return true;
 }
 
+static bool
+handle_enter(struct pcx_avt_state *state,
+             const struct pcx_avt_command *command)
+{
+        const struct pcx_avt_command_noun *enter_noun;
+
+        if (is_verb_object_command(command) &&
+            pcx_avt_command_word_equal(&command->verb, "enir"))
+                enter_noun = &command->object;
+        else if (is_verb_command_and_has(command,
+                                         PCX_AVT_COMMAND_HAS_IN) &&
+                 (pcx_avt_command_word_equal(&command->verb, "enir") ||
+                  pcx_avt_command_word_equal(&command->verb, "ir")))
+                enter_noun = &command->in;
+        else
+                return false;
+
+        struct pcx_avt_state_movable *movable =
+                find_movable_or_message(state, enter_noun);
+
+        if (movable == NULL)
+                return true;
+
+        if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+            movable->object.enter_room == PCX_AVT_DIRECTION_BLOCKED) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi ne povas eniri la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        state->current_room = movable->object.enter_room;
+        send_room_description(state);
+
+        return true;
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -1021,6 +1067,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_inventory(state, &command))
+                return;
+
+        if (handle_enter(state, &command))
                 return;
 
         struct pcx_buffer *buf = &state->message_buf;
