@@ -558,6 +558,8 @@ extract_insideness(struct load_data *data,
                    struct pcx_avt_object *object,
                    struct pcx_error **error)
 {
+        object->enter_room = PCX_AVT_DIRECTION_BLOCKED;
+
         switch (buf[0]) {
         case 0x09:
                 object->container_size = buf[1];
@@ -572,6 +574,7 @@ extract_insideness(struct load_data *data,
                                       "An object leads to an invalid room");
                         return false;
                 }
+                object->enter_room = buf[1] - 1;
                 return true;
         }
 
