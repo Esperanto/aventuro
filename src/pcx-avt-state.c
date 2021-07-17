@@ -1034,6 +1034,28 @@ handle_enter(struct pcx_avt_state *state,
         return true;
 }
 
+static bool
+handle_exit(struct pcx_avt_state *state,
+            const struct pcx_avt_command *command)
+{
+        if (!is_verb_command_and_has(command, 0) ||
+            !pcx_avt_command_word_equal(&command->verb, "elir"))
+                return false;
+
+        const struct pcx_avt_room *room =
+                state->avt->rooms + state->current_room;
+        int new_room = room->movements[PCX_AVT_DIRECTION_EXIT];
+
+        if (new_room == PCX_AVT_DIRECTION_BLOCKED) {
+                send_message(state, "Vi ne povas eliri de ĉi tie.");
+        } else {
+                state->current_room = new_room;
+                send_room_description(state);
+        }
+
+        return true;
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -1070,6 +1092,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_enter(state, &command))
+                return;
+
+        if (handle_exit(state, &command))
                 return;
 
         struct pcx_buffer *buf = &state->message_buf;
