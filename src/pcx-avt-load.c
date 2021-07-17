@@ -58,6 +58,9 @@
 #define PCX_AVT_LOAD_N_ROOM_ATTRIBUTES 20
 #define PCX_AVT_LOAD_BYTES_PER_ROOM_ATTRIBUTE 19
 
+#define PCX_AVT_LOAD_VERBS_OFFSET 0xbc41
+#define PCX_AVT_LOAD_VERB_SIZE 11
+
 #define PCX_AVT_LOAD_STRING_POINTERS_OFFSET 0xac96
 #define PCX_AVT_LOAD_MAX_N_STRINGS 1002
 
@@ -550,6 +553,48 @@ load_attributes(struct load_data *data,
                 return false;
 
         return true;
+}
+
+static bool
+load_verbs(struct load_data *data,
+           struct pcx_error **error)
+{
+        struct pcx_buffer buf = PCX_BUFFER_STATIC_INIT;
+        bool ret = true;
+
+        if (!seek_or_error(data, PCX_AVT_LOAD_VERBS_OFFSET, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_zero_terminated_data(data,
+                                       &buf,
+                                       PCX_AVT_LOAD_VERB_SIZE,
+                                       /* This really is 199 and not 200 */
+                                       199, /* max_entries */
+                                       error)) {
+                ret = false;
+                goto done;
+        }
+
+        data->avt->n_verbs = buf.length / PCX_AVT_LOAD_VERB_SIZE;
+        data->avt->verbs = pcx_calloc(data->avt->n_verbs *
+                                      sizeof (char *));
+
+        for (size_t i = 0; i < data->avt->n_verbs; i++) {
+                data->avt->verbs[i] =
+                        extract_string(buf.data + i * PCX_AVT_LOAD_VERB_SIZE,
+                                       10,
+                                       error);
+                if (data->avt->verbs[i] == NULL) {
+                        ret = false;
+                        goto done;
+                }
+        }
+
+done:
+        pcx_buffer_destroy(&buf);
+        return ret;
 }
 
 static bool
@@ -1173,6 +1218,11 @@ pcx_avt_load(const char *filename,
         }
 
         if (!validate_locations(&data, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_verbs(&data, error)) {
                 ret = false;
                 goto done;
         }

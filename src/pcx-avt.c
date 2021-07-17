@@ -30,6 +30,11 @@ pcx_avt_free(struct pcx_avt *avt)
 
         pcx_free(avt->strings);
 
+        for (size_t i = 0; i < avt->n_verbs; i++)
+                pcx_free(avt->verbs[i]);
+
+        pcx_free(avt->verbs);
+
         for (size_t i = 0; i < avt->n_rooms; i++) {
                 struct pcx_avt_room *room = avt->rooms + i;
 

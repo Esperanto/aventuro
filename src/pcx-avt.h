@@ -154,9 +154,18 @@ struct pcx_avt_room {
         uint32_t attributes;
 };
 
+struct pcx_avt_rule {
+        /* Owned by pcx_avt->verbs */
+        const char *verb;
+};
+
 struct pcx_avt {
         size_t n_strings;
         char **strings;
+
+        size_t n_verbs;
+        char **verbs;
+
         size_t n_rooms;
         struct pcx_avt_room *rooms;
         size_t n_objects;
