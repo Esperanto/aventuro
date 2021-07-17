@@ -61,6 +61,9 @@
 #define PCX_AVT_LOAD_VERBS_OFFSET 0xbc41
 #define PCX_AVT_LOAD_VERB_SIZE 11
 
+#define PCX_AVT_LOAD_RULES_OFFSET 0x9cf6
+#define PCX_AVT_LOAD_RULE_SIZE 20
+
 #define PCX_AVT_LOAD_STRING_POINTERS_OFFSET 0xac96
 #define PCX_AVT_LOAD_MAX_N_STRINGS 1002
 
@@ -590,6 +593,281 @@ load_verbs(struct load_data *data,
                         ret = false;
                         goto done;
                 }
+        }
+
+done:
+        pcx_buffer_destroy(&buf);
+        return ret;
+}
+
+static bool
+extract_condition(struct load_data *data,
+                  struct pcx_avt_condition_data *condition,
+                  const uint8_t *rule_data,
+                  struct pcx_error **error)
+{
+        condition->condition = rule_data[0];
+        condition->data = rule_data[1];
+
+        switch (condition->condition) {
+        case PCX_AVT_CONDITION_OBJECT_IS:
+        case PCX_AVT_CONDITION_ANOTHER_OBJECT_PRESENT:
+        case PCX_AVT_CONDITION_OBJECT_SAME_ADJECTIVE:
+        case PCX_AVT_CONDITION_OBJECT_SAME_NAME:
+        case PCX_AVT_CONDITION_OBJECT_SAME_NOUN:
+                if (condition->data < 1 ||
+                    condition->data > data->avt->n_objects) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_OBJECT,
+                                      "An invalid object number was "
+                                      "referenced");
+                        return false;
+                }
+                condition->data--;
+                return true;
+
+        case PCX_AVT_CONDITION_MONSTER_IS:
+        case PCX_AVT_CONDITION_ANOTHER_MONSTER_PRESENT:
+        case PCX_AVT_CONDITION_MONSTER_SAME_ADJECTIVE:
+        case PCX_AVT_CONDITION_MONSTER_SAME_NAME:
+        case PCX_AVT_CONDITION_MONSTER_SAME_NOUN:
+                if (condition->data < 1 ||
+                    condition->data > data->avt->n_monsters) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_MONSTER,
+                                      "An invalid monster number was "
+                                      "referenced");
+                        return false;
+                }
+                condition->data--;
+                return true;
+
+        case PCX_AVT_CONDITION_IN_ROOM:
+                if (condition->data < 1 ||
+                    condition->data > data->avt->n_rooms) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_ROOM,
+                                      "An invalid room number was "
+                                      "referenced");
+                        return false;
+                }
+                condition->data--;
+                return true;
+
+        case PCX_AVT_CONDITION_NONE:
+        case PCX_AVT_CONDITION_SHOTS:
+        case PCX_AVT_CONDITION_WEIGHT:
+        case PCX_AVT_CONDITION_SIZE:
+        case PCX_AVT_CONDITION_CONTAINER_SIZE:
+        case PCX_AVT_CONDITION_BURN_TIME:
+        case PCX_AVT_CONDITION_SOMETHING:
+        case PCX_AVT_CONDITION_NOTHING:
+        case PCX_AVT_CONDITION_OBJECT_ATTRIBUTE:
+        case PCX_AVT_CONDITION_NOT_OBJECT_ATTRIBUTE:
+        case PCX_AVT_CONDITION_ROOM_ATTRIBUTE:
+        case PCX_AVT_CONDITION_NOT_ROOM_ATTRIBUTE:
+        case PCX_AVT_CONDITION_MONSTER_ATTRIBUTE:
+        case PCX_AVT_CONDITION_NOT_MONSTER_ATTRIBUTE:
+        case PCX_AVT_CONDITION_PLAYER_ATTRIBUTE:
+        case PCX_AVT_CONDITION_NOT_PLAYER_ATTRIBUTE:
+        case PCX_AVT_CONDITION_CHANCE:
+                return true;
+        }
+
+        pcx_set_error(error,
+                      &pcx_avt_load_error,
+                      PCX_AVT_LOAD_ERROR_INVALID_CONDITION,
+                      "An invalid condition number (0x%02x) was used",
+                      condition->condition);
+
+        return false;
+}
+
+static bool
+extract_action(struct load_data *data,
+               struct pcx_avt_action_data *action,
+               const uint8_t *rule_data,
+               struct pcx_error **error)
+{
+        action->action = rule_data[0];
+        action->data = rule_data[1];
+
+        switch (action->action) {
+        case PCX_AVT_ACTION_REPLACE_OBJECT:
+        case PCX_AVT_ACTION_CREATE_OBJECT:
+        case PCX_AVT_ACTION_CHANGE_OBJECT_ADJECTIVE:
+        case PCX_AVT_ACTION_CHANGE_OBJECT_NAME:
+        case PCX_AVT_ACTION_COPY_OBJECT:
+                if (action->data < 1 ||
+                    action->data > data->avt->n_objects) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_OBJECT,
+                                      "An invalid object number was "
+                                      "referenced");
+                        return false;
+                }
+                action->data--;
+                return true;
+
+        case PCX_AVT_ACTION_REPLACE_MONSTER:
+        case PCX_AVT_ACTION_CREATE_MONSTER:
+        case PCX_AVT_ACTION_CHANGE_MONSTER_ADJECTIVE:
+        case PCX_AVT_ACTION_CHANGE_MONSTER_NAME:
+        case PCX_AVT_ACTION_COPY_MONSTER:
+                if (action->data < 1 ||
+                    action->data > data->avt->n_monsters) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_MONSTER,
+                                      "An invalid monster number was "
+                                      "referenced");
+                        return false;
+                }
+                action->data--;
+                return true;
+
+        case PCX_AVT_ACTION_MOVE_TO:
+                if (action->data < 1 ||
+                    action->data > data->avt->n_rooms) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_ROOM,
+                                      "An invalid room number was "
+                                      "referenced");
+                        return false;
+                }
+                action->data--;
+                return true;
+
+        case PCX_AVT_ACTION_CHANGE_END:
+        case PCX_AVT_ACTION_CHANGE_SHOTS:
+        case PCX_AVT_ACTION_CHANGE_WEIGHT:
+        case PCX_AVT_ACTION_CHANGE_SIZE:
+        case PCX_AVT_ACTION_CHANGE_CONTAINER_SIZE:
+        case PCX_AVT_ACTION_CHANGE_BURN_TIME:
+        case PCX_AVT_ACTION_NOTHING:
+        case PCX_AVT_ACTION_NOTHING_ROOM:
+        case PCX_AVT_ACTION_CARRY:
+        case PCX_AVT_ACTION_SET_OBJECT_ATTRIBUTE:
+        case PCX_AVT_ACTION_UNSET_OBJECT_ATTRIBUTE:
+        case PCX_AVT_ACTION_SET_ROOM_ATTRIBUTE:
+        case PCX_AVT_ACTION_UNSET_ROOM_ATTRIBUTE:
+        case PCX_AVT_ACTION_SET_MONSTER_ATTRIBUTE:
+        case PCX_AVT_ACTION_UNSET_MONSTER_ATTRIBUTE:
+        case PCX_AVT_ACTION_SET_PLAYER_ATTRIBUTE:
+        case PCX_AVT_ACTION_UNSET_PLAYER_ATTRIBUTE:
+                return true;
+        }
+
+        pcx_set_error(error,
+                      &pcx_avt_load_error,
+                      PCX_AVT_LOAD_ERROR_INVALID_ACTION,
+                      "An invalid action number (0x%02x) was used",
+                      action->action);
+
+        return false;
+}
+
+static bool
+load_rules(struct load_data *data,
+           struct pcx_error **error)
+{
+        struct pcx_buffer buf = PCX_BUFFER_STATIC_INIT;
+        bool ret = true;
+
+        if (!seek_or_error(data, PCX_AVT_LOAD_RULES_OFFSET, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_zero_terminated_data(data,
+                                       &buf,
+                                       PCX_AVT_LOAD_RULE_SIZE,
+                                       200, /* max_entries */
+                                       error)) {
+                ret = false;
+                goto done;
+        }
+
+        data->avt->n_rules = buf.length / PCX_AVT_LOAD_RULE_SIZE;
+        data->avt->rules = pcx_calloc(data->avt->n_rules *
+                                      sizeof (struct pcx_avt_rule));
+
+        for (size_t i = 0; i < data->avt->n_rules; i++) {
+                const uint8_t *rule_data =
+                        buf.data + i * PCX_AVT_LOAD_RULE_SIZE;
+                struct pcx_avt_rule *rule = data->avt->rules + i;
+
+                if (rule_data[0] < 1 || rule_data[1] > data->avt->n_verbs) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_VERB,
+                                      "An invalid verb was referenced");
+                        ret = false;
+                        goto done;
+                }
+
+                rule->verb = data->avt->verbs[rule_data[0] - 1];
+
+                rule_data++;
+
+                if (!extract_condition(data,
+                                       &rule->room_condition,
+                                       rule_data + 0,
+                                       error) ||
+                    !extract_condition(data,
+                                       &rule->object_condition,
+                                       rule_data + 2,
+                                       error) ||
+                    !extract_condition(data,
+                                       &rule->tool_condition,
+                                       rule_data + 4,
+                                       error) ||
+                    !extract_condition(data,
+                                       &rule->monster_condition,
+                                       rule_data + 6,
+                                       error)) {
+                        ret = false;
+                        goto done;
+                }
+
+                rule_data += 8;
+
+                if (!extract_optional_string_num(data,
+                                                 rule_data,
+                                                 &rule->text,
+                                                 error))
+                        return NULL;
+
+                rule_data += 2;
+
+                if (!extract_action(data,
+                                    &rule->room_action,
+                                    rule_data + 0,
+                                    error) ||
+                    !extract_action(data,
+                                    &rule->object_action,
+                                    rule_data + 2,
+                                    error) ||
+                    !extract_action(data,
+                                    &rule->tool_action,
+                                    rule_data + 4,
+                                    error) ||
+                    !extract_action(data,
+                                    &rule->monster_action,
+                                    rule_data + 6,
+                                    error)) {
+                        ret = false;
+                        goto done;
+                }
+
+                rule_data += 8;
+
+                rule->score = *(rule_data++);
         }
 
 done:
@@ -1223,6 +1501,11 @@ pcx_avt_load(const char *filename,
         }
 
         if (!load_verbs(&data, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_rules(&data, error)) {
                 ret = false;
                 goto done;
         }
