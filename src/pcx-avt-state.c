@@ -667,14 +667,14 @@ handle_direction(struct pcx_avt_state *state,
                 const char *word;
                 int direction;
         } direction_map[] = {
-                { "nord", 0 },
-                { "orient", 1 },
-                { "sud", 2 },
-                { "okcident", 3 },
-                { "supr", 4 },
-                { "malsupr", 5 },
-                { "sub", 5 },
-                { "el", 6 },
+                { "nord", PCX_AVT_DIRECTION_NORTH },
+                { "orient", PCX_AVT_DIRECTION_EAST },
+                { "sud", PCX_AVT_DIRECTION_SOUTH },
+                { "okcident", PCX_AVT_DIRECTION_WEST },
+                { "supr", PCX_AVT_DIRECTION_UP },
+                { "malsupr", PCX_AVT_DIRECTION_DOWN },
+                { "sub", PCX_AVT_DIRECTION_DOWN },
+                { "el", PCX_AVT_DIRECTION_EXIT },
         };
 
         const struct pcx_avt_room *room =
