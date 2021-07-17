@@ -846,8 +846,7 @@ handle_look(struct pcx_avt_state *state,
 }
 
 static bool
-is_verb_object_command(struct pcx_avt_state *state,
-                       const struct pcx_avt_command *command)
+is_verb_object_command(const struct pcx_avt_command *command)
 {
         /* Must have verb and object. Subject optional. */
         if ((command->has & ~PCX_AVT_COMMAND_HAS_SUBJECT) !=
@@ -925,7 +924,7 @@ static bool
 handle_take(struct pcx_avt_state *state,
             const struct pcx_avt_command *command)
 {
-        if (!is_verb_object_command(state, command))
+        if (!is_verb_object_command(command))
                 return false;
 
         if (!pcx_avt_command_word_equal(&command->verb, "pren"))
@@ -954,7 +953,7 @@ static bool
 handle_drop(struct pcx_avt_state *state,
             const struct pcx_avt_command *command)
 {
-        if (!is_verb_object_command(state, command))
+        if (!is_verb_object_command(command))
                 return false;
 
         if (!pcx_avt_command_word_equal(&command->verb, "ĵet") &&
