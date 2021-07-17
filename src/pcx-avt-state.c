@@ -1190,6 +1190,70 @@ handle_exit(struct pcx_avt_state *state,
         return true;
 }
 
+static bool
+handle_open_close(struct pcx_avt_state *state,
+                  const struct pcx_avt_command *command)
+{
+        if (!is_verb_object_command(command))
+                return false;
+
+        uint32_t new_state;
+
+        if (pcx_avt_command_word_equal(&command->verb, "ferm"))
+                new_state = PCX_AVT_OBJECT_ATTRIBUTE_CLOSED;
+        else if (pcx_avt_command_word_equal(&command->verb, "malferm"))
+                new_state = 0;
+        else
+                return false;
+
+        struct pcx_avt_state_movable *movable =
+                find_movable_or_message(state, &command->object);
+
+        if (movable == NULL)
+                return true;
+
+        if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+            (movable->base.attributes &
+             PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE) == 0) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi ne povas ");
+                add_word_to_message(state, &command->verb);
+                pcx_buffer_append_string(&state->message_buf, "i la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        if ((movable->base.attributes &
+             PCX_AVT_OBJECT_ATTRIBUTE_CLOSED) == new_state) {
+                pcx_buffer_append_string(&state->message_buf, "La ");
+                add_movable_to_message(state, &movable->base, NULL);
+                pcx_buffer_append_string(&state->message_buf, " jam estas ");
+                if (new_state == 0)
+                        pcx_buffer_append_string(&state->message_buf, "mal");
+                pcx_buffer_append_string(&state->message_buf, "fermita");
+                if (movable->base.pronoun == PCX_AVT_PRONOUN_PLURAL)
+                        pcx_buffer_append_c(&state->message_buf, 'j');
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        movable->base.attributes = ((movable->base.attributes &
+                                     ~PCX_AVT_OBJECT_ATTRIBUTE_CLOSED) |
+                                    new_state);
+
+        pcx_buffer_append_string(&state->message_buf, "Vi ");
+        add_word_to_message(state, &command->verb);
+        pcx_buffer_append_string(&state->message_buf, "is la ");
+        add_movable_to_message(state, &movable->base, "n");
+        pcx_buffer_append_c(&state->message_buf, '.');
+        end_message(state);
+
+        return true;
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -1232,6 +1296,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_exit(state, &command))
+                return;
+
+        if (handle_open_close(state, &command))
                 return;
 
         struct pcx_buffer *buf = &state->message_buf;
