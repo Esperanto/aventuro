@@ -647,19 +647,19 @@ static bool
 handle_direction(struct pcx_avt_state *state,
                  const struct pcx_avt_command *command)
 {
-        if (!command->has_direction ||
-            command->has_object ||
-            command->has_tool ||
-            command->has_in)
+        /* Must have direction. Subject and verb optional. */
+        if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
+                              PCX_AVT_COMMAND_HAS_VERB)) !=
+            PCX_AVT_COMMAND_HAS_DIRECTION)
                 return false;
 
-        if (command->has_subject &&
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
             (!command->subject.is_pronoun ||
              command->subject.pronoun.person != 1 ||
              command->subject.pronoun.plural))
                 return false;
 
-        if (command->has_verb &&
+        if ((command->has & PCX_AVT_COMMAND_HAS_VERB) &&
             !pcx_avt_command_word_equal(&command->verb, "ir"))
                 return false;
 
@@ -716,26 +716,26 @@ static bool
 handle_inventory(struct pcx_avt_state *state,
                  const struct pcx_avt_command *command)
 {
-        if (command->has_direction ||
-            command->has_tool ||
-            command->has_in)
+        /* Must have object. Verb and subject optional. */
+        if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
+                              PCX_AVT_COMMAND_HAS_VERB)) !=
+            PCX_AVT_COMMAND_HAS_OBJECT)
                 return false;
 
-        if (command->has_subject &&
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
             (!command->subject.is_pronoun ||
              command->subject.pronoun.person != 1 ||
              command->subject.pronoun.plural))
                 return false;
 
-        if (!command->has_object ||
-            command->object.is_pronoun ||
+        if (command->object.is_pronoun ||
             command->object.article ||
             command->object.adjective.start ||
             command->object.plural ||
             !pcx_avt_command_word_equal(&command->object.name, "ki"))
                 return false;
 
-        if (command->has_verb &&
+        if ((command->has & PCX_AVT_COMMAND_HAS_VERB) &&
             !pcx_avt_command_word_equal(&command->verb, "hav") &&
             !pcx_avt_command_word_equal(&command->verb, "kunport"))
                 return false;
@@ -788,13 +788,13 @@ static bool
 handle_look(struct pcx_avt_state *state,
             const struct pcx_avt_command *command)
 {
-        if (command->has_direction ||
-            command->has_tool ||
-            command->has_in ||
-            !command->has_verb)
+        /* Must have verb. Object and subject optional. */
+        if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
+                              PCX_AVT_COMMAND_HAS_OBJECT)) !=
+            PCX_AVT_COMMAND_HAS_VERB)
                 return false;
 
-        if (command->has_subject &&
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
             (!command->subject.is_pronoun ||
              command->subject.pronoun.person != 1 ||
              command->subject.pronoun.plural))
@@ -803,7 +803,7 @@ handle_look(struct pcx_avt_state *state,
         if (!pcx_avt_command_word_equal(&command->verb, "rigard"))
                 return false;
 
-        if (!command->has_object) {
+        if ((command->has & PCX_AVT_COMMAND_HAS_OBJECT) == 0) {
                 send_room_description(state);
                 return true;
         }
@@ -849,14 +849,12 @@ static bool
 is_verb_object_command(struct pcx_avt_state *state,
                        const struct pcx_avt_command *command)
 {
-        if (command->has_direction ||
-            command->has_tool ||
-            command->has_in ||
-            !command->has_verb ||
-            !command->has_object)
+        /* Must have verb and object. Subject optional. */
+        if ((command->has & ~PCX_AVT_COMMAND_HAS_SUBJECT) !=
+            (PCX_AVT_COMMAND_HAS_VERB | PCX_AVT_COMMAND_HAS_OBJECT))
                 return false;
 
-        if (command->has_subject &&
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
             (!command->subject.is_pronoun ||
              command->subject.pronoun.person != 1 ||
              command->subject.pronoun.plural))
@@ -1028,9 +1026,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
 
         struct pcx_buffer *buf = &state->message_buf;
 
-        if (command.has_subject)
+        if ((command.has & PCX_AVT_COMMAND_HAS_SUBJECT))
                 add_noun(buf, &command.subject);
-        if (command.has_verb) {
+        if ((command.has & PCX_AVT_COMMAND_HAS_VERB)) {
                 if (buf->length >= 1)
                         pcx_buffer_append_c(buf, ' ');
                 pcx_buffer_append(buf,
@@ -1038,12 +1036,12 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                                   command.verb.length);
                 pcx_buffer_append_string(buf, "as");
         }
-        if (command.has_object) {
+        if ((command.has & PCX_AVT_COMMAND_HAS_OBJECT)) {
                 if (buf->length >= 1)
                         pcx_buffer_append_c(buf, ' ');
                 add_noun(buf, &command.object);
         }
-        if (command.has_direction) {
+        if ((command.has & PCX_AVT_COMMAND_HAS_DIRECTION)) {
                 if (buf->length >= 1)
                         pcx_buffer_append_c(buf, ' ');
                 pcx_buffer_append(buf,
@@ -1051,13 +1049,13 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                                   command.direction.length);
                 pcx_buffer_append_string(buf, "en");
         }
-        if (command.has_tool) {
+        if ((command.has & PCX_AVT_COMMAND_HAS_TOOL)) {
                 if (buf->length >= 1)
                         pcx_buffer_append_c(buf, ' ');
                 pcx_buffer_append_string(buf, "per ");
                 add_noun(buf, &command.tool);
         }
-        if (command.has_in) {
+        if ((command.has & PCX_AVT_COMMAND_HAS_IN)) {
                 if (buf->length >= 1)
                         pcx_buffer_append_c(buf, ' ');
                 pcx_buffer_append_string(buf, "en ");

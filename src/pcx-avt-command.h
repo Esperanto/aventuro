@@ -25,6 +25,16 @@
 
 #include "pcx-avt.h"
 
+/* Parts of speech that the command can have */
+enum pcx_avt_command_has {
+        PCX_AVT_COMMAND_HAS_SUBJECT = (1 << 0),
+        PCX_AVT_COMMAND_HAS_OBJECT = (1 << 1),
+        PCX_AVT_COMMAND_HAS_TOOL = (1 << 2),
+        PCX_AVT_COMMAND_HAS_DIRECTION = (1 << 3),
+        PCX_AVT_COMMAND_HAS_IN = (1 << 4),
+        PCX_AVT_COMMAND_HAS_VERB = (1 << 5),
+};
+
 struct pcx_avt_command_word {
         const char *start;
         size_t length;
@@ -57,12 +67,7 @@ struct pcx_avt_command_noun {
 };
 
 struct pcx_avt_command {
-        bool has_subject;
-        bool has_object;
-        bool has_tool;
-        bool has_direction;
-        bool has_in;
-        bool has_verb;
+        enum pcx_avt_command_has has;
 
         struct pcx_avt_command_noun subject;
         struct pcx_avt_command_noun object;

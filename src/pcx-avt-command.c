@@ -532,45 +532,46 @@ pcx_avt_command_parse(const char *text,
 
                 if (parse_noun(&pos, &noun)) {
                         if (noun.accusative) {
-                                if (command->has_object)
+                                if ((command->has & PCX_AVT_COMMAND_HAS_OBJECT))
                                         return false;
-                                command->has_object = true;
+                                command->has |= PCX_AVT_COMMAND_HAS_OBJECT;
                                 command->object = noun;
                                 continue;
                         } else {
-                                if (command->has_subject)
+                                if ((command->has &
+                                     PCX_AVT_COMMAND_HAS_SUBJECT))
                                         return false;
-                                command->has_subject = true;
+                                command->has |= PCX_AVT_COMMAND_HAS_SUBJECT;
                                 command->subject = noun;
                                 continue;
                         }
                 }
 
                 if (parse_verb(&pos, &command->verb)) {
-                        if (command->has_verb)
+                        if ((command->has & PCX_AVT_COMMAND_HAS_VERB))
                                 return false;
-                        command->has_verb = true;
+                        command->has |= PCX_AVT_COMMAND_HAS_VERB;
                         continue;
                 }
 
                 if (parse_tool(&pos, &command->tool)) {
-                        if (command->has_tool)
+                        if ((command->has & PCX_AVT_COMMAND_HAS_TOOL))
                                 return false;
-                        command->has_tool = true;
+                        command->has |= PCX_AVT_COMMAND_HAS_TOOL;
                         continue;
                 }
 
                 if (parse_direction(&pos, &command->direction)) {
-                        if (command->has_direction)
+                        if ((command->has & PCX_AVT_COMMAND_HAS_DIRECTION))
                                 return false;
-                        command->has_direction = true;
+                        command->has |= PCX_AVT_COMMAND_HAS_DIRECTION;
                         continue;
                 }
 
                 if (parse_in(&pos, &command->in)) {
-                        if (command->has_in)
+                        if ((command->has & PCX_AVT_COMMAND_HAS_IN))
                                 return false;
-                        command->has_in = true;
+                        command->has |= PCX_AVT_COMMAND_HAS_IN;
                         continue;
                 }
 
