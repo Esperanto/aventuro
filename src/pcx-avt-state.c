@@ -580,17 +580,29 @@ get_weight_of_movable(struct pcx_avt_state *state,
 }
 
 static int
-get_carrying_size(struct pcx_avt_state *state)
+get_size_in_list(struct pcx_list *list)
 {
         struct pcx_avt_state_movable *movable;
         int size = 0;
 
-        pcx_list_for_each(movable, &state->carrying, location_node) {
+        pcx_list_for_each(movable, list, location_node) {
                 if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
                         size += movable->object.size;
         }
 
         return size;
+}
+
+static int
+get_carrying_size(struct pcx_avt_state *state)
+{
+        return get_size_in_list(&state->carrying);
+}
+
+static int
+get_movable_contents_size(struct pcx_avt_state_movable *movable)
+{
+        return get_size_in_list(&movable->contents);
 }
 
 static bool
@@ -956,6 +968,31 @@ handle_take(struct pcx_avt_state *state,
         return true;
 }
 
+static struct pcx_avt_state_movable *
+find_carrying_movable_or_message(struct pcx_avt_state *state,
+                                 const struct pcx_avt_command_noun *noun)
+{
+        struct pcx_avt_state_movable *movable =
+                find_movable_or_message(state, noun);
+
+        if (movable == NULL)
+                return NULL;
+
+        if (movable->base.location_type != PCX_AVT_LOCATION_TYPE_CARRYING) {
+                if (!validate_take(state, movable))
+                        return NULL;
+
+                carry_movable(state, movable);
+
+                pcx_buffer_append_string(&state->message_buf, "Vi prenis la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+        }
+
+        return movable;
+}
+
 static bool
 handle_drop(struct pcx_avt_state *state,
             const struct pcx_avt_command *command)
@@ -989,6 +1026,103 @@ handle_drop(struct pcx_avt_state *state,
 
         pcx_buffer_append_string(&state->message_buf, "Vi ĵetis la ");
         add_movable_to_message(state, &movable->base, "n");
+        pcx_buffer_append_c(&state->message_buf, '.');
+        end_message(state);
+
+        return true;
+}
+
+static bool
+container_would_create_cycle(struct pcx_avt_state_movable *container,
+                             struct pcx_avt_state_movable *containee)
+{
+        while (container) {
+                if (containee == container)
+                        return true;
+
+                container = container->container;
+        }
+
+        return false;
+}
+
+static bool
+handle_put(struct pcx_avt_state *state,
+           const struct pcx_avt_command *command)
+{
+        if (!is_verb_command_and_has(command,
+                                     PCX_AVT_COMMAND_HAS_OBJECT |
+                                     PCX_AVT_COMMAND_HAS_IN))
+                return false;
+
+        if (!pcx_avt_command_word_equal(&command->verb, "met") &&
+            !pcx_avt_command_word_equal(&command->verb, "enmet"))
+                return false;
+
+        struct pcx_avt_state_movable *container =
+                find_movable_or_message(state, &command->in);
+        if (container == NULL)
+                return true;
+
+        if (container->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+            container->object.container_size <= 0) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi ne povas meti ion en la ");
+                add_movable_to_message(state, &container->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        if ((container->base.attributes & PCX_AVT_OBJECT_ATTRIBUTE_CLOSED)) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi ne povas meti ion en la ");
+                add_movable_to_message(state, &container->base, "n");
+                const char *pronoun = get_pronoun_name(container->base.pronoun);
+                pcx_buffer_append_printf(&state->message_buf,
+                                         " ĉar %s estas fermita",
+                                         pronoun);
+                if (container->base.pronoun == PCX_AVT_PRONOUN_PLURAL)
+                        pcx_buffer_append_c(&state->message_buf, 'j');
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        struct pcx_avt_state_movable *containee =
+                find_carrying_movable_or_message(state, &command->object);
+        if (containee == NULL)
+                return true;
+
+        if (container_would_create_cycle(container, containee)) {
+                send_message(state, "Vi ne povas meti ion en sin mem.");
+                return true;
+        }
+
+        if (get_movable_contents_size(container) +
+            containee->object.size >
+            container->object.container_size) {
+                pcx_buffer_append_string(&state->message_buf, "La ");
+                add_movable_to_message(state, &containee->base, NULL);
+                pcx_buffer_append_string(&state->message_buf,
+                                         " estas tro granda");
+                if (containee->base.pronoun == PCX_AVT_PRONOUN_PLURAL)
+                        pcx_buffer_append_c(&state->message_buf, 'j');
+                pcx_buffer_append_string(&state->message_buf,
+                                         " por eniri la ");
+                add_movable_to_message(state, &container->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        reparent_movable(state, container, containee);
+
+        pcx_buffer_append_string(&state->message_buf, "Vi metis la ");
+        add_movable_to_message(state, &containee->base, "n");
+        pcx_buffer_append_string(&state->message_buf,
+                                 " en la ");
+        add_movable_to_message(state, &container->base, "n");
         pcx_buffer_append_c(&state->message_buf, '.');
         end_message(state);
 
@@ -1086,6 +1220,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_drop(state, &command))
+                return;
+
+        if (handle_put(state, &command))
                 return;
 
         if (handle_inventory(state, &command))
