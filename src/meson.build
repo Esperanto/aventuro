@@ -35,3 +35,20 @@ play_avt_src = [
 ]
 play_avt = executable('play-avt', play_avt_src,
                       include_directories: configinc)
+
+test_avt_src = [
+        'pcx-util.c',
+        'pcx-file-error.c',
+        'pcx-error.c',
+        'pcx-avt.c',
+        'pcx-avt-load.c',
+        'pcx-buffer.c',
+        'test-avt.c',
+        'pcx-avt-state.c',
+        'pcx-avt-command.c',
+        'pcx-utf8.c',
+        'pcx-list.c',
+        'pcx-avt-hat.c',
+]
+test_avt = executable('test-avt', test_avt_src,
+                      include_directories: configinc)
