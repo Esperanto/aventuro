@@ -1,0 +1,502 @@
+Ĉi tiu ĉambro ne havas regulon por la priskribo.
+
+> o
+
+Ĉi tiu ĉambro ja havas regulon por la priskribo.
+
+Jen la priskribo.
+
+> o
+
+Vi estas en kubo. Vi vidas bluan pilkon kaj grandan dinosaŭron.
+
+# Check the “SOMETHING” rule condition with a made up verb.
+
+# This only applies to objects.
+
+> rebokli la bluan pilkon
+
+La ajho nun estas reboklita.
+
+> rebokli la grandan dinosaŭron
+
+Mi ne komprenas vin.
+
+> rebokli
+
+Mi ne komprenas vin.
+
+# This one only works on monsters.
+
+> rekobli la grandan dinosaŭron
+
+La monstro nun estas rekoblita.
+
+> rekobli la bluan pilkon
+
+Mi ne komprenas vin.
+
+> o
+
+Vi estas en sfero. Vi vidas bluan ranon kaj ruĝan ranon.
+
+> rigardi la bluan ranon
+
+Ĝi estas rano kun ŝargo, pezo kaj grando.
+
+Ĝi havas ŝargon.
+
+Ĝi havas pezon.
+
+Ĝi havas grandon.
+
+> rigardi la ruĝan ranon
+
+Ĝi estas rano kun enhavo kaj fajrodaŭro.
+
+Ĝi havas enhavon.
+
+Ĝi havas fajrodaŭron.
+
+> malsxargu la ranon
+
+Vi malŝargis.
+
+> rigardi la bluan ranon
+
+Ĝi estas rano kun ŝargo, pezo kaj grando.
+
+Ĝi havas pezon.
+
+Ĝi havas grandon.
+
+> malpezu la ranon
+
+Vi malpezis.
+
+> rigardi la bluan ranon
+
+Ĝi estas rano kun ŝargo, pezo kaj grando.
+
+Ĝi havas grandon.
+
+> malgrandu la ranon
+
+Vi malgrandis.
+
+> rigardi la bluan ranon
+
+Ĝi estas rano kun ŝargo, pezo kaj grando.
+
+> malhavu la rugxan ranon
+
+Vi malenhavis.
+
+> rigardi la ruĝan ranon
+
+Ĝi estas rano kun enhavo kaj fajrodaŭro.
+
+Ĝi havas fajrodaŭron.
+
+> malfajri la rugxan ranon
+
+Vi malfajrodaŭris.
+
+> rigardi la ruĝan ranon
+
+Ĝi estas rano kun enhavo kaj fajrodaŭro.
+
+> o
+
+Vi estas en ejo plena je ecoj. Vi vidas mojosan ĉemizon kaj malmojosan pantalonon.
+
+La ecejo malŝatas vin ĉar vi ne estas mojosa.
+
+> rigardi la mojosan ĉemizon
+
+Ĝi estas rozkolora.
+
+Ĝi estas mojosa.
+
+> rigardi la malmojosan pantalonon
+
+Ĝi estas bruna.
+
+Ĝi ne estas mojosa.
+
+> preni ĉemizon
+
+Nun ankaŭ vi estas mojosa!
+
+> rigardi
+
+Vi estas en ejo plena je ecoj. Vi vidas malmojosan pantalonon.
+
+La ecejo ŝatas vin ĉar vi estas mojosa.
+
+> ĵetu la ĉemizon
+
+Ho, vi ne plu estas mojosa.
+
+> rigardi
+
+Vi estas en ejo plena je ecoj. Vi vidas malmojosan pantalonon kaj mojosan ĉemizon.
+
+La ecejo malŝatas vin ĉar vi ne estas mojosa.
+
+> malmojigi ĉemizon
+
+Vi malmojosigis.
+
+> rigardi la mojosan ĉemizon
+
+Ĝi estas rozkolora.
+
+Ĝi ne estas mojosa.
+
+> mojigi ĉemizon
+
+Vi mojosigis.
+
+> rigardi la mojosan ĉemizon
+
+Ĝi estas rozkolora.
+
+Ĝi estas mojosa.
+
+# Check that taking a different object doesn’t trigger the AJHO
+# condition for the mojosa ĉemizo
+
+> preni pantalonon
+
+Vi prenis la malmojosan pantalonon.
+
+> jxetu la malmojosan pantalonon
+
+Vi ĵetis la malmojosan pantalonon.
+
+> o
+
+Vi estas en triangulo. Vi vidas kripan pupon kaj lignan keston.
+
+> rideti
+
+Vi ne povas rideti dum la kripa pupo rigardis vin.
+
+> preni la pupon
+
+Vi prenis la kripan pupon.
+
+> rideti
+
+Vi ne povas rideti dum la kripa pupo rigardis vin.
+
+> metu la pupon en la keston
+
+Vi metis la kripan pupon en la lignan keston.
+
+> rideti
+
+Vi ne povas rideti dum la kripa pupo rigardis vin.
+
+> fermi la keston
+
+Vi fermis la lignan keston.
+
+# Check whether something in a closed object counts as being present.
+# The original interpreter counts this as yes, but for the sake of
+# being able to reference the object in a command it counts as no. I
+# think it’s nicer to just consistently count it as no even though it
+# doesn’t match the original interpreter.
+
+> rideti
+
+Mi ne komprenas vin.
+
+> malfermu la keston
+
+Vi malfermis la lignan keston.
+
+> rideti
+
+Vi ne povas rideti dum la kripa pupo rigardis vin.
+
+> tuŝi la pupon
+
+La pupo malaperis post kiam vi tuŝis ĝin!
+
+> rideti
+
+Mi ne komprenas vin.
+
+> o
+
+Ĉi tie estas iloj por artumi. Vi vidas bluan krajonon, ruĝan krajonon, bluan skribilon kaj ruĝan skribilon.
+
+> tusxi bluan krajonon
+
+Vi tuŝis ion bluan.
+
+Vi tuŝis krajonon.
+
+Vi tuŝis bluan krajonon.
+
+> tusxi ruĝan krajonon
+
+Vi tuŝis krajonon.
+
+> tusxi bluan skribilon
+
+Vi tuŝis ion bluan.
+
+> tusxi ruĝan skribilon
+
+Mi ne komprenas vin.
+
+> preni ruĝan skribilon
+
+Vi prenis la ruĝan skribilon.
+
+> o
+
+Jes. Vi vidas vizaĝan maskon.
+
+> bluigi ruĝan skribilon
+
+Vi bluigis.
+
+> tusxi bluan skribilon
+
+Vi tuŝis ion bluan.
+
+> kronigi bluan skribilon
+
+Vi krajonigis.
+
+> tusxi bluan krajonon
+
+Vi tuŝis ion bluan.
+
+Vi tuŝis krajonon.
+
+Vi tuŝis bluan krajonon.
+
+> okc
+
+Ĉi tie estas iloj por artumi. Vi vidas bluan krajonon, ruĝan krajonon kaj bluan skribilon.
+
+> ĵetu bluan krajonon
+
+Vi ĵetis la bluan krajonon.
+
+> o
+
+Jes. Vi vidas vizaĝan maskon.
+
+> fermi maskon
+
+Vi fermis la vizaĝan maskon.
+
+> bkonigi maskon
+
+Vi blukrajonigis.
+
+> r
+
+Jes. Vi vidas bluan krajonon.
+
+# Check that the attributes were also copied, not just the name.
+
+> malfermi bluan krajonon
+
+Vi ne povas malfermi la bluan krajonon.
+
+> o
+
+Estas monstroj ĉi tie! Ho ve! Vi vidas mojosan serpenton, timigan serpenton, mojosan araneon kaj timigan araneon.
+
+> tusxi mojosan serpenton
+
+Vi tuŝis ion mojosan.
+
+Vi tuŝis serpenton.
+
+Vi tuŝis mojosan serpenton.
+
+> tusxi timigan serpenton
+
+Vi tuŝis serpenton.
+
+> tusxi mojosan araneon
+
+Vi tuŝis ion mojosan.
+
+> tusxi timigan araneon
+
+Mi ne komprenas vin.
+
+> leki la mojosan araneon
+
+La timiga serpento montras al vi sian langon.
+
+> piki la timigan serpenton
+
+La monstro malaperas.
+
+> leki la mojosan araneon
+
+Mi ne komprenas vin.
+
+> mkontroli la timigan araneon
+
+La monstro ne estas mojosa.
+
+> mkontroli la mojosan araneon
+
+La monstro estas mojosa.
+
+> malmojigi la mojosan araneon
+
+Vi malmojosigis monstron.
+
+> mkontroli la mojosan araneon
+
+La monstro ne estas mojosa.
+
+> mojigi la mojosan araneon
+
+Vi mojosigis monstron.
+
+> mkontroli la mojosan araneon
+
+La monstro estas mojosa.
+
+> timigi mojosan araneon
+
+Vi timigigis monstron.
+
+> r
+
+Estas monstroj ĉi tie! Ho ve! Vi vidas mojosan serpenton, timigan araneon kaj timigan araneon.
+
+> serpentigi araneon
+
+Vi serpentigis monstron.
+
+> r
+
+Estas monstroj ĉi tie! Ho ve! Vi vidas mojosan serpenton, timigan serpenton kaj timigan araneon.
+
+> stigi mojosan serpenton
+
+Vi timserpentigis monstron.
+
+> r
+
+Estas monstroj ĉi tie! Ho ve! Vi vidas timigan serpenton, timigan serpenton kaj timigan araneon.
+
+> mkontroli timigan serpenton
+
+La monstro ne estas mojosa.
+
+> blobi
+
+Vi ne povas blobi en nebloba salono.
+
+> o
+
+Ĉi tie oni povas blobi.
+
+> blobi
+
+Vi blobis.
+
+> malblobigi
+
+Vi malblobigis.
+
+> blobi
+
+Vi ne povas blobi en nebloba salono.
+
+> blobigi
+
+Vi blobigis.
+
+> blobi
+
+Vi blobis.
+
+> o
+
+Ĉi tie oni anstataŭigas aferojn. Vi vidas ruĝan balonon kaj aŭdacan aglon.
+
+> prenu la balonon
+
+Vi prenis la ruĝan balonon.
+
+> krevigu la balonon
+
+La balono krevis.
+
+> rigardi
+
+Ĉi tie oni anstataŭigas aferojn. Vi vidas aŭdacan aglon kaj eksan balonon.
+
+> tusxu la aglon
+
+La aglo forflugas.
+
+> rigardi
+
+Ĉi tie oni anstataŭigas aferojn. Vi vidas eksan balonon kaj flugantan aglon.
+
+> o
+
+# These two rooms are linked with a rule that sends you to the other
+# room immediately after displaying the description. This checks that
+# the rules can’t cause infinite recursion and that the interpreter
+# gives up eventually.
+
+Vi estas ĉe la rando de cirklo.
+
+Vi sekvas la cirklon.
+
+Vi estas sur ronda parto de la cirklo.
+
+Vi sekvas la rondon.
+
+Vi estas ĉe la rando de cirklo.
+
+Vi sekvas la cirklon.
+
+Vi estas sur ronda parto de la cirklo.
+
+Vi sekvas la rondon.
+
+Vi estas ĉe la rando de cirklo.
+
+Vi sekvas la cirklon.
+
+Vi estas sur ronda parto de la cirklo.
+
+Vi sekvas la rondon.
+
+Vi estas ĉe la rando de cirklo.
+
+Vi sekvas la cirklon.
+
+Vi estas sur ronda parto de la cirklo.
+
+Vi sekvas la rondon.
+
+Vi estas ĉe la rando de cirklo.
+
+Vi sekvas la cirklon.
+
+Vi estas sur ronda parto de la cirklo.
+
+Vi sekvas la rondon.
+
+Vi estas ĉe la rando de cirklo.
+

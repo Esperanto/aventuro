@@ -1,0 +1,408 @@
+NOMO Test 2021 Test;
+
+SALONO salono1; Chi tiu chambro ne havas regulon por la priskribo. @
+ORIENTEN salono2;
+LUMA;
+FINO_SALONO;
+
+SALONO salono2; Chi tiu chambro ja havas regulon por la priskribo. @
+OKCIDENTEN salono2;
+ORIENTEN kubo;
+LUMA;
+FINO_SALONO;
+
+FENOMENO priskribi; Jen la priskribo. @
+LOKO salono2;
+FINO_FENOMENO;
+
+SALONO kubo; Vi estas en kubo. @
+ORIENTEN sfero;
+LUMA;
+
+AJHO blua pilko; Ghi estas blua kaj pilka. @
+FINO_AJHO;
+
+MONSTRO granda dinosawro; Ghi aspektas granda. Kaj dinosawra. @
+MORTITA mortinta dinosawro; Ghi estis dinosawro. Nun ghi estas kadavro. @
+FINO_MORTITA;
+FINO_MONSTRO;
+
+FENOMENO rebokli; La ajho nun estas reboklita. @
+AJHO IO;
+FINO_FENOMENO;
+
+FENOMENO rekobli; La monstro nun estas rekoblita. @
+MONSTRO IO;
+FINO_FENOMENO;
+
+FINO_SALONO;
+
+SALONO sfero; Vi estas en sfero. @
+ORIENTEN ecejo;
+LUMA;
+
+AJHO blua rano; Ghi estas rano kun shargo, pezo kaj grando. @
+SHARGO 50;
+PEZO 51;
+GRANDO 52;
+FINO_AJHO;
+
+AJHO rugha rano; Ghi estas rano kun enhavo kaj fajrodawro. @
+ENHAVO 53;
+FAJRODAURO 54;
+FINO_AJHO;
+
+FINO_SALONO;
+
+FENOMENO rigardi; Ghi havas shargon. @
+LOKO sfero;
+AJHO SHARGO 50;
+FINO_FENOMENO;
+
+FENOMENO rigardi; Ghi havas pezon. @
+LOKO sfero;
+AJHO PEZO 51;
+FINO_FENOMENO;
+
+FENOMENO rigardi; Ghi havas grandon. @
+LOKO sfero;
+AJHO grando 52;
+FINO_FENOMENO;
+
+FENOMENO rigardi; Ghi havas enhavon. @
+LOKO sfero;
+AJHO enhavo 53;
+FINO_FENOMENO;
+
+FENOMENO rigardi; Ghi havas fajrodawron. @
+LOKO sfero;
+AJHO fajrodauro 54;
+FINO_FENOMENO;
+
+FENOMENO malshargi; Vi malshargis. @
+LOKO sfero;
+AJHO IO;
+NOVAAJHO SHARGO 0;
+FINO_FENOMENO;
+
+FENOMENO malpezi; Vi malpezis. @
+LOKO sfero;
+AJHO IO;
+NOVAAJHO PEZO 0;
+FINO_FENOMENO;
+
+FENOMENO malgrandi; Vi malgrandis. @
+LOKO sfero;
+AJHO IO;
+NOVAAJHO GRANDO 0;
+FINO_FENOMENO;
+
+FENOMENO malhavi; Vi malenhavis. @
+LOKO sfero;
+AJHO IO;
+NOVAAJHO ENHAVO 0;
+FINO_FENOMENO;
+
+FENOMENO malfajri; Vi malfajrodawris. @
+LOKO sfero;
+AJHO IO;
+NOVAAJHO FAJRODAURO 0;
+FINO_FENOMENO;
+
+SALONO ecejo; Vi estas en ejo plena je ecoj. @
+LUMA;
+ORIENTEN triangulo;
+
+AJHO mojosa chemizo; Ghi estas rozkolora. @
+ECO mojosa;
+FINO_AJHO;
+
+AJHO malmojosa pantalono; Ghi estas bruna. @
+FINO_AJHO;
+
+FINO_SALONO;
+
+FENOMENO rigardi; Ghi estas mojosa. @
+LOKO ecejo;
+AJHO ECO AJHO mojosa;
+FINO_FENOMENO;
+
+FENOMENO rigardi; Ghi ne estas mojosa. @
+LOKO ecejo;
+AJHO ECO AJHO MALVERA mojosa;
+FINO_FENOMENO;
+
+FENOMENO preni; Nun ankaw vi estas mojosa! @
+AJHO mojosa chemizo;
+NOVAMONSTRO ECO mojosa;
+NOVAAJHO ALIEN KUNPORTANTA;
+FINO_FENOMENO;
+
+FENOMENO jheti; Ho, vi ne plu estas mojosa. @
+AJHO mojosa chemizo;
+NOVAMONSTRO ECO MALVERA mojosa;
+NOVAAJHO ALIEN ecejo;
+FINO_FENOMENO;
+
+FENOMENO priskribi; La ecejo shatas vin char vi estas mojosa. @
+LOKO ecejo;
+AJHO ECO mojosa;
+FINO_FENOMENO;
+
+FENOMENO priskribi; La ecejo malshatas vin char vi ne estas mojosa. @
+LOKO ecejo;
+AJHO ECO MALVERA mojosa;
+FINO_FENOMENO;
+
+FENOMENO mojigi; Vi mojosigis. @
+AJHO IO;
+NOVAAJHO ECO AJHO mojosa;
+FINO_FENOMENO;
+
+FENOMENO malmojigi; Vi malmojosigis. @
+AJHO IO;
+NOVAAJHO ECO AJHO MALVERA mojosa;
+FINO_FENOMENO;
+
+SALONO triangulo; Vi estas en triangulo. @
+ORIENTEN artejo;
+
+AJHO kripa pupo; Mankas al ghi unu okulo. @
+FINO_AJHO;
+
+AJHO ligna kesto; Ghi estas sekura. @
+ENHAVO 99;
+FERMEBLA;
+FINO_AJHO;
+
+FINO_SALONO;
+
+SALONO neniejo; Nenie. @
+FINO_SALONO;
+
+FENOMENO rideti; Vi ne povas rideti dum la kripa pupo rigardis vin. @
+LOKO triangulo;
+AJHO NEPRE kripa pupo;
+FINO_FENOMENO;
+
+FENOMENO tushi; La pupo malaperis post kiam vi tushis ghin! @
+LOKO triangulo;
+AJHO kripa pupo;
+NOVAAJHO ALIEN neniejo;
+FINO_FENOMENO;
+
+SALONO artejo; Chi tie estas iloj por artumi. @
+ORIENTEN jesejo;
+LUMA;
+
+AJHO blua krajono; Ghi estas blua krajono. @
+FINO_AJHO;
+
+AJHO rugha krajono; Ghi estas rugha krajono. @
+FINO_AJHO;
+
+AJHO blua skribilo; Ghi estas blua skribilo. @
+FINO_AJHO;
+
+AJHO rugha skribilo; Ghi estas rugha skribilo. @
+FINO_AJHO;
+
+FINO_SALONO;
+
+SALONO jesejo; Jes. @
+OKCIDENTEN artejo;
+ORIENTEN monstrejo;
+AJHO vizagha masko; Ghi estas kontrawvirusa vizaghmasko. @
+FERMEBLA;
+FINO_AJHO;
+FINO_SALONO;
+
+FENOMENO tushi; Vi tushis ion bluan. @
+AJHO ADJEKTIVO blua skribilo;
+FINO_FENOMENO;
+
+FENOMENO tushi; Vi tushis krajonon. @
+AJHO NOMO blua krajono;
+FINO_FENOMENO;
+
+FENOMENO tushi; Vi tushis bluan krajonon. @
+AJHO KOPIO blua krajono;
+FINO_FENOMENO;
+
+FENOMENO bluigi; Vi bluigis. @
+AJHO IO;
+NOVAAJHO ADJEKTIVO blua krajono;
+FINO_FENOMENO;
+
+FENOMENO kronigi; Vi krajonigis. @
+AJHO IO;
+NOVAAJHO NOMO blua krajono;
+FINO_FENOMENO;
+
+FENOMENO bkonigi; Vi blukrajonigis. @
+AJHO IO;
+NOVAAJHO KOPIO blua krajono;
+FINO_FENOMENO;
+
+SALONO monstrejo; Estas monstroj chi tie! Ho ve! @
+ORIENTEN blobejo;
+LUMA;
+
+MONSTRO mojosa serpento; Ghi estas mojosa serpento @
+MORTITA mortinta mojosserpento; Ghi mortis. @
+FINO_MORTITA;
+ECO mojosa;
+FINO_MONSTRO;
+
+MONSTRO timiga serpento; Ghi estas timiga serpento @
+MORTITA mortinta timigserpento; Ghi mortis. @
+FINO_MORTITA;
+FINO_MONSTRO;
+
+MONSTRO mojosa araneo; Ghi estas mojosa araneo @
+MORTITA mortinta mojosaraneo; Ghi mortis. @
+FINO_MORTITA;
+ECO mojosa;
+FINO_MONSTRO;
+
+MONSTRO timiga araneo; Ghi estas timiga araneo @
+MORTITA mortinta timigaraneo; Ghi mortis. @
+FINO_MORTITA;
+FINO_MONSTRO;
+
+FENOMENO tushi; Vi tushis ion mojosan. @
+LOKO monstrejo;
+MONSTRO ADJEKTIVO mojosa araneo;
+FINO_FENOMENO;
+
+FENOMENO tushi; Vi tushis serpenton. @
+LOKO monstrejo;
+MONSTRO NOMO mojosa serpento;
+FINO_FENOMENO;
+
+FENOMENO tushi; Vi tushis mojosan serpenton. @
+LOKO monstrejo;
+MONSTRO KOPIO mojosa serpento;
+FINO_FENOMENO;
+
+FENOMENO leki; La timiga serpento montras al vi sian langon. @
+LOKO monstrejo;
+MONSTRO NEPRE timiga serpento;
+FINO_FENOMENO;
+
+FENOMENO piki; La monstro malaperas. @
+LOKO monstrejo;
+MONSTRO IO;
+NOVAMONSTRO ALIEN neniejo;
+FINO_FENOMENO;
+
+FENOMENO mkontroli; La monstro estas mojosa. @
+LOKO monstrejo;
+MONSTRO ECO MONSTRO mojosa;
+FINO_FENOMENO;
+
+FENOMENO mkontroli; La monstro ne estas mojosa. @
+LOKO monstrejo;
+MONSTRO ECO MONSTRO MALVERA mojosa;
+FINO_FENOMENO;
+
+FENOMENO mojigi; Vi mojosigis monstron. @
+MONSTRO IO;
+NOVAMONSTRO ECO MONSTRO mojosa;
+FINO_FENOMENO;
+
+FENOMENO malmojigi; Vi malmojosigis monstron. @
+MONSTRO IO;
+NOVAMONSTRO ECO MONSTRO MALVERA mojosa;
+FINO_FENOMENO;
+
+FENOMENO timigi; Vi timigigis monstron. @
+MONSTRO IO;
+NOVAMONSTRO ADJEKTIVO timiga serpento;
+FINO_FENOMENO;
+
+FENOMENO serpentigi; Vi serpentigis monstron. @
+MONSTRO IO;
+NOVAMONSTRO NOMO timiga serpento;
+FINO_FENOMENO;
+
+FENOMENO stigi; Vi timserpentigis monstron. @
+MONSTRO IO;
+NOVAMONSTRO KOPIO timiga serpento;
+FINO_FENOMENO;
+
+FINO_SALONO;
+
+FENOMENO blobi; Vi ne povas blobi en nebloba salono. @
+LOKO ECO SALONO MALVERA bloba;
+FINO_FENOMENO;
+
+FENOMENO blobi; Vi blobis. @
+LOKO ECO SALONO bloba;
+FINO_FENOMENO;
+
+FENOMENO blobigi; Vi blobigis. @
+NOVALOKO ECO SALONO bloba;
+FINO_FENOMENO;
+
+FENOMENO malblobigi; Vi malblobigis. @
+NOVALOKO ECO SALONO MALVERA bloba;
+FINO_FENOMENO;
+
+SALONO blobejo; Chi tie oni povas blobi. @
+ORIENTEN anstatejo;
+LUMA;
+ECO bloba;
+FINO_SALONO;
+
+SALONO anstatejo; Chi tie oni anstatawigas aferojn. @
+LUMA;
+ORIENTEN cirklo;
+
+AJHO rugha balono; Ghi estas balono kiel en la filmo It. @
+FINO_AJHO;
+
+MONSTRO awdaca aglo; Ghi awdacas. @
+MORTITA mortinta aglo; Ghi mortis. @
+FINO_MORTITA;
+FINO_MONSTRO;
+
+FINO_SALONO;
+
+AJHO eksa balono; Ghi antawe estis balono. @
+FINO_AJHO;
+
+FENOMENO krevigi; La balono krevis. @
+AJHO rugha balono;
+NOVAAJHO eksa balono;
+FINO_FENOMENO;
+
+FENOMENO tushi; La aglo forflugas. @
+MONSTRO awdaca aglo;
+NOVAMONSTRO fluganta aglo;
+FINO_FENOMENO;
+
+MONSTRO fluganta aglo; Ghi flugas. @
+MORTITA falinta aglo; Ghi falis kaj mortis. @
+FINO_MORTITA;
+FINO_MONSTRO;
+
+SALONO cirklo; Vi estas che la rando de cirklo. @
+LUMA;
+FINO_SALONO;
+
+SALONO rondo; Vi estas sur ronda parto de la cirklo. @
+LUMA;
+FINO_SALONO;
+
+FENOMENO priskribi; Vi sekvas la cirklon. @
+LOKO cirklo;
+NOVALOKO rondo;
+FINO_FENOMENO;
+
+FENOMENO priskribi; Vi sekvas la rondon. @
+LOKO rondo;
+NOVALOKO cirklo;
+FINO_FENOMENO;
+
+FINO_PROGRAMO;;

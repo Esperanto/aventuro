@@ -32,6 +32,11 @@
 #define PCX_AVT_STATE_MAX_CARRYING_WEIGHT 100
 #define PCX_AVT_STATE_MAX_CARRYING_SIZE 100
 
+/* If a rule action triggers another rule action, we’ll limit the
+ * recursion to this to prevent stack overflow.
+ */
+#define PCX_AVT_STATE_MAX_RECURSION_DEPTH 10
+
 enum pcx_avt_state_movable_type {
         PCX_AVT_STATE_MOVABLE_TYPE_OBJECT,
         PCX_AVT_STATE_MOVABLE_TYPE_MONSTER,
@@ -110,7 +115,16 @@ struct pcx_avt_state {
 
         /* Temporary stack for searching for items */
         struct pcx_buffer stack;
+
+        /* Used to prevent infinite recursion when executing rules */
+        int rule_recursion_depth;
 };
+
+static bool
+run_special_rules(struct pcx_avt_state *state,
+                  const char *verb_str,
+                  struct pcx_avt_state_movable *object,
+                  struct pcx_avt_state_movable *tool);
 
 static void
 end_message(struct pcx_avt_state *state)
@@ -222,6 +236,53 @@ add_noun_to_message(struct pcx_avt_state *state,
                 pcx_buffer_append_string(&state->message_buf, suffix);
 }
 
+static bool
+movable_is_in_current_room(struct pcx_avt_state *state,
+                           const struct pcx_avt_state_movable *movable)
+{
+        const struct pcx_avt_state_movable *m;
+
+        pcx_list_for_each(m,
+                          &state->rooms[state->current_room].contents,
+                          location_node) {
+                if (m == movable)
+                        return true;
+        }
+
+        return false;
+}
+
+static bool
+is_movable_present(struct pcx_avt_state *state,
+                   const struct pcx_avt_state_movable *base_movable)
+{
+        const struct pcx_avt_state_movable *movable = base_movable;
+
+        while (true) {
+                switch (movable->base.location_type) {
+                case PCX_AVT_LOCATION_TYPE_IN_ROOM:
+                        return movable_is_in_current_room(state, movable);
+                case PCX_AVT_LOCATION_TYPE_CARRYING:
+                        return true;
+                case PCX_AVT_LOCATION_TYPE_NOWHERE:
+                        return false;
+                case PCX_AVT_LOCATION_TYPE_WITH_MONSTER:
+                case PCX_AVT_LOCATION_TYPE_IN_OBJECT:
+                        movable = movable->container;
+                        if (movable == base_movable)
+                                return false;
+                        if (movable->type ==
+                            PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                            (movable->base.attributes &
+                             PCX_AVT_OBJECT_ATTRIBUTE_CLOSED))
+                                return false;
+                        continue;
+                }
+
+                return false;
+        }
+}
+
 static void
 send_room_description(struct pcx_avt_state *state)
 {
@@ -238,6 +299,11 @@ send_room_description(struct pcx_avt_state *state)
         }
 
         end_message(state);
+
+        run_special_rules(state,
+                          "priskrib",
+                          NULL /* object */,
+                          NULL /* tool */);
 }
 
 static void
@@ -288,6 +354,16 @@ create_monsters(struct pcx_avt_state *state)
 }
 
 static void
+disappear_movable(struct pcx_avt_state *state,
+                  struct pcx_avt_state_movable *movable)
+{
+        pcx_list_remove(&movable->location_node);
+        pcx_list_insert(state->nowhere.prev, &movable->location_node);
+        movable->container = NULL;
+        movable->base.location_type = PCX_AVT_LOCATION_TYPE_NOWHERE;
+}
+
+static void
 put_movable_in_room(struct pcx_avt_state *state,
                     struct pcx_avt_state_room *room,
                     struct pcx_avt_state_movable *movable)
@@ -327,6 +403,411 @@ reparent_movable(struct pcx_avt_state *state,
                         PCX_AVT_LOCATION_TYPE_WITH_MONSTER;
                 break;
         }
+}
+
+static void
+copy_movable(struct pcx_avt_state_movable *dst,
+             const struct pcx_avt_state_movable *src)
+{
+        if (dst == src)
+                return;
+
+        pcx_free(dst->base.adjective);
+        pcx_free(dst->base.name);
+        memcpy(&dst->base,
+               &src->base,
+               sizeof (*dst) - offsetof(struct pcx_avt_state_movable, base));
+        dst->type = src->type;
+        dst->base.adjective = pcx_strdup(dst->base.adjective);
+        dst->base.name = pcx_strdup(dst->base.name);
+}
+
+static bool
+check_condition(struct pcx_avt_state *state,
+                const struct pcx_avt_condition_data *condition,
+                struct pcx_avt_state_movable *movable)
+{
+        switch (condition->condition) {
+        case PCX_AVT_CONDITION_IN_ROOM:
+                return state->current_room == condition->data;
+        case PCX_AVT_CONDITION_OBJECT_IS:
+                return movable == state->object_index[condition->data];
+        case PCX_AVT_CONDITION_ANOTHER_OBJECT_PRESENT:
+                return is_movable_present(state,
+                                          state->object_index[condition->data]);
+        case PCX_AVT_CONDITION_MONSTER_IS:
+                return movable == state->monster_index[condition->data];
+        case PCX_AVT_CONDITION_ANOTHER_MONSTER_PRESENT:
+                movable = state->monster_index[condition->data];
+                return is_movable_present(state, movable);
+        case PCX_AVT_CONDITION_SHOTS:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                        movable->object.shots >= condition->data);
+        case PCX_AVT_CONDITION_WEIGHT:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                        movable->object.weight >= condition->data);
+        case PCX_AVT_CONDITION_SIZE:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                        movable->object.size >= condition->data);
+        case PCX_AVT_CONDITION_CONTAINER_SIZE:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                        movable->object.container_size >= condition->data);
+        case PCX_AVT_CONDITION_BURN_TIME:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                        movable->object.burn_time >= condition->data);
+        case PCX_AVT_CONDITION_SOMETHING:
+                return movable != NULL;
+        case PCX_AVT_CONDITION_NOTHING:
+                return movable == NULL;
+        case PCX_AVT_CONDITION_NONE:
+                return true;
+        case PCX_AVT_CONDITION_OBJECT_ATTRIBUTE:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                        (movable->base.attributes & (1 << condition->data)));
+        case PCX_AVT_CONDITION_NOT_OBJECT_ATTRIBUTE:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                        (movable->base.attributes &
+                         (1 << condition->data)) == 0);
+        case PCX_AVT_CONDITION_ROOM_ATTRIBUTE:
+                return (state->rooms[state->current_room].attributes &
+                        (1 << condition->data));
+        case PCX_AVT_CONDITION_NOT_ROOM_ATTRIBUTE:
+                return (state->rooms[state->current_room].attributes &
+                        (1 << condition->data)) == 0;
+        case PCX_AVT_CONDITION_MONSTER_ATTRIBUTE:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER &&
+                        (movable->base.attributes & (1 << condition->data)));
+        case PCX_AVT_CONDITION_NOT_MONSTER_ATTRIBUTE:
+                return (movable &&
+                        movable->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER &&
+                        (movable->base.attributes &
+                         (1 << condition->data)) == 0);
+        case PCX_AVT_CONDITION_PLAYER_ATTRIBUTE:
+                return (state->game_attributes & (1 << condition->data));
+        case PCX_AVT_CONDITION_NOT_PLAYER_ATTRIBUTE:
+                return (state->game_attributes & (1 << condition->data)) == 0;
+        case PCX_AVT_CONDITION_CHANCE:
+                return rand() % 100 < condition->data;
+        case PCX_AVT_CONDITION_OBJECT_SAME_ADJECTIVE:
+                return (movable &&
+                        !strcmp(movable->base.adjective,
+                                state->object_index[condition->data]->
+                                base.adjective));
+        case PCX_AVT_CONDITION_OBJECT_SAME_NAME:
+                return (movable &&
+                        !strcmp(movable->base.name,
+                                state->object_index[condition->data]->
+                                base.name));
+        case PCX_AVT_CONDITION_OBJECT_SAME_NOUN:
+                return (movable &&
+                        !strcmp(movable->base.adjective,
+                                state->object_index[condition->data]->
+                                base.adjective) &&
+                        !strcmp(movable->base.name,
+                                state->object_index[condition->data]->
+                                base.name));
+        case PCX_AVT_CONDITION_MONSTER_SAME_ADJECTIVE:
+                return (movable &&
+                        !strcmp(movable->base.adjective,
+                                state->monster_index[condition->data]->
+                                base.adjective));
+        case PCX_AVT_CONDITION_MONSTER_SAME_NAME:
+                return (movable &&
+                        !strcmp(movable->base.name,
+                                state->monster_index[condition->data]->
+                                base.name));
+        case PCX_AVT_CONDITION_MONSTER_SAME_NOUN:
+                return (movable &&
+                        !strcmp(movable->base.adjective,
+                                state->monster_index[condition->data]->
+                                base.adjective) &&
+                        !strcmp(movable->base.name,
+                                state->monster_index[condition->data]->
+                                base.name));
+        }
+
+        return false;
+}
+
+static void
+execute_action(struct pcx_avt_state *state,
+               const struct pcx_avt_action_data *action,
+               bool is_room,
+               struct pcx_avt_state_movable *movable)
+{
+        switch (action->action) {
+        case PCX_AVT_ACTION_MOVE_TO:
+                /* If the action is the room action then the player
+                 * moves, otherwise the object moves.
+                 */
+                if (is_room) {
+                        if (state->current_room != action->data) {
+                                state->current_room = action->data;
+                                send_room_description(state);
+                        }
+                } else {
+                        put_movable_in_room(state,
+                                            state->rooms + action->data,
+                                            movable);
+                }
+                break;
+
+        case PCX_AVT_ACTION_REPLACE_OBJECT:
+        case PCX_AVT_ACTION_CREATE_OBJECT:
+                /* Despite the documentation, in testing with the
+                 * original interpreter these actions seem to do
+                 * exactly the same thing. If there is an object then
+                 * it disappears. The referenced object appears in the
+                 * room, even if the original object was being held by
+                 * the player.
+                 */
+                if (movable)
+                        disappear_movable(state, movable);
+
+                put_movable_in_room(state,
+                                    state->rooms + state->current_room,
+                                    state->object_index[action->data]);
+
+                break;
+
+        case PCX_AVT_ACTION_REPLACE_MONSTER:
+        case PCX_AVT_ACTION_CREATE_MONSTER:
+                if (movable)
+                        disappear_movable(state, movable);
+
+                put_movable_in_room(state,
+                                    state->rooms + state->current_room,
+                                    state->monster_index[action->data]);
+
+                break;
+
+        case PCX_AVT_ACTION_CHANGE_END:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+                        movable->object.end = action->data;
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_SHOTS:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+                        movable->object.shots = action->data;
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_WEIGHT:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+                        movable->object.weight = action->data;
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_SIZE:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+                        movable->object.size = action->data;
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_CONTAINER_SIZE:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+                        movable->object.container_size = action->data;
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_BURN_TIME:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+                        movable->object.burn_time = action->data;
+                }
+                break;
+        case PCX_AVT_ACTION_NOTHING:
+        case PCX_AVT_ACTION_NOTHING_ROOM:
+                break;
+        case PCX_AVT_ACTION_CARRY:
+                /* The original interpreter seems to make the object
+                 * disappear if you use this. Is that a bug? That
+                 * doesn’t seem very useful so let’s just make it do
+                 * what it seems like it should do.
+                 */
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                        carry_movable(state, movable);
+                break;
+        case PCX_AVT_ACTION_SET_OBJECT_ATTRIBUTE:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                        movable->base.attributes |= 1 << action->data;
+                break;
+        case PCX_AVT_ACTION_UNSET_OBJECT_ATTRIBUTE:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                        movable->base.attributes &= ~(1 << action->data);
+                break;
+        case PCX_AVT_ACTION_SET_ROOM_ATTRIBUTE:
+                state->rooms[state->current_room].attributes |=
+                        1 << action->data;
+                break;
+        case PCX_AVT_ACTION_UNSET_ROOM_ATTRIBUTE:
+                state->rooms[state->current_room].attributes &=
+                        ~(1 << action->data);
+                break;
+        case PCX_AVT_ACTION_SET_MONSTER_ATTRIBUTE:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER)
+                        movable->base.attributes |= 1 << action->data;
+                break;
+        case PCX_AVT_ACTION_UNSET_MONSTER_ATTRIBUTE:
+                if (movable &&
+                    movable->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER)
+                        movable->base.attributes &= ~(1 << action->data);
+                break;
+        case PCX_AVT_ACTION_SET_PLAYER_ATTRIBUTE:
+                state->game_attributes |= 1 << action->data;
+                break;
+        case PCX_AVT_ACTION_UNSET_PLAYER_ATTRIBUTE:
+                state->game_attributes &= ~(1 << action->data);
+                break;
+        case PCX_AVT_ACTION_CHANGE_OBJECT_ADJECTIVE:
+                if (movable) {
+                        pcx_free(movable->base.adjective);
+                        const struct pcx_avt_state_movable *other =
+                                state->object_index[action->data];
+                        movable->base.adjective =
+                                pcx_strdup(other->base.adjective);
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_MONSTER_ADJECTIVE:
+                if (movable) {
+                        pcx_free(movable->base.adjective);
+                        const struct pcx_avt_state_movable *other =
+                                state->monster_index[action->data];
+                        movable->base.adjective =
+                                pcx_strdup(other->base.adjective);
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_OBJECT_NAME:
+                if (movable) {
+                        pcx_free(movable->base.name);
+                        const struct pcx_avt_state_movable *other =
+                                state->object_index[action->data];
+                        movable->base.name =
+                                pcx_strdup(other->base.name);
+                }
+                break;
+        case PCX_AVT_ACTION_CHANGE_MONSTER_NAME:
+                if (movable) {
+                        pcx_free(movable->base.name);
+                        const struct pcx_avt_state_movable *other =
+                                state->monster_index[action->data];
+                        movable->base.name =
+                                pcx_strdup(other->base.name);
+                }
+                break;
+        case PCX_AVT_ACTION_COPY_OBJECT:
+                if (movable) {
+                        copy_movable(movable,
+                                     state->object_index[action->data]);
+                }
+                break;
+        case PCX_AVT_ACTION_COPY_MONSTER:
+                if (movable) {
+                        copy_movable(movable,
+                                     state->monster_index[action->data]);
+                }
+                break;
+        }
+}
+
+static bool
+run_rules(struct pcx_avt_state *state,
+          const struct pcx_avt_command_word *verb,
+          struct pcx_avt_state_movable *command_object,
+          struct pcx_avt_state_movable *tool)
+{
+        /* Prevent infinite recursion when rule actions trigger other rules.
+         */
+        if (state->rule_recursion_depth >= PCX_AVT_STATE_MAX_RECURSION_DEPTH)
+                return false;
+
+        bool executed_rule = false;
+
+        struct pcx_avt_state_movable *object =
+                (command_object &&
+                 command_object->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) ?
+                command_object :
+                NULL;
+        struct pcx_avt_state_movable *monster =
+                (command_object &&
+                 command_object->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER) ?
+                command_object :
+                NULL;
+
+        for (size_t i = 0; i < state->avt->n_rules; i++) {
+                const struct pcx_avt_rule *rule = state->avt->rules + i;
+
+                if (!pcx_avt_command_word_equal(verb, rule->verb))
+                        continue;
+
+                if (check_condition(state,
+                                    &rule->room_condition,
+                                    command_object) &&
+                    check_condition(state,
+                                    &rule->object_condition,
+                                    object) &&
+                    check_condition(state,
+                                    &rule->tool_condition,
+                                    tool) &&
+                    check_condition(state,
+                                    &rule->monster_condition,
+                                    monster)) {
+                        state->rule_recursion_depth++;
+
+                        if (rule->text)
+                                send_message(state, "%s", rule->text);
+
+                        execute_action(state,
+                                       &rule->room_action,
+                                       true, /* is_room */
+                                       command_object);
+                        execute_action(state,
+                                       &rule->object_action,
+                                       false, /* is_room */
+                                       object);
+                        execute_action(state,
+                                       &rule->tool_action,
+                                       false, /* is_room */
+                                       tool);
+                        execute_action(state,
+                                       &rule->monster_action,
+                                       false, /* is_room */
+                                       monster);
+
+                        executed_rule = true;
+
+                        state->rule_recursion_depth--;
+                }
+        }
+
+        return executed_rule;
+}
+
+static bool
+run_special_rules(struct pcx_avt_state *state,
+                  const char *verb_str,
+                  struct pcx_avt_state_movable *object,
+                  struct pcx_avt_state_movable *tool)
+{
+        struct pcx_avt_command_word verb = {
+                .start = verb_str,
+                .length = strlen(verb_str),
+        };
+
+        return run_rules(state, &verb, object, tool);
 }
 
 static void
@@ -862,6 +1343,11 @@ handle_look(struct pcx_avt_state *state,
 
         end_message(state);
 
+        run_special_rules(state,
+                          "rigard",
+                          movable,
+                          NULL /* tool */);
+
         return true;
 }
 
@@ -966,6 +1452,39 @@ handle_take(struct pcx_avt_state *state,
         if (!validate_take(state, movable))
                 return true;
 
+        if (!run_special_rules(state,
+                               "pren",
+                               movable,
+                               NULL /* tool */)) {
+                carry_movable(state, movable);
+
+                pcx_buffer_append_string(&state->message_buf, "Vi prenis la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+        }
+
+        return true;
+}
+
+static bool
+try_take(struct pcx_avt_state *state,
+         struct pcx_avt_state_movable *movable)
+{
+        if (!validate_take(state, movable))
+                return false;
+
+        if (run_special_rules(state,
+                              "pren",
+                              movable,
+                              NULL /* tool */)) {
+                /* The rule replaces the default action, but it might
+                 * end up causing the object to be carried anyway.
+                 */
+                return (movable->base.location_type ==
+                        PCX_AVT_LOCATION_TYPE_CARRYING);
+        }
+
         carry_movable(state, movable);
 
         pcx_buffer_append_string(&state->message_buf, "Vi prenis la ");
@@ -987,15 +1506,8 @@ find_carrying_movable_or_message(struct pcx_avt_state *state,
                 return NULL;
 
         if (movable->base.location_type != PCX_AVT_LOCATION_TYPE_CARRYING) {
-                if (!validate_take(state, movable))
+                if (!try_take(state, movable))
                         return NULL;
-
-                carry_movable(state, movable);
-
-                pcx_buffer_append_string(&state->message_buf, "Vi prenis la ");
-                add_movable_to_message(state, &movable->base, "n");
-                pcx_buffer_append_c(&state->message_buf, '.');
-                end_message(state);
         }
 
         return movable;
@@ -1030,12 +1542,16 @@ handle_drop(struct pcx_avt_state *state,
                 return true;
         }
 
-        put_movable_in_room(state, state->rooms + state->current_room, movable);
+        if (!run_special_rules(state, "ĵet", movable, NULL /* tool */)) {
+                put_movable_in_room(state,
+                                    state->rooms + state->current_room,
+                                    movable);
 
-        pcx_buffer_append_string(&state->message_buf, "Vi ĵetis la ");
-        add_movable_to_message(state, &movable->base, "n");
-        pcx_buffer_append_c(&state->message_buf, '.');
-        end_message(state);
+                pcx_buffer_append_string(&state->message_buf, "Vi ĵetis la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+        }
 
         return true;
 }
@@ -1160,6 +1676,9 @@ handle_enter(struct pcx_avt_state *state,
         if (movable == NULL)
                 return true;
 
+        if (run_special_rules(state, "enir", movable, NULL /* tool */))
+                return true;
+
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
             movable->object.enter_room == PCX_AVT_DIRECTION_BLOCKED) {
                 pcx_buffer_append_string(&state->message_buf,
@@ -1220,6 +1739,9 @@ handle_open_close(struct pcx_avt_state *state,
         if (movable == NULL)
                 return true;
 
+        if (run_rules(state, &command->verb, movable, NULL /* tool */))
+                return true;
+
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
             (movable->base.attributes &
              PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE) == 0) {
@@ -1262,6 +1784,44 @@ handle_open_close(struct pcx_avt_state *state,
         return true;
 }
 
+static bool
+handle_custom_command(struct pcx_avt_state *state,
+                      const struct pcx_avt_command *command)
+{
+        /* The custom rules only know how to handle the object and the
+         * tool.
+         */
+        if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
+                              PCX_AVT_COMMAND_HAS_OBJECT |
+                              PCX_AVT_COMMAND_HAS_TOOL)) !=
+            PCX_AVT_COMMAND_HAS_VERB)
+                return false;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural))
+                return false;
+
+        struct pcx_avt_state_movable *object = NULL;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_OBJECT)) {
+                object = find_movable_or_message(state, &command->object);
+                if (object == NULL)
+                        return true;
+        }
+
+        struct pcx_avt_state_movable *tool = NULL;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_TOOL)) {
+                tool = find_movable_or_message(state, &command->tool);
+                if (tool == NULL)
+                        return true;
+        }
+
+        return run_rules(state, &command->verb, object, tool);
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -1276,6 +1836,8 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 state->message_buf.length - state->message_buf_pos);
         state->message_buf.length -= state->message_buf_pos;
         state->message_buf_pos = state->message_buf.length;
+
+        state->rule_recursion_depth = 0;
 
         if (!pcx_avt_command_parse(command_str, &command)) {
                 send_message(state, "Mi ne komprenas vin.");
@@ -1309,6 +1871,8 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
         if (handle_open_close(state, &command))
                 return;
 
+        if (handle_custom_command(state, &command))
+                return;
 
         send_message(state, "Mi ne komprenas vin.");
 }

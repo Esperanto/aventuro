@@ -52,3 +52,5 @@ test_avt_src = [
 ]
 test_avt = executable('test-avt', test_avt_src,
                       include_directories: configinc)
+
+test('rules', test_avt, args : files('tests/rules.avt', 'tests/rules.txt'))
