@@ -1,0 +1,42 @@
+Kapo de la dosiero ŝarĝita ĉe 268E:3A73
+
+Cetero de la dosiero ĉe 198D:01B6 … aŭ 1942:01B7
+
+La ĉenoj komenciĝas ĉe 2A43:0000
+
+Post ĉiu ŝargo de ĉeno, la segment altiĝas per 8 kaj la offset per 4.
+
+Enkonduka mesaĝo komenciĝas ĉe 2FE7:0008.
+
+Komenco de la mesaĝo en videa memoro de dosbox estas ĉe vga.tandy.draw_base[2560+160*8]
+
+Ŝanĝita per memory.cpp:507 per adreso 0xb8f00.
+
+Tion ĝi faris per interrupt 21h ah=40h.
+
+ret = pop address, pop segment, pop extra
+
+
+178B:0783 = la funkcio por printi tekston? tekston en di?. ne.
+
+Altigi soifon: 0A96:4FD6
+
+0A96:4242 (funkcio por fari la agon de fenomeno?) -> post la mesaĝo
+
+0A96:3F67 funkcio -> antaŭ mesago. Kiam la funkcio finiĝas estas la mesaĝo.
+
+0A96:3FC0 serĉas la simbolon $ ? es:di indikas la mesaĝon. Eble ĉi tiu rutino estas nur por mesaĝoj de fenomenoj.
+
+Mesaĝo aperas dum vokiĝas 120F:060F. Estas aro de komparoj por la ĉapelaj literoj. Ŝajne tio finiĝas ĉe 120F:0711.
+
+Por la komenca mesaĝo, la funkcio vokiĝas ĉe 120F:2DA2. Ŝajne tio vokiĝas por la du partoj de la komenca mesaĝo, sed ne poste?
+
+La komenco de la rutino kiu vokas tion estas ĉe 120F:2C40. Ŝajne tiu rutino eligas ankaŭ la prezentan tekston kun “Aventuro” ktp.
+
+Decido? 120F:2D6E. Ŝajne jes, ĉar alia programo elektas alian branĉon.
+
+Decido baziĝas sur la rezulto de la rutino ĉe 178B:0277. Aŭ eble 120F:2D62.
+
+La rutino “seek”as al la fino de la dosiero kaj donas la longecon. Ŝajne poste la programo komparas tion kun io. Eble se estas pli da datumoj post la lasta ĉeno tio estas la enkonduka mesaĝo.
+
+Kodo kiu ŝanĝas la ŝarĝon responde al NOVAAJHO 0x06: 0A96:4A31
