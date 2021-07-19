@@ -162,10 +162,10 @@ is_word(const char *word,
                 if (*test == '\0')
                         return false;
 
-                uint32_t ch_upper = pcx_avt_hat_iter_next(&iter);
-                uint32_t ch = pcx_avt_hat_to_lower(ch_upper);
+                uint32_t ch = pcx_avt_hat_iter_next(&iter);
 
-                if (pcx_utf8_get_char(test) != ch)
+                if (pcx_avt_hat_to_lower(pcx_utf8_get_char(test)) !=
+                    pcx_avt_hat_to_lower(ch))
                         return false;
 
                 test = pcx_utf8_next(test);
