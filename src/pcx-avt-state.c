@@ -393,9 +393,9 @@ pcx_avt_state_new(const struct pcx_avt *avt)
         if (state->avt->introduction)
                 send_message(state, "%s", state->avt->introduction);
 
-        send_room_description(state);
-
         state->game_attributes = avt->game_attributes;
+
+        send_room_description(state);
 
         return state;
 }
