@@ -643,35 +643,6 @@ is_carrying_movable(struct pcx_avt_state *state,
         }
 }
 
-static void
-add_noun(struct pcx_buffer *buf,
-         const struct pcx_avt_command_noun *noun)
-{
-        if (noun->article)
-                pcx_buffer_append_string(buf, "la ");
-        if (noun->adjective.start) {
-                pcx_buffer_append(buf,
-                                  noun->adjective.start,
-                                  noun->adjective.length);
-                pcx_buffer_append_c(buf, 'a');
-                if (noun->plural)
-                        pcx_buffer_append_c(buf, 'j');
-                if (noun->accusative)
-                        pcx_buffer_append_c(buf, 'n');
-                pcx_buffer_append_c(buf, ' ');
-        }
-        pcx_buffer_append(buf, noun->name.start, noun->name.length);
-
-        if (!noun->is_pronoun) {
-                pcx_buffer_append_c(buf, 'o');
-                if (noun->plural)
-                        pcx_buffer_append_c(buf, 'j');
-        }
-
-        if (noun->accusative)
-                pcx_buffer_append_c(buf, 'n');
-}
-
 static bool
 handle_direction(struct pcx_avt_state *state,
                  const struct pcx_avt_command *command)
@@ -1338,48 +1309,8 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
         if (handle_open_close(state, &command))
                 return;
 
-        struct pcx_buffer *buf = &state->message_buf;
 
-        if ((command.has & PCX_AVT_COMMAND_HAS_SUBJECT))
-                add_noun(buf, &command.subject);
-        if ((command.has & PCX_AVT_COMMAND_HAS_VERB)) {
-                if (buf->length >= 1)
-                        pcx_buffer_append_c(buf, ' ');
-                pcx_buffer_append(buf,
-                                  command.verb.start,
-                                  command.verb.length);
-                pcx_buffer_append_string(buf, "as");
-        }
-        if ((command.has & PCX_AVT_COMMAND_HAS_OBJECT)) {
-                if (buf->length >= 1)
-                        pcx_buffer_append_c(buf, ' ');
-                add_noun(buf, &command.object);
-        }
-        if ((command.has & PCX_AVT_COMMAND_HAS_DIRECTION)) {
-                if (buf->length >= 1)
-                        pcx_buffer_append_c(buf, ' ');
-                pcx_buffer_append(buf,
-                                  command.direction.start,
-                                  command.direction.length);
-                pcx_buffer_append_string(buf, "en");
-        }
-        if ((command.has & PCX_AVT_COMMAND_HAS_TOOL)) {
-                if (buf->length >= 1)
-                        pcx_buffer_append_c(buf, ' ');
-                pcx_buffer_append_string(buf, "per ");
-                add_noun(buf, &command.tool);
-        }
-        if ((command.has & PCX_AVT_COMMAND_HAS_IN)) {
-                if (buf->length >= 1)
-                        pcx_buffer_append_c(buf, ' ');
-                pcx_buffer_append_string(buf, "en ");
-                add_noun(buf, &command.in);
-        }
-
-        if (buf->length == 0)
-                pcx_buffer_append_c(buf, '?');
-
-        end_message(state);
+        send_message(state, "Mi ne komprenas vin.");
 }
 
 const char *
