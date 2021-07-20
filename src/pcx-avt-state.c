@@ -283,6 +283,56 @@ is_movable_present(struct pcx_avt_state *state,
         }
 }
 
+static bool
+movable_should_be_listed(const struct pcx_avt_state_movable *movable)
+{
+        return (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+                (movable->base.attributes &
+                 PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) != 0);
+}
+
+static void
+add_room_contents_to_message(struct pcx_avt_state *state,
+                             const struct pcx_avt_state_room *room)
+{
+        /* Count the number of movable objects, skipping out the ones
+         * that shouldn’t be listed.
+         */
+        int n_items = 0;
+        const struct pcx_avt_state_movable *movable;
+
+        pcx_list_for_each(movable, &room->contents, location_node) {
+                if (movable_should_be_listed(movable))
+                        n_items++;
+        }
+
+        if (n_items == 0)
+                return;
+
+        pcx_buffer_append_string(&state->message_buf, " Vi vidas ");
+
+        int item_num = 0;
+
+        pcx_list_for_each(movable, &room->contents, location_node) {
+                if (!movable_should_be_listed(movable))
+                        continue;
+
+                if (item_num > 0) {
+                        const char *sep = (item_num + 1 < n_items ?
+                                           ", " :
+                                           " kaj ");
+                        pcx_buffer_append_string(&state->message_buf, sep);
+
+                }
+
+                add_movable_to_message(state, &movable->base, "n");
+
+                item_num++;
+        }
+
+        pcx_buffer_append_c(&state->message_buf, '.');
+}
+
 static void
 send_room_description(struct pcx_avt_state *state)
 {
@@ -292,11 +342,7 @@ send_room_description(struct pcx_avt_state *state)
 
         struct pcx_avt_state_room *room = state->rooms + state->current_room;
 
-        if (!pcx_list_empty(&room->contents)) {
-                pcx_buffer_append_string(&state->message_buf, " Vi vidas ");
-                add_movables_to_message(state, &room->contents);
-                pcx_buffer_append_c(&state->message_buf, '.');
-        }
+        add_room_contents_to_message(state, room);
 
         end_message(state);
 
