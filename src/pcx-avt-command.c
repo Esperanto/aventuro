@@ -194,9 +194,6 @@ get_next_word(struct parse_pos *pos,
                 p = pcx_utf8_next(p);
         }
 
-        if (*p != '\0' && *p != ' ')
-                return false;
-
         if (p == word->start)
                 return false;
 
@@ -511,6 +508,23 @@ handle_shortcut(const char *text)
         return text;
 }
 
+static bool
+is_end(const char *p)
+{
+        /* Skip any punctuation */
+        switch (*p) {
+        case '.':
+        case '?':
+        case '!':
+                p++;
+        }
+
+        while (*p == ' ')
+                p++;
+
+        return *p == '\0';
+}
+
 bool
 pcx_avt_command_parse(const char *text,
                       struct pcx_avt_command *command)
@@ -525,7 +539,7 @@ pcx_avt_command_parse(const char *text,
                 while (*pos.p == ' ')
                         pos.p++;
 
-                if (*pos.p == '\0')
+                if (is_end(pos.p))
                         break;
 
                 struct pcx_avt_command_noun noun;

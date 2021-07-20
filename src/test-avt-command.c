@@ -342,5 +342,18 @@ main(int argc, char **argv)
         assert(!pcx_avt_command_parse("la ĝi", &command));
         assert(!pcx_avt_command_parse("ĝij", &command));
 
+        pcx_avt_command_parse("iru!", &command);
+        assert(command.has == PCX_AVT_COMMAND_HAS_VERB);
+        assert(command.verb.length == 2);
+        assert(!memcmp(command.verb.start, "iru", 2));
+
+        assert(pcx_avt_command_parse("iru.", &command));
+        assert(pcx_avt_command_parse("iru?", &command));
+        assert(pcx_avt_command_parse("iru  !  ", &command));
+        assert(!pcx_avt_command_parse("iru#", &command));
+        assert(!pcx_avt_command_parse("iru  !!  ", &command));
+        assert(!pcx_avt_command_parse("iru  ! vorto ", &command));
+        assert(!pcx_avt_command_parse("norden-iru", &command));
+
         return EXIT_SUCCESS;
 }
