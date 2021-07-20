@@ -723,6 +723,96 @@ execute_action(struct pcx_avt_state *state,
         }
 }
 
+static void
+send_rule_message(struct pcx_avt_state *state,
+                  const char *text,
+                  struct pcx_avt_state_movable *object,
+                  struct pcx_avt_state_movable *monster,
+                  struct pcx_avt_state_movable *tool)
+{
+        while (true) {
+                const char *dollar = strchr(text, '$');
+
+                if (dollar == NULL)
+                        break;
+
+                pcx_buffer_append(&state->message_buf,
+                                  text,
+                                  dollar - text);
+
+                switch (dollar[1]) {
+                case '\0':
+                        goto done;
+                case 'A':
+                        if (object) {
+                                const char *suffix = NULL;
+
+                                if (dollar[2] == 'n') {
+                                        suffix = "n";
+                                        dollar++;
+                                }
+
+                                add_movable_to_message(state,
+                                                       &object->base,
+                                                       suffix);
+                        }
+                        break;
+                case 'P':
+                        if (tool) {
+                                const char *suffix = NULL;
+
+                                if (dollar[2] == 'n') {
+                                        suffix = "n";
+                                        dollar++;
+                                }
+
+                                add_movable_to_message(state,
+                                                       &tool->base,
+                                                       suffix);
+                        }
+                        break;
+                case 'M':
+                        if (monster) {
+                                const char *suffix = NULL;
+
+                                if (dollar[2] == 'n') {
+                                        suffix = "n";
+                                        dollar++;
+                                }
+
+                                add_movable_to_message(state,
+                                                       &monster->base,
+                                                       suffix);
+                        }
+                        break;
+                case 'D':
+                        /* Pause for 1 second. FIXME */
+                        break;
+                case 'F':
+                        /* The monsters flee. FIXME */
+                        break;
+                case 'S':
+                        /* Show the following even if the player isn’t
+                         * present. FIXME
+                         */
+                        break;
+                case '$':
+                        /* This isn’t mentioned in the docs but it
+                         * seems like a good idea.
+                         */
+                        pcx_buffer_append_c(&state->message_buf, '$');
+                        break;
+                }
+
+                text = dollar + 2;
+        }
+
+done:
+        pcx_buffer_append_string(&state->message_buf, text);
+
+        end_message(state);
+}
+
 static bool
 run_rules(struct pcx_avt_state *state,
           const struct pcx_avt_command_word *verb,
@@ -767,8 +857,13 @@ run_rules(struct pcx_avt_state *state,
                                     monster)) {
                         state->rule_recursion_depth++;
 
-                        if (rule->text)
-                                send_message(state, "%s", rule->text);
+                        if (rule->text) {
+                                send_rule_message(state,
+                                                  rule->text,
+                                                  object,
+                                                  monster,
+                                                  tool);
+                        }
 
                         execute_action(state,
                                        &rule->room_action,
