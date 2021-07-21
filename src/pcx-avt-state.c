@@ -1926,6 +1926,40 @@ handle_open_close(struct pcx_avt_state *state,
 }
 
 static bool
+handle_read(struct pcx_avt_state *state,
+            const struct pcx_avt_command *command)
+{
+        if (!is_verb_object_command(command))
+                return false;
+
+        if (!pcx_avt_command_word_equal(&command->verb, "leg"))
+                return false;
+
+        struct pcx_avt_state_movable *movable =
+                find_movable_or_message(state, &command->object);
+
+        if (movable == NULL)
+                return true;
+
+        if (run_special_rules(state, "leg", movable, NULL /* tool */))
+                return true;
+
+        if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+            movable->object.read_text == NULL) {
+                pcx_buffer_append_string(&state->message_buf,
+                                         "Vi ne povas legi la ");
+                add_movable_to_message(state, &movable->base, "n");
+                pcx_buffer_append_c(&state->message_buf, '.');
+                end_message(state);
+                return true;
+        }
+
+        send_message(state, "%s", movable->object.read_text);
+
+        return true;
+}
+
+static bool
 handle_custom_command(struct pcx_avt_state *state,
                       const struct pcx_avt_command *command)
 {
@@ -2010,6 +2044,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_open_close(state, &command))
+                return;
+
+        if (handle_read(state, &command))
                 return;
 
         if (handle_custom_command(state, &command))

@@ -357,7 +357,7 @@ FINO_SALONO;
 
 SALONO anstatejo; Chi tie oni anstatawigas aferojn. @
 LUMA;
-ORIENTEN cirklo;
+ORIENTEN biblioteko;
 
 AJHO rugha balono; Ghi estas balono kiel en la filmo It. @
 FINO_AJHO;
@@ -386,6 +386,26 @@ MONSTRO fluganta aglo; Ghi flugas. @
 MORTITA falinta aglo; Ghi falis kaj mortis. @
 FINO_MORTITA;
 FINO_MONSTRO;
+
+SALONO biblioteko; Estas libroj chi tie. @
+ORIENTEN cirklo;
+LUMA;
+
+AJHO rugha libro; Ghi havas grandan rughan hundon sur ghi. @
+LEGEBLA; Iam estis granda rugha hundo... @
+FINO_AJHO;
+
+AJHO magia libro; Ghi eligas magion. @
+FINO_AJHO;
+
+AJHO verda pomo; Ghi ne estas libro. @
+FINO_AJHO;
+
+FINO_SALONO;
+
+FENOMENO legi; Kiam vi legas la strangan lingvon en la $A, sorcho okazas. @
+AJHO magia libro;
+FINO_FENOMENO;
 
 SALONO cirklo; Vi estas che la rando de cirklo. @
 LUMA;

@@ -453,6 +453,26 @@ La aglo forflugas.
 
 > o
 
+Estas libroj ĉi tie. Vi vidas ruĝan libron, magian libron kaj verdan pomon.
+
+> legi la ruĝan libron!
+
+Iam estis granda ruĝa hundo...
+
+> legu la magian libron
+
+Kiam vi legas la strangan lingvon en la magia libro, sorĉo okazas.
+
+> mi legos la pomon
+
+Vi ne povas legi la verdan pomon.
+
+> mi legos la PMEGon
+
+Vi ne vidas pmegon.
+
+> o
+
 # These two rooms are linked with a rule that sends you to the other
 # room immediately after displaying the description. This checks that
 # the rules can’t cause infinite recursion and that the interpreter
