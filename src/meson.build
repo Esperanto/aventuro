@@ -37,6 +37,28 @@ play_avt_src = [
 play_avt = executable('play-avt', play_avt_src,
                       include_directories: configinc)
 
+if meson.get_compiler('c', native: false).get_id() == 'emscripten'
+
+  web_lib_src = [
+          'pcx-util.c',
+          'pcx-error.c',
+          'pcx-avt.c',
+          'pcx-avt-load.c',
+          'pcx-buffer.c',
+          'pcx-avt-state.c',
+          'pcx-avt-command.c',
+          'pcx-utf8.c',
+          'pcx-list.c',
+          'pcx-avt-hat.c',
+  ]
+  web_lib = executable('avtlib.js', web_lib_src,
+                     include_directories: configinc,
+                     link_args: ['-s', 'EXPORTED_FUNCTIONS=_pcx_avt_state_free,_pcx_avt_free,_pcx_avt_load,_pcx_avt_state_new,_pcx_avt_state_get_next_message,_pcx_avt_state_run_command,_malloc,_free', '-s', 'ALLOW_TABLE_GROWTH'],
+                     install: true,
+                     install_dir: get_option('datadir') / 'web')
+
+endif
+
 test_avt_src = [
         'pcx-util.c',
         'pcx-file-error.c',
