@@ -18,6 +18,29 @@ Sekve, se oni elŝutas la originalan zip-dosieron de Aventuro, oni povas ludi la
 
 La interpretilo ankoraŭ ne estas tute finita do ne eblas plene ludi la ludon.
 
-La plano por la fina rezulto de la interpretilo estas traduki la bibliotekon al JavaScript per emscripten kaj krei modernan interfacon en retpaĝo por facile ludi ĝin.
+## Retpaĝo
 
-Sekve estus bone prilabori la formaton de la duumaj dosieroj por aldoni novajn kapablojn por krei pli diversajn ludojn.
+La interpretilo povas funkcii ankaŭ kiel retpaĝo. Por ebligi tion, oni devas unue kompili ĝin per emscripten. Por instali emscripten, fari la jenon:
+
+    git clone https://github.com/emscripten-core/emsdk.git
+    cd emsdk
+    ./emsdk install latest
+    ./emsdk activate latest
+    source ./emsdk_env.sh
+
+Sekve vi povas kompili Aventuron jene:
+
+    cd aventuro
+    meson --cross-file=emscripten-cross.txt ebuild -Dbuildtype=release \
+          -Dprefix=~/aventuro-install
+    ninja -C ebuild install
+    
+Post tio vi havos la necesajn dosierojn por la retpaĝo en `~/aventuro-install/share/web`. Mankas nur la AVT-dosiero. Vi povus kopii la originalan ludon jene:
+
+    cp ~/dosgames/aventuro/TEXEL.AVT ~/aventuro-install/share/web/ludo.avt
+
+Sevke vi povas ruli retpaĝan servilon ĉe tiu dosierujo kaj ludi la ludon. Ne eblas ludi ĝin per URL kiu komenciĝas per `file:///` ĉar retumiloj ne ŝatas permesi WebAssembly por lokaj dosieroj. Se vi havas twistd instalitan vi povus ekzemple fari:
+
+    twistd -no web --path ~/aventuro-install/share/web
+
+Tiam vi povas direkti vian retumilon al [http://localhost:8080/](http://localhost:8080/) por ludi.
