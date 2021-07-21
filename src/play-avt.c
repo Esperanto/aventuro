@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "pcx-avt-load.h"
+#include "pcx-avt-load-file.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -156,7 +156,7 @@ main(int argc, char **argv)
         const char *avt_filename = argv[1];
         struct pcx_error *error = NULL;
 
-        data.avt = pcx_avt_load(avt_filename, &error);
+        data.avt = pcx_avt_load_file(avt_filename, &error);
 
         if (data.avt == NULL) {
                 fprintf(stderr,

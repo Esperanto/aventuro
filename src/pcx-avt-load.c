@@ -20,15 +20,12 @@
 
 #include "pcx-avt-load.h"
 
-#include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include <assert.h>
 #include <stdbool.h>
 
 #include "pcx-util.h"
 #include "pcx-buffer.h"
-#include "pcx-file-error.h"
 
 #define PCX_AVT_LOAD_TEXT_OFFSET 0xca80
 #define PCX_AVT_LOAD_TEXT_CHUNK_SIZE 128
@@ -72,7 +69,7 @@ pcx_avt_load_error;
 
 struct load_data {
         struct pcx_avt *avt;
-        FILE *file;
+        struct pcx_avt_load_source *source;
 };
 
 static bool
@@ -80,17 +77,7 @@ seek_or_error(struct load_data *data,
               size_t position,
               struct pcx_error **error)
 {
-        int r = fseek(data->file, position, SEEK_SET);
-
-        if (r == -1) {
-                pcx_file_error_set(error,
-                                   errno,
-                                   "%s",
-                                   strerror(errno));
-                return false;
-        }
-
-        return true;
+        return data->source->seek_source(data->source, position, error);
 }
 
 static bool
@@ -170,9 +157,9 @@ load_zero_terminated_data(struct load_data *data,
 
                 pcx_buffer_ensure_size(buf, buf->length + chunk_size);
 
-                size_t got = fread(buf->data + buf->length,
-                                   1, chunk_size,
-                                   data->file);
+                size_t got = data->source->read_source(data->source,
+                                                       buf->data + buf->length,
+                                                       chunk_size);
 
                 if (got < chunk_size)
                         goto error;
@@ -464,7 +451,9 @@ load_attributes_array(struct load_data *data,
         uint8_t *bytes = alloca(bytes_per_attribute);
 
         for (int att = 0; att < n_attributes; att++) {
-                size_t got = fread(bytes, 1, bytes_per_attribute, data->file);
+                size_t got = data->source->read_source(data->source,
+                                                       bytes,
+                                                       bytes_per_attribute);
 
                 if (got < bytes_per_attribute) {
                         pcx_set_error(error,
@@ -496,7 +485,9 @@ load_game_attributes(struct load_data *data,
                      struct pcx_error **error)
 {
         uint8_t bytes[6];
-        size_t got = fread(bytes, 1, sizeof bytes, data->file);
+        size_t got = data->source->read_source(data->source,
+                                               bytes,
+                                               sizeof bytes);
 
         if (got < sizeof bytes) {
                 pcx_set_error(error,
@@ -1248,7 +1239,9 @@ count_strings(struct load_data *data,
                         return -1;
                 }
 
-                size_t got = fread(&pointer, 1, sizeof pointer, data->file);
+                size_t got = data->source->read_source(data->source,
+                                                       &pointer,
+                                                       sizeof pointer);
 
                 if (got < sizeof pointer) {
                         pcx_set_error(error,
@@ -1276,7 +1269,9 @@ read_string(struct load_data *data,
         bool had_data = false;
 
         while (true) {
-                size_t got = fread(buf, 1, sizeof buf, data->file);
+                size_t got = data->source->read_source(data->source,
+                                                       buf,
+                                                       sizeof buf);
 
                 if (got == 0) {
                         break;
@@ -1451,22 +1446,14 @@ validate_locations(struct load_data *data,
 }
 
 struct pcx_avt *
-pcx_avt_load(const char *filename,
+pcx_avt_load(struct pcx_avt_load_source *source,
              struct pcx_error **error)
 {
         struct load_data data = {
                 .avt = NULL,
+                .source = source,
         };
         bool ret = true;
-
-        data.file = fopen(filename, "rb");
-        if (data.file == NULL) {
-                pcx_file_error_set(error,
-                                   errno,
-                                   "%s",
-                                   strerror(errno));
-                return NULL;
-        }
 
         data.avt = pcx_calloc(sizeof (struct pcx_avt));
 
@@ -1516,8 +1503,6 @@ pcx_avt_load(const char *filename,
         }
 
 done:
-        fclose(data.file);
-
         if (ret) {
                 return data.avt;
         } else {
