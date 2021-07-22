@@ -1,0 +1,124 @@
+body {
+    background-color: #009688;
+    font-family: sans-serif;
+    overscroll-behavior-y: contain;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    background-color: #eeeeee;
+}
+
+#chatTitle {
+    padding: 0.5em;
+    height: 4em;
+    border-bottom: 1px solid #d7d0ca;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#chatTitleText {
+    padding-top: 1em;
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+}
+
+#messages {
+    background-image: url('background.png');
+    background-repeat: repeat;
+    overflow: auto;
+    flex-grow: 1;
+}
+
+.message {
+    margin: 0.5em;
+}
+
+.messageInner {
+    border-radius: 6px;
+    max-width: 30em;
+    padding: 0.5em;
+    word-wrap: break-word;
+    position: relative;
+    display: inline-block;
+    text-align: left;
+    background-color: #faf9f9;
+}
+
+.message.command {
+    text-align: right;
+}
+
+.message.note {
+    text-align: center;
+}
+
+.message.command .messageInner {
+    background-color: #bee3db;
+}
+
+#inputContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#sendButton {
+    width: 2em;
+    height: 2em;
+    margin-right: 0.5em;
+}
+
+#inputbox {
+    background-color: white;
+    margin: 0.5em;
+    flex-grow: 1;
+    min-height: 2em;
+    border-radius: 2px;
+    padding: 0.5em;
+    outline: 0px solid transparent;
+}
+
+.messageButtons button {
+    margin: 0.5em 0.1em;
+    font-size: medium;
+    min-width: 5em;
+    min-height: 2.5em;
+}
+
+#statusMessage {
+    padding: 0.5em;
+    text-align: center;
+}
+
+#statusMessage.error {
+    background-color: #cc7079;
+}
+
+@media only all and (max-width: 45em) {
+    #content {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        margin-left: 0px;
+        margin-right: 0px;
+        border-radius: 0px;
+    }
+}
+
+@media not all and (max-width: 45em) {
+    #content {
+        max-width: 40em;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 4px;
+        height: 95vh;
+    }
+}

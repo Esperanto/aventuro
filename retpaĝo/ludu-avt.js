@@ -1,3 +1,21 @@
+/*
+ * Aventuro - A text aventure system in Esperanto
+ * Copyright (C) 2021  Neil Roberts
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 (function ()
  {
    var hasRun = false;
@@ -7,6 +25,7 @@
    var avt;
    var avtState;
    var inputBox;
+   var messagesDiv;
 
    function seekAvtData(source, pos, error)
    {
@@ -32,11 +51,31 @@
 
    function addMessage(klass, text)
    {
-     var elem = document.createTextNode(text);
-     var div = document.createElement("div");
-     div.className = klass;
-     div.appendChild(elem);
-     document.getElementById("messages").appendChild(div);
+     var isScrolledToBottom = (messagesDiv.scrollHeight -
+                               messagesDiv.scrollTop <=
+                               messagesDiv.clientHeight * 1.75);
+
+     var messageDiv = document.createElement("div");
+     messageDiv.className = "message " + klass;
+
+     var innerDiv = document.createElement("div");
+     innerDiv.className = "messageInner";
+
+     var textDiv = document.createElement("div");
+     textDiv.className = "messageText";
+
+     var textNode = document.createTextNode(text);
+     innerDiv.appendChild(textNode);
+
+     messageDiv.appendChild(innerDiv);
+
+     messagesDiv.appendChild(messageDiv);
+
+     if (isScrolledToBottom) {
+       messagesDiv.scrollTo(0,
+                            messagesDiv.scrollHeight -
+                            messagesDiv.clientHeight);
+     }
    }
 
    function processMessages()
@@ -47,8 +86,28 @@
        if (msg == 0)
          break;
 
-       addMessage("message", UTF8ToString(msg));
+       addMessage("note", UTF8ToString(msg));
      }
+   }
+
+   function sendCommand()
+   {
+     var text = inputbox.innerText.replace(/[\x01- ]/g, ' ');
+
+     if (text.match(/\S/) == null)
+       return;
+
+     inputbox.innerHTML = "";
+
+     addMessage("command", text);
+
+     var lengthBytes = lengthBytesUTF8(text) + 1;
+     var stringOnWasmHeap = _malloc(lengthBytes);
+     stringToUTF8(text, stringOnWasmHeap, lengthBytes);
+     _pcx_avt_state_run_command(avtState, stringOnWasmHeap);
+     _free(stringOnWasmHeap);
+
+     processMessages();
    }
 
    function commandKeyCb(e)
@@ -56,22 +115,9 @@
      if (e.which != 10 && e.which != 13)
        return;
 
-     var value = inputBox.value;
+     event.preventDefault();
 
-     if (!value || value.length <= 0)
-       return;
-
-     inputBox.value = "";
-
-     addMessage("command", value);
-
-     var lengthBytes = lengthBytesUTF8(value) + 1;
-     var stringOnWasmHeap = _malloc(lengthBytes);
-     stringToUTF8(value, stringOnWasmHeap, lengthBytes);
-     _pcx_avt_state_run_command(avtState, stringOnWasmHeap);
-     _free(stringOnWasmHeap);
-
-     processMessages();
+     sendCommand();
    }
 
    function checkRun()
@@ -99,10 +145,13 @@
 
      avtState = _pcx_avt_state_new(avt);
 
-     processMessages();
+     inputbox = document.getElementById("inputbox");
+     inputbox.addEventListener("keydown", commandKeyCb);
+     messagesDiv = document.getElementById("messages");
 
-     inputBox = document.getElementById("command-input-box");
-     inputBox.addEventListener("keydown", commandKeyCb);
+     document.getElementById("sendButton").onclick = sendCommand;
+
+     processMessages();
    }
 
    function gotRuntime()

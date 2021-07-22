@@ -1,16 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aventuro</title>
+    <link href="aventuro.css" rel="stylesheet" type="text/css">
     <script defer type="text/javascript" src="avtlib.js"></script>
     <script defer type="text/javascript" src="ludu-avt.js"></script>
   </head>
   <body>
-    <div id="messages">
-    </div>
-    <div>
-      <input type="text" id="command-input-box">
+    <div id="content">
+      <div id="chatTitle">
+        <span id="chatTitleText">
+          Aventuro
+        </span>
+      </div>
+      <div id="statusMessage" style="display: none"></div>
+      <div id="messages">
+      </div>
+      <div id="inputContainer">
+        <div id="inputbox" spellcheck="true" contenteditable="true"></div>
+        <img id="sendButton" src="send.png">
+      </div>
     </div>
   </body>
 </html>
