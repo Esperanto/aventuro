@@ -33,7 +33,7 @@ Estas 31 bajtoj por ĉiu salono:
 | 1   | Longeco de nomo             |
 | 20  | Nomo + rubaĵo ĝis 20 bajtoj |
 | 2   | Ĉenonombro por la priskribo |
-| 1   | ?                           |
+| 1   | Poentoj                     |
 | 1   | Norden                      |
 | 1   | Orienten                    |
 | 1   | Suden                       |

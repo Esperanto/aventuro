@@ -13,15 +13,18 @@ def elkodigu_salonon(salono):
     p += 20
     ĉeno = salono[p] | (salono[p + 1] << 8)
     p += 2
+    poentoj = salono[p]
+    p += 1
 
     direktoj = []
-    for d in ["?", "n", "or", "s", "ok", "supren", "suben", "elen"]:
+    for d in ["n", "or", "s", "ok", "supren", "suben", "elen"]:
         direktoj.append("{}: {:3d}".format(d, salono[p]))
         p += 1
 
-    return "nomo: {:20s}, ĉeno: {:3d}, {}".format(
+    return "nomo: {:20s}, ĉeno: {:3d}, poentoj {:2d} {}".format(
         nomo,
         ĉeno,
+        poentoj,
         ", ".join(direktoj))
 
 for fn in sys.argv[1:]:
