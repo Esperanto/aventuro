@@ -214,6 +214,8 @@ struct pcx_avt_room {
         size_t n_directions;
         struct pcx_avt_direction *directions;
 
+        uint8_t points;
+
         uint32_t attributes;
 };
 

@@ -1185,8 +1185,7 @@ load_rooms(struct load_data *data,
 
                 room_data += 2;
 
-                /* Unknown byte */
-                room_data++;
+                room->points = *(room_data++);
 
                 if (!extract_movements(data, room_data, room, error)) {
                         ret = false;
