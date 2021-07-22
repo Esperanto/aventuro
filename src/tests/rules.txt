@@ -1,5 +1,7 @@
 Ĉi tiu ĉambro ne havas regulon por la priskribo.
 
+Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
+
 > o
 
 Ĉi tiu ĉambro ja havas regulon por la priskribo.
@@ -522,6 +524,68 @@ Vi ne vidas pastaĵojn.
 > rigardi bongustajn spagetojn
 
 Ili aspektas freŝaj.
+
+> o
+
+Vi estas en ejo por ĉevaloj. Estas trogo en la angulo. Vi vidas plastan ĉevalon.
+
+La plasta ĉevalo rigardas vin.
+
+> prenu la ĉevalon
+
+Vi prenis la plastan ĉevalon.
+
+La plasta ĉevalo rigardas vin.
+
+> metu la ĉevalon en la trogon
+
+Vi ne povas meti ion en la malpuran trogon ĉar ĝi estas fermita.
+
+La plasta ĉevalo rigardas vin.
+
+> malfermu la trogon
+
+Vi malfermis la malpuran trogon.
+
+La plasta ĉevalo rigardas vin.
+
+> metu la ĉevalon en la trogon.
+
+Vi metis la plastan ĉevalon en la malpuran trogon.
+
+La plasta ĉevalo rigardas vin.
+
+> fermu la trogon
+
+Vi fermis la malpuran trogon.
+
+> malfermu la trogon
+
+Vi malfermis la malpuran trogon.
+
+La plasta ĉevalo rigardas vin.
+
+> prenu la ĉevalon
+
+Vi prenis la plastan ĉevalon.
+
+La plasta ĉevalo rigardas vin.
+
+> n
+
+Vi estas en sekura loko.
+
+La plasta ĉevalo rigardas vin.
+
+> ĵetu la plastan ĉevalon
+
+Vi ĵetis la plastan ĉevalon.
+
+La plasta ĉevalo rigardas vin.
+
+> s
+
+Vi estas en ejo por ĉevaloj. Estas trogo en la angulo.
 
 > o
 

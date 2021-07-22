@@ -5,6 +5,11 @@ ORIENTEN salono2;
 LUMA;
 FINO_SALONO;
 
+FENOMENO esti; Bonvenon al la testo. Chi tiu mesagho okazas nur unu fojon. @
+AJHO ECO MALVERA bonvenigita;
+NOVAAJHO ECO bonvenigita;
+FINO_FENOMENO;
+
 SALONO salono2; Chi tiu chambro ja havas regulon por la priskribo. @
 OKCIDENTEN salono2;
 ORIENTEN kubo;
@@ -408,7 +413,7 @@ AJHO magia libro;
 FINO_FENOMENO;
 
 SALONO alinomejo; Chi tie estas multaj nomoj. @
-ORIENTEN cirklo;
+ORIENTEN chevalejo;
 
 AJHO plasta skribilo; Ghi ne funkcias. Kiu kreis tion? @
 SINONIMO krajono;
@@ -429,6 +434,32 @@ FINO_AJHO;
 
 FINO_AJHO;
 
+FINO_SALONO;
+
+SALONO chevalejo; Vi estas en ejo por chevaloj. Estas trogo en la angulo. @
+LUMA;
+ORIENTEN cirklo;
+NORDEN sekurejo;
+
+AJHO plasta chevalo; Ghi estas tre malgranda plasta ludilo en la formo de chevalo por infanoj. @
+FINO_AJHO;
+
+AJHO malpura trogo; Ghi estas longa malpura ujo por trinkigi chevalojn. @
+NEPORTEBLA;
+FERMEBLA;
+FERMITA;
+ENHAVO 100;
+FINO_AJHO;
+
+FINO_SALONO;
+
+FENOMENO esti; La plasta chevalo rigardas vin. @
+AJHO NEPRE plasta chevalo;
+FINO_FENOMENO;
+
+SALONO sekurejo; Vi estas en sekura loko. @
+SUDEN chevalejo;
+LUMA;
 FINO_SALONO;
 
 AJHO fora ajho; Kio ghi estas? Neniu scias. @

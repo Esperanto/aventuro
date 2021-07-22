@@ -1085,6 +1085,12 @@ position_movables(struct pcx_avt_state *state)
         }
 }
 
+static void
+after_command(struct pcx_avt_state *state)
+{
+        run_special_rules(state, "est", NULL /* object */, NULL /* tool */);
+}
+
 struct pcx_avt_state *
 pcx_avt_state_new(const struct pcx_avt *avt)
 {
@@ -1118,6 +1124,8 @@ pcx_avt_state_new(const struct pcx_avt *avt)
         state->game_attributes = avt->game_attributes;
 
         send_room_description(state);
+
+        after_command(state);
 
         return state;
 }
@@ -2124,6 +2132,46 @@ handle_custom_command(struct pcx_avt_state *state,
         return run_rules(state, &command->verb, object, tool);
 }
 
+static void
+handle_command(struct pcx_avt_state *state,
+               const struct pcx_avt_command *command)
+{
+        if (handle_direction(state, command))
+                return;
+
+        if (handle_look(state, command))
+                return;
+
+        if (handle_take(state, command))
+                return;
+
+        if (handle_drop(state, command))
+                return;
+
+        if (handle_put(state, command))
+                return;
+
+        if (handle_inventory(state, command))
+                return;
+
+        if (handle_enter(state, command))
+                return;
+
+        if (handle_exit(state, command))
+                return;
+
+        if (handle_open_close(state, command))
+                return;
+
+        if (handle_read(state, command))
+                return;
+
+        if (handle_custom_command(state, command))
+                return;
+
+        send_message(state, "Mi ne komprenas vin.");
+}
+
 void
 pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
@@ -2146,40 +2194,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
         }
 
-        if (handle_direction(state, &command))
-                return;
+        handle_command(state, &command);
 
-        if (handle_look(state, &command))
-                return;
-
-        if (handle_take(state, &command))
-                return;
-
-        if (handle_drop(state, &command))
-                return;
-
-        if (handle_put(state, &command))
-                return;
-
-        if (handle_inventory(state, &command))
-                return;
-
-        if (handle_enter(state, &command))
-                return;
-
-        if (handle_exit(state, &command))
-                return;
-
-        if (handle_open_close(state, &command))
-                return;
-
-        if (handle_read(state, &command))
-                return;
-
-        if (handle_custom_command(state, &command))
-                return;
-
-        send_message(state, "Mi ne komprenas vin.");
+        after_command(state);
 }
 
 const struct pcx_avt_state_message *
