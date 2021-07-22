@@ -80,6 +80,9 @@ struct pcx_avt_state_room {
         /* Things that are in this room */
         struct pcx_list contents;
 
+        /* Have we visited this room before? */
+        bool visited;
+
         uint32_t attributes;
 };
 
@@ -87,6 +90,7 @@ struct pcx_avt_state {
         const struct pcx_avt *avt;
 
         int current_room;
+        int points;
 
         struct pcx_avt_state_room *rooms;
 
@@ -435,6 +439,13 @@ add_room_contents_to_message(struct pcx_avt_state *state,
 }
 
 static void
+add_points(struct pcx_avt_state *state,
+           int points)
+{
+        state->points += points;
+}
+
+static void
 send_room_description(struct pcx_avt_state *state)
 {
         const char *desc = state->avt->rooms[state->current_room].description;
@@ -446,6 +457,12 @@ send_room_description(struct pcx_avt_state *state)
         add_room_contents_to_message(state, room);
 
         end_message(state);
+
+        if (!room->visited) {
+                add_points(state,
+                           state->avt->rooms[state->current_room].points);
+                room->visited = true;
+        }
 
         run_special_rules(state,
                           "priskrib",
@@ -1028,6 +1045,8 @@ run_rules(struct pcx_avt_state *state,
                                        false, /* is_room */
                                        monster);
 
+                        add_points(state, rule->points);
+
                         executed_rule = true;
 
                         state->rule_recursion_depth--;
@@ -1111,6 +1130,7 @@ pcx_avt_state_new(const struct pcx_avt *avt)
         for (int i = 0; i < avt->n_rooms; i++) {
                 pcx_list_init(&state->rooms[i].contents);
                 state->rooms[i].attributes = avt->rooms[i].attributes;
+                state->rooms[i].visited = false;
         }
 
         create_objects(state);
