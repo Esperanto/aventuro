@@ -70,5 +70,10 @@ pcx_avt_free(struct pcx_avt *avt)
 
         pcx_free(avt->introduction);
 
+        for (size_t i = 0; i < avt->n_aliases; i++)
+                pcx_free(avt->aliases[i].name);
+
+        pcx_free(avt->aliases);
+
         pcx_free(avt);
 }

@@ -64,6 +64,9 @@
 #define PCX_AVT_LOAD_STRING_POINTERS_OFFSET 0xac96
 #define PCX_AVT_LOAD_MAX_N_STRINGS 1002
 
+#define PCX_AVT_LOAD_ALIASES_OFFSET 0x6853
+#define PCX_AVT_LOAD_ALIAS_SIZE 23
+
 struct pcx_error_domain
 pcx_avt_load_error;
 
@@ -428,6 +431,119 @@ load_monsters(struct load_data *data,
                 if (monster_data == NULL) {
                         ret = false;
                         goto done;
+                }
+        }
+
+done:
+        pcx_buffer_destroy(&buf);
+        return ret;
+}
+
+static bool
+is_valid_alias_type(enum pcx_avt_alias_type type)
+{
+        switch (type) {
+        case PCX_AVT_ALIAS_TYPE_OBJECT:
+        case PCX_AVT_ALIAS_TYPE_MONSTER:
+                return true;
+        }
+
+        return false;
+}
+
+static bool
+load_aliases(struct load_data *data,
+             struct pcx_error **error)
+{
+        struct pcx_buffer buf = PCX_BUFFER_STATIC_INIT;
+        bool ret = true;
+
+        if (!seek_or_error(data, PCX_AVT_LOAD_ALIASES_OFFSET, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_zero_terminated_data(data,
+                                       &buf,
+                                       PCX_AVT_LOAD_ALIAS_SIZE,
+                                       400, /* max_entries */
+                                       error)) {
+                ret = false;
+                goto done;
+        }
+
+        data->avt->n_aliases = buf.length / PCX_AVT_LOAD_ALIAS_SIZE;
+        data->avt->aliases = pcx_calloc(data->avt->n_aliases *
+                                        sizeof (struct pcx_avt_alias));
+
+        for (size_t a = 0; a < data->avt->n_aliases; a++) {
+                struct pcx_avt_alias *alias = data->avt->aliases + a;
+                const uint8_t *alias_data =
+                        buf.data + a * PCX_AVT_LOAD_ALIAS_SIZE;
+
+                alias->name = extract_string(alias_data, 20, error);
+
+                if (alias->name == NULL) {
+                        ret = false;
+                        goto done;
+                }
+
+                int name_len = strlen(alias->name);
+
+                if (name_len > 2 && alias->name[name_len - 1] == 'j') {
+                        alias->plural = true;
+                        name_len--;
+                }
+
+                if (name_len > 2 && alias->name[name_len - 1] == 'o')
+                        name_len--;
+
+                alias->name[name_len] = '\0';
+
+                alias_data += 21;
+
+                alias->type = *(alias_data++);
+
+                if (!is_valid_alias_type(alias->type)) {
+                        pcx_set_error(error,
+                                      &pcx_avt_load_error,
+                                      PCX_AVT_LOAD_ERROR_INVALID_ALIAS,
+                                      "An alias has an invalid type (0x%x)",
+                                      alias->type);
+                        ret = false;
+                        goto done;
+                }
+
+                alias->index = *(alias_data++);
+
+                switch (alias->type) {
+                case PCX_AVT_ALIAS_TYPE_OBJECT:
+                        if (alias->index < 1 ||
+                            alias->index > data->avt->n_objects) {
+                                pcx_set_error(error,
+                                              &pcx_avt_load_error,
+                                              PCX_AVT_LOAD_ERROR_INVALID_OBJECT,
+                                              "An invalid object number was "
+                                              "referenced");
+                                ret = false;
+                                goto done;
+                        }
+                        alias->index--;
+                        break;
+                case PCX_AVT_ALIAS_TYPE_MONSTER:
+                        if (alias->index < 1 ||
+                            alias->index > data->avt->n_monsters) {
+                                int e = PCX_AVT_LOAD_ERROR_INVALID_MONSTER;
+                                pcx_set_error(error,
+                                              &pcx_avt_load_error,
+                                              e,
+                                              "An invalid monster number was "
+                                              "referenced");
+                                ret = false;
+                                goto done;
+                        }
+                        alias->index--;
+                        break;
                 }
         }
 
@@ -1478,6 +1594,11 @@ pcx_avt_load(struct pcx_avt_load_source *source,
         }
 
         if (!load_monsters(&data, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_aliases(&data, error)) {
                 ret = false;
                 goto done;
         }

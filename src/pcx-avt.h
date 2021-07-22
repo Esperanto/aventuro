@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define PCX_AVT_N_DIRECTIONS 7
 #define PCX_AVT_DIRECTION_NORTH 0
@@ -244,6 +245,18 @@ struct pcx_avt_rule {
         struct pcx_avt_action_data monster_action;
 };
 
+enum pcx_avt_alias_type {
+        PCX_AVT_ALIAS_TYPE_OBJECT = 1,
+        PCX_AVT_ALIAS_TYPE_MONSTER = 3,
+};
+
+struct pcx_avt_alias {
+        enum pcx_avt_alias_type type;
+        bool plural;
+        int index;
+        char *name;
+};
+
 struct pcx_avt {
         size_t n_strings;
         char **strings;
@@ -253,6 +266,9 @@ struct pcx_avt {
 
         size_t n_rules;
         struct pcx_avt_rule *rules;
+
+        size_t n_aliases;
+        struct pcx_avt_alias *aliases;
 
         size_t n_rooms;
         struct pcx_avt_room *rooms;
