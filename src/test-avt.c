@@ -94,6 +94,25 @@ handle_test_command(struct data *data,
                 data->state = pcx_avt_state_new(data->avt);
 
                 return true;
+        } else if (!strcmp(command, "game_over")) {
+                if (!pcx_avt_state_game_is_over(data->state)) {
+                        fprintf(stderr,
+                                "Game over expected but not reported at "
+                                "line %i.\n",
+                                data->line_num);
+                        return false;
+                }
+
+                return true;
+        } else if (!strcmp(command, "not_game_over")) {
+                if (pcx_avt_state_game_is_over(data->state)) {
+                        fprintf(stderr,
+                                "Unexpected game over at line %i.\n",
+                                data->line_num);
+                        return false;
+                }
+
+                return true;
         } else {
                 fprintf(stderr,
                         "Unknown test command “%s” at line %i\n",
