@@ -21,6 +21,8 @@
 #include "pcx-avt-state.h"
 
 #include <string.h>
+#include <stddef.h>
+#include <stdalign.h>
 
 #include "pcx-util.h"
 #include "pcx-avt-command.h"
@@ -106,10 +108,11 @@ struct pcx_avt_state {
 
         /* Queue of messages to report with
          * pcx_avt_state_get_next_message. Each message is a
-         * zero-terminated string.
+         * zero-terminated string prefixed with pcx_avt_state_message.
          */
         struct pcx_buffer message_buf;
         size_t message_buf_pos;
+        bool message_in_progress;
 
         uint64_t game_attributes;
 
@@ -127,9 +130,60 @@ run_special_rules(struct pcx_avt_state *state,
                   struct pcx_avt_state_movable *tool);
 
 static void
+end_message(struct pcx_avt_state *state);
+
+static size_t
+align_message_start(size_t pos)
+{
+        const size_t alignment = alignof(struct pcx_avt_state_message);
+        return (pos + alignment - 1) & ~(alignment - 1);
+}
+
+static void
+start_message_type(struct pcx_avt_state *state,
+                   enum pcx_avt_state_message_type type)
+{
+        if (state->message_in_progress)
+                end_message(state);
+
+        size_t message_start_offset = state->message_buf.length;
+
+        pcx_buffer_set_length(&state->message_buf,
+                              message_start_offset +
+                              offsetof(struct pcx_avt_state_message, text));
+
+        struct pcx_avt_state_message *message =
+                (struct pcx_avt_state_message *)
+                (state->message_buf.data + message_start_offset);
+
+        message->type = type;
+
+        state->message_in_progress = true;
+}
+
+static void
+ensure_message_in_progress(struct pcx_avt_state *state)
+{
+        if (state->message_in_progress)
+                return;
+
+        start_message_type(state, PCX_AVT_STATE_MESSAGE_TYPE_NORMAL);
+}
+
+static void
+add_message_data(struct pcx_avt_state *state,
+                 const void *data,
+                 size_t length)
+{
+        ensure_message_in_progress(state);
+        pcx_buffer_append(&state->message_buf, data, length);
+}
+
+static void
 add_message_string(struct pcx_avt_state *state,
                    const char *string)
 {
+        ensure_message_in_progress(state);
         pcx_buffer_append_string(&state->message_buf, string);
 }
 
@@ -137,6 +191,7 @@ static void
 add_message_c(struct pcx_avt_state *state,
               char ch)
 {
+        ensure_message_in_progress(state);
         pcx_buffer_append_c(&state->message_buf, ch);
 }
 
@@ -144,6 +199,8 @@ static void
 add_message_unichar(struct pcx_avt_state *state,
                     uint32_t ch)
 {
+        ensure_message_in_progress(state);
+
         pcx_buffer_ensure_size(&state->message_buf,
                                state->message_buf.length +
                                PCX_UTF8_MAX_CHAR_LENGTH);
@@ -160,6 +217,7 @@ add_message_vprintf(struct pcx_avt_state *state,
                     const char *format,
                     va_list ap)
 {
+        ensure_message_in_progress(state);
         pcx_buffer_append_vprintf(&state->message_buf, format, ap);
 }
 
@@ -178,7 +236,11 @@ add_message_printf(struct pcx_avt_state *state,
 static void
 end_message(struct pcx_avt_state *state)
 {
+        ensure_message_in_progress(state);
         pcx_buffer_append_c(&state->message_buf, '\0');
+        pcx_buffer_set_length(&state->message_buf,
+                              align_message_start(state->message_buf.length));
+        state->message_in_progress = false;
 }
 
 static PCX_PRINTF_FORMAT(2, 3) void
@@ -821,9 +883,7 @@ send_rule_message(struct pcx_avt_state *state,
                 if (dollar == NULL)
                         break;
 
-                pcx_buffer_append(&state->message_buf,
-                                  text,
-                                  dollar - text);
+                add_message_data(state, text, dollar - text);
 
                 switch (dollar[1]) {
                 case '\0':
@@ -2121,18 +2181,23 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
         send_message(state, "Mi ne komprenas vin.");
 }
 
-const char *
+const struct pcx_avt_state_message *
 pcx_avt_state_get_next_message(struct pcx_avt_state *state)
 {
         if (state->message_buf_pos >= state->message_buf.length)
                 return NULL;
 
-        const char *ret = (const char *) (state->message_buf.data +
-                                          state->message_buf_pos);
+        struct pcx_avt_state_message *message =
+                (struct pcx_avt_state_message *)
+                (state->message_buf.data +
+                 state->message_buf_pos);
 
-        state->message_buf_pos += strlen(ret) + 1;
+        state->message_buf_pos +=
+                align_message_start(offsetof(struct pcx_avt_state_message,
+                                             text) +
+                                    strlen(message->text) + 1);
 
-        return ret;
+        return message;
 }
 
 static void

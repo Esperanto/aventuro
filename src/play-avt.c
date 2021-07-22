@@ -86,10 +86,10 @@ print_message(const char *message)
 static void
 print_messages(struct data *data)
 {
-        const char *message;
+        const struct pcx_avt_state_message *message;
 
         while ((message = pcx_avt_state_get_next_message(data->state)))
-                print_message(message);
+                print_message(message->text);
 }
 
 static bool

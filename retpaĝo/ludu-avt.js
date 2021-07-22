@@ -86,7 +86,7 @@
        if (msg == 0)
          break;
 
-       addMessage("note", UTF8ToString(msg));
+       addMessage("note", UTF8ToString(msg + 4));
      }
    }
 

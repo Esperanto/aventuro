@@ -23,6 +23,16 @@
 
 struct pcx_avt_state;
 
+enum pcx_avt_state_message_type {
+        PCX_AVT_STATE_MESSAGE_TYPE_NORMAL,
+};
+
+struct pcx_avt_state_message {
+        enum pcx_avt_state_message_type type;
+        /* Null-terminated string containing the text */
+        char text[];
+};
+
 struct pcx_avt_state *
 pcx_avt_state_new(const struct pcx_avt *avt);
 
@@ -31,10 +41,10 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command);
 
 /* Returns the next message in the queue or NULL if there are no more
- * messages. The returned string is owned by the pcx_avt_state and is
+ * messages. The returned data is owned by the pcx_avt_state and is
  * valid until the next call to pcx_avt_state_run_command.
  */
-const char *
+const struct pcx_avt_state_message *
 pcx_avt_state_get_next_message(struct pcx_avt_state *state);
 
 void

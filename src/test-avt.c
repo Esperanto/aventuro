@@ -102,7 +102,7 @@ run_test(struct data *data)
                 if (*command == '>') {
                         while (*(++command) == ' ');
 
-                        const char *msg =
+                        const struct pcx_avt_state_message *msg =
                                 pcx_avt_state_get_next_message(data->state);
 
                         if (msg) {
@@ -110,13 +110,13 @@ run_test(struct data *data)
                                         "Unexpected message received at line "
                                         "%i: %s\n",
                                         line_num,
-                                        msg);
+                                        msg->text);
                                 return false;
                         }
 
                         pcx_avt_state_run_command(data->state, command);
                 } else {
-                        const char *msg =
+                        const struct pcx_avt_state_message *msg =
                                 pcx_avt_state_get_next_message(data->state);
 
                         if (msg == NULL) {
@@ -125,26 +125,26 @@ run_test(struct data *data)
                                         "%i but none received\n",
                                         line_num);
                                 return false;
-                        } else if (strcmp(msg, command)) {
+                        } else if (strcmp(msg->text, command)) {
                                 fprintf(stderr,
                                         "At line %i:\n"
                                         " Expected: %s\n"
                                         " Received: %s\n",
                                         line_num,
                                         command,
-                                        msg);
+                                        msg->text);
                                 return false;
                         }
                 }
         }
 
-        const char *msg =
+        const struct pcx_avt_state_message *msg =
                 pcx_avt_state_get_next_message(data->state);
 
         if (msg) {
                 fprintf(stderr,
                         "Extra message received after test: %s\n",
-                        msg);
+                        msg->text);
                 return false;
         }
 
