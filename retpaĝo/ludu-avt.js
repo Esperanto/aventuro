@@ -24,7 +24,7 @@
    var seekPos = 0;
    var avt;
    var avtState;
-   var inputBox;
+   var inputbox;
    var messagesDiv;
 
    function seekAvtData(source, pos, error)
