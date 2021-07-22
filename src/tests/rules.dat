@@ -388,7 +388,7 @@ FINO_MORTITA;
 FINO_MONSTRO;
 
 SALONO biblioteko; Estas libroj chi tie. @
-ORIENTEN cirklo;
+ORIENTEN alinomejo;
 LUMA;
 
 AJHO rugha libro; Ghi havas grandan rughan hundon sur ghi. @
@@ -406,6 +406,34 @@ FINO_SALONO;
 FENOMENO legi; Kiam vi legas la strangan lingvon en la $A, sorcho okazas. @
 AJHO magia libro;
 FINO_FENOMENO;
+
+SALONO alinomejo; Chi tie estas multaj nomoj. @
+ORIENTEN cirklo;
+
+AJHO plasta skribilo; Ghi ne funkcias. Kiu kreis tion? @
+SINONIMO krajono;
+FINO_AJHO;
+
+AJHO bongustaj spagetoj; Ili aspektas freshaj. @
+SINONIMO pastajho;
+FINO_AJHO;
+
+AJHO plasta ujo; Ghi estas de la marko Ikea. @
+FERMEBLA;
+FERMITA;
+SINONIMO tupervaro;
+
+AJHO putrinta sandvicho; Ghi ne aspektas bongusta. @
+SINONIMO putrajho;
+FINO_AJHO;
+
+FINO_AJHO;
+
+FINO_SALONO;
+
+AJHO fora ajho; Kio ghi estas? Neniu scias. @
+SINONIMO forajho;
+FINO_AJHO;
 
 SALONO cirklo; Vi estas che la rando de cirklo. @
 LUMA;

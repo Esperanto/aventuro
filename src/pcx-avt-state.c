@@ -1140,6 +1140,44 @@ find_movable_in_list(struct pcx_avt_state *state,
 }
 
 static struct pcx_avt_state_movable *
+find_movable_via_alias(struct pcx_avt_state *state,
+                       const struct pcx_avt_command_noun *noun)
+{
+        for (unsigned i = 0; i < state->avt->n_aliases; i++) {
+                const struct pcx_avt_alias *alias = state->avt->aliases + i;
+
+                if (noun->plural != alias->plural)
+                        continue;
+
+                if (!pcx_avt_command_word_equal(&noun->name, alias->name))
+                        continue;
+
+                struct pcx_avt_state_movable *movable = NULL;
+
+                switch (alias->type) {
+                case PCX_AVT_ALIAS_TYPE_OBJECT:
+                        movable = state->object_index[alias->index];
+                        break;
+                case PCX_AVT_ALIAS_TYPE_MONSTER:
+                        movable = state->monster_index[alias->index];
+                        break;
+                }
+
+                if (noun->adjective.start &&
+                    !pcx_avt_command_word_equal(&noun->adjective,
+                                                movable->base.adjective))
+                        continue;
+
+                if (!is_movable_present(state, movable))
+                        continue;
+
+                return movable;
+        }
+
+        return NULL;
+}
+
+static struct pcx_avt_state_movable *
 find_movable(struct pcx_avt_state *state,
              const struct pcx_avt_command_noun *noun)
 {
@@ -1149,9 +1187,19 @@ find_movable(struct pcx_avt_state *state,
         if (found)
                 return found;
 
-        return find_movable_in_list(state,
-                                    &state->rooms[state->current_room].contents,
-                                    noun);
+        struct pcx_avt_state_room *room = state->rooms + state->current_room;
+
+        found = find_movable_in_list(state,
+                                     &room->contents,
+                                     noun);
+        if (found)
+                return found;
+
+        found = find_movable_via_alias(state, noun);
+        if (found)
+                return found;
+
+        return NULL;
 }
 
 static struct pcx_avt_state_movable *

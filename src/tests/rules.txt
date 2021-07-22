@@ -473,6 +473,58 @@ Vi ne vidas pmegon.
 
 > o
 
+Ĉi tie estas multaj nomoj. Vi vidas plastan skribilon, bongustajn spagetojn kaj plastan ujon.
+
+> rigardi skribilon.
+
+Ĝi ne funkcias. Kiu kreis tion?
+
+> rigardi skribilojn.
+
+Vi ne vidas skribilojn.
+
+> rigardi krajonon
+
+Ĝi ne funkcias. Kiu kreis tion?
+
+> rigardi plastan krajonon
+
+Ĝi ne funkcias. Kiu kreis tion?
+
+> rigardi kaŭĉukan krajonon
+
+Vi ne vidas kaŭĉukan krajonon.
+
+> rigardi forajxon
+
+Vi ne vidas foraĵon.
+
+> rigardi putrajxon
+
+Vi ne vidas putraĵon.
+
+> malfermu tupervaron.
+
+Vi malfermis la plastan ujon.
+
+> rigardi putrajxon
+
+Ĝi ne aspektas bongusta.
+
+> rigardi bongustan pastaĵon
+
+Ili aspektas freŝaj.
+
+> rigardi pastaĵojn
+
+Vi ne vidas pastaĵojn.
+
+> rigardi bongustajn spagetojn
+
+Ili aspektas freŝaj.
+
+> o
+
 # These two rooms are linked with a rule that sends you to the other
 # room immediately after displaying the description. This checks that
 # the rules can’t cause infinite recursion and that the interpreter
