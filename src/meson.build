@@ -48,6 +48,7 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
     '_pcx_avt_state_run_command',
     '_pcx_avt_state_get_next_message',
     '_pcx_avt_state_free',
+    '_pcx_avt_state_game_is_over',
   ]
 
   web_lib_src = [

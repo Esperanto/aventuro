@@ -26,6 +26,7 @@
    var avtState;
    var inputbox;
    var messagesDiv;
+   var gameIsOver = false;
 
    function seekAvtData(source, pos, error)
    {
@@ -115,10 +116,18 @@
          showAtTime(span, ++messageDelay);
        }
      }
+
+     if (!gameIsOver && _pcx_avt_state_game_is_over(avtState)) {
+       gameIsOver = true;
+       inputbox.contentEditable = false;
+     }
    }
 
    function sendCommand()
    {
+     if (gameIsOver)
+       return;
+
      var text = inputbox.innerText.replace(/[\x01- ]/g, ' ');
 
      if (text.match(/\S/) == null)
