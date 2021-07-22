@@ -57,36 +57,63 @@
 
      var messageDiv = document.createElement("div");
      messageDiv.className = "message " + klass;
+     messagesDiv.appendChild(messageDiv);
 
      var innerDiv = document.createElement("div");
      innerDiv.className = "messageInner";
+     messageDiv.appendChild(innerDiv);
 
      var textDiv = document.createElement("div");
      textDiv.className = "messageText";
+     innerDiv.appendChild(textDiv);
 
      var textNode = document.createTextNode(text);
-     innerDiv.appendChild(textNode);
-
-     messageDiv.appendChild(innerDiv);
-
-     messagesDiv.appendChild(messageDiv);
+     textDiv.appendChild(textNode);
 
      if (isScrolledToBottom) {
        messagesDiv.scrollTo(0,
                             messagesDiv.scrollHeight -
                             messagesDiv.clientHeight);
      }
+
+     return textDiv;
+   }
+
+   function showAtTime(div, delay)
+   {
+     div.style.opacity = 0.0;
+     function callback() {
+       div.style.opacity = 1.0;
+       div.className = "fadeInText";
+     };
+     setTimeout(callback, delay * 1000);
    }
 
    function processMessages()
    {
+     var lastDiv = null;
+     var messageDelay = 0;
+
      while (true) {
        var msg = _pcx_avt_state_get_next_message(avtState);
 
        if (msg == 0)
          break;
 
-       addMessage("note", UTF8ToString(msg + 4));
+       var msgType = getValue(msg, 'i32');
+       var text = UTF8ToString(msg + 4);
+
+       if (msgType == 0 || lastDiv == null) {
+         lastDiv = addMessage("note", text);
+         if (messageDelay > 0)
+           showAtTime(lastDiv, messageDelay);
+       } else {
+         var textNode = document.createTextNode(" " + text);
+         var span = document.createElement("span");
+         span.appendChild(textNode);
+         lastDiv.appendChild(span);
+         showAtTime(span, ++messageDelay);
+       }
      }
    }
 

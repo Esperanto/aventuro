@@ -931,7 +931,8 @@ send_rule_message(struct pcx_avt_state *state,
                         }
                         break;
                 case 'D':
-                        /* Pause for 1 second. FIXME */
+                        start_message_type(state,
+                                           PCX_AVT_STATE_MESSAGE_TYPE_DELAY);
                         break;
                 case 'F':
                         /* The monsters flee. FIXME */

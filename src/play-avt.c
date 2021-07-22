@@ -36,13 +36,14 @@ struct data {
         struct pcx_avt *avt;
         struct pcx_avt_state *state;
         int retval;
+        /* The column number we have currently printed to */
+        int col;
 };
 
 static void
-print_message(const char *message)
+print_message(struct data *data,
+              const char *message)
 {
-        int col = 0;
-
         while (true) {
                 while (*message == ' ')
                         message++;
@@ -63,24 +64,22 @@ print_message(const char *message)
                         p = pcx_utf8_next(p);
                 }
 
-                if (col > 0 && col + word_length + 1 > WRAP_WIDTH) {
+                if (data->col > 0 && data->col + word_length + 1 > WRAP_WIDTH) {
                         fputc('\n', stdout);
-                        col = 0;
+                        data->col = 0;
                 }
 
-                if (col > 0) {
+                if (data->col > 0) {
                         fputc(' ', stdout);
-                        col++;
+                        data->col++;
                 }
 
                 fwrite(message, 1, word_end - message, stdout);
 
-                col += word_length;
+                data->col += word_length;
 
                 message = word_end;
         }
-
-        fputs("\n\n", stdout);
 }
 
 static void
@@ -88,8 +87,18 @@ print_messages(struct data *data)
 {
         const struct pcx_avt_state_message *message;
 
-        while ((message = pcx_avt_state_get_next_message(data->state)))
-                print_message(message->text);
+        while ((message = pcx_avt_state_get_next_message(data->state))) {
+                if (message->type == PCX_AVT_STATE_MESSAGE_TYPE_NORMAL &&
+                    data->col > 0) {
+                        fputs("\n\n", stdout);
+                        data->col = 0;
+                }
+
+                print_message(data, message->text);
+        }
+
+        fputs("\n\n", stdout);
+        data->col = 0;
 }
 
 static bool

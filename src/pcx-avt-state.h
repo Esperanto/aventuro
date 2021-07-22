@@ -25,6 +25,10 @@ struct pcx_avt_state;
 
 enum pcx_avt_state_message_type {
         PCX_AVT_STATE_MESSAGE_TYPE_NORMAL,
+        /* The message should be displayed as part of the previous
+         * message after a short delay.
+         */
+        PCX_AVT_STATE_MESSAGE_TYPE_DELAY,
 };
 
 struct pcx_avt_state_message {
