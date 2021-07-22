@@ -2,6 +2,7 @@ NOMO Test 2021 Test;
 
 SALONO salono1; Chi tiu chambro ne havas regulon por la priskribo. @
 ORIENTEN salono2;
+OKCIDENTEN finvojo;
 LUMA;
 FINO_SALONO;
 
@@ -483,5 +484,27 @@ FENOMENO priskribi; Vi sekvas la rondon. @
 LOKO rondo;
 NOVALOKO cirklo;
 FINO_FENOMENO;
+
+SALONO finvojo; Vi estas en tunelo al la fino. @
+NORDEN poentejo;
+OKCIDENTEN finejo;
+LUMA;
+
+AJHO ora premio; Vi gajnas 2 poentojn kiam vi prenas chi tion. @
+POENTOJ 2;
+FINO_AJHO;
+
+FINO_SALONO;
+
+SALONO poentejo; Chi tie vi gajnas 1 poenton. @
+POENTOJ 1;
+SUDEN finvojo;
+LUMA;
+FINO_SALONO;
+
+SALONO finejo; La ludo finighas chi tie. @
+LUMA;
+LUDFINO;
+FINO_SALONO;
 
 FINO_PROGRAMO;;

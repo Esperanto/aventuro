@@ -2,6 +2,149 @@
 
 Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
 
+> okc
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+@not_game_over
+
+> okc
+
+@game_over
+
+La ludo finiĝas ĉi tie.
+
+Vi kunportis nenion. Vi havis neniun poenton.
+
+Fino.
+
+@restart
+
+Ĉi tiu ĉambro ne havas regulon por la priskribo.
+
+Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
+
+> okc
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+> prenu premion
+
+Vi prenis la oran premion.
+
+> okc
+
+@game_over
+
+La ludo finiĝas ĉi tie.
+
+Vi kunportis oran premion. Vi havis 2 poentojn.
+
+Fino.
+
+@restart
+
+Ĉi tiu ĉambro ne havas regulon por la priskribo.
+
+Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
+
+> okc
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+> prenu premion
+
+Vi prenis la oran premion.
+
+# You only get the points if you are carrying the prize at the end. So
+# if you drop it again you don’t get the points.
+
+> ĵetu la premion
+
+Vi ĵetis la oran premion.
+
+> okc
+
+@game_over
+
+La ludo finiĝas ĉi tie.
+
+Vi kunportis nenion. Vi havis neniun poenton.
+
+Fino.
+
+@restart
+
+Ĉi tiu ĉambro ne havas regulon por la priskribo.
+
+Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
+
+> okc
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+> norden
+
+Ĉi tie vi gajnas 1 poenton.
+
+> suden
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+> okc
+
+@game_over
+
+La ludo finiĝas ĉi tie.
+
+Vi kunportis nenion. Vi havis unu poenton.
+
+Fino.
+
+@restart
+
+Ĉi tiu ĉambro ne havas regulon por la priskribo.
+
+Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
+
+> okc
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+> norden
+
+Ĉi tie vi gajnas 1 poenton.
+
+> suden
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+# Check that going to the room a second time doesn’t gain a second point.
+
+> norden
+
+Ĉi tie vi gajnas 1 poenton.
+
+> suden
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+> okc
+
+@game_over
+
+La ludo finiĝas ĉi tie.
+
+Vi kunportis nenion. Vi havis unu poenton.
+
+Fino.
+
+@restart
+
+Ĉi tiu ĉambro ne havas regulon por la priskribo.
+
+Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
+
 > o
 
 Ĉi tiu ĉambro ja havas regulon por la priskribo.
