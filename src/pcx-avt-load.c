@@ -974,7 +974,7 @@ load_rules(struct load_data *data,
 
                 rule_data += 8;
 
-                rule->score = *(rule_data++);
+                rule->points = *(rule_data++);
         }
 
 done:

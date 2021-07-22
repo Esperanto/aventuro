@@ -235,7 +235,7 @@ struct pcx_avt_rule {
         /* Owned by pcx_avt->strings. Can be NULL. */
         const char *text;
 
-        uint8_t score;
+        uint8_t points;
 
         struct pcx_avt_condition_data room_condition;
         struct pcx_avt_condition_data object_condition;
