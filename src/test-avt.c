@@ -34,6 +34,7 @@ struct data {
         struct pcx_avt *avt;
         struct pcx_avt_state *state;
         FILE *input;
+        int line_num;
 };
 
 static bool
@@ -65,9 +66,47 @@ read_line(struct data *data)
 }
 
 static bool
+ensure_empty_message_queue(struct data *data)
+{
+        const struct pcx_avt_state_message *msg =
+                pcx_avt_state_get_next_message(data->state);
+
+        if (msg == NULL)
+                return true;
+
+        fprintf(stderr,
+                "Unexpected message received at line %i: %s\n",
+                data->line_num,
+                msg->text);
+
+        return false;
+}
+
+static bool
+handle_test_command(struct data *data,
+                    const char *command)
+{
+        if (!strcmp(command, "restart")) {
+                if (!ensure_empty_message_queue(data))
+                        return false;
+
+                pcx_avt_state_free(data->state);
+                data->state = pcx_avt_state_new(data->avt);
+
+                return true;
+        } else {
+                fprintf(stderr,
+                        "Unknown test command “%s” at line %i\n",
+                        command,
+                        data->line_num);
+                return false;
+        }
+}
+
+static bool
 run_test(struct data *data)
 {
-        int line_num = 0;
+        data->line_num = 0;
 
         while (true) {
                 pcx_buffer_set_length(&data->command_buffer, 0);
@@ -75,7 +114,7 @@ run_test(struct data *data)
                 if (!read_line(data))
                         break;
 
-                line_num++;
+                data->line_num++;
 
                 char *command = (char *) data->command_buffer.data;
                 size_t len = data->command_buffer.length;
@@ -95,26 +134,22 @@ run_test(struct data *data)
                         fprintf(stderr,
                                 "Invalid UTF-8 encountered in test script at "
                                 "line %i",
-                                line_num);
+                                data->line_num);
                         return false;
                 }
 
                 if (*command == '>') {
                         while (*(++command) == ' ');
 
-                        const struct pcx_avt_state_message *msg =
-                                pcx_avt_state_get_next_message(data->state);
-
-                        if (msg) {
-                                fprintf(stderr,
-                                        "Unexpected message received at line "
-                                        "%i: %s\n",
-                                        line_num,
-                                        msg->text);
+                        if (!ensure_empty_message_queue(data))
                                 return false;
-                        }
 
                         pcx_avt_state_run_command(data->state, command);
+                } else if (*command == '@') {
+                        while (*(++command) == ' ');
+
+                        if (!handle_test_command(data, command))
+                                return false;
                 } else {
                         const struct pcx_avt_state_message *msg =
                                 pcx_avt_state_get_next_message(data->state);
@@ -123,14 +158,14 @@ run_test(struct data *data)
                                 fprintf(stderr,
                                         "Expected message at line "
                                         "%i but none received\n",
-                                        line_num);
+                                        data->line_num);
                                 return false;
                         } else if (strcmp(msg->text, command)) {
                                 fprintf(stderr,
                                         "At line %i:\n"
                                         " Expected: %s\n"
                                         " Received: %s\n",
-                                        line_num,
+                                        data->line_num,
                                         command,
                                         msg->text);
                                 return false;
