@@ -132,7 +132,7 @@ read_line(struct data *data)
 static void
 run_game(struct data *data)
 {
-        while (true) {
+        while (!pcx_avt_state_game_is_over(data->state)) {
                 pcx_buffer_set_length(&data->command_buffer, 0);
 
                 if (!read_line(data))
