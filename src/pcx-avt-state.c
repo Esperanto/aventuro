@@ -90,6 +90,7 @@ struct pcx_avt_state {
         const struct pcx_avt *avt;
 
         int current_room;
+        bool game_over;
         int points;
 
         struct pcx_avt_state_room *rooms;
@@ -1105,9 +1106,55 @@ position_movables(struct pcx_avt_state *state)
 }
 
 static void
+send_end_game_messages(struct pcx_avt_state *state)
+{
+        struct pcx_avt_state_movable *movable;
+
+        pcx_list_for_each(movable, &state->carrying, location_node) {
+                if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                        continue;
+
+                add_points(state, movable->object.points);
+        }
+
+        add_message_string(state, "Vi kunportis ");
+
+        if (pcx_list_empty(&state->carrying))
+                add_message_string(state, "nenion");
+        else
+                add_movables_to_message(state, &state->carrying);
+
+        add_message_string(state,
+                           ". "
+                           "Vi havis ");
+
+        if (state->points == 0)
+                add_message_string(state, "neniun poenton");
+        else if (state->points == 1)
+                add_message_string(state, "unu poenton");
+        else
+                add_message_printf(state, "%i poentojn", state->points);
+
+        add_message_c(state, '.');
+
+        end_message(state);
+
+        send_message(state, "Fino.");
+}
+
+static void
 after_command(struct pcx_avt_state *state)
 {
         run_special_rules(state, "est", NULL /* object */, NULL /* tool */);
+
+        const struct pcx_avt_room *room =
+                state->avt->rooms + state->current_room;
+
+        if ((room->attributes & PCX_AVT_ROOM_ATTRIBUTE_GAME_OVER))
+                state->game_over = true;
+
+        if (state->game_over)
+                send_end_game_messages(state);
 }
 
 struct pcx_avt_state *
@@ -2209,6 +2256,11 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
 
         state->rule_recursion_depth = 0;
 
+        if (state->game_over) {
+                send_message(state, "La ludo jam finiĝis.");
+                return;
+        }
+
         if (!pcx_avt_command_parse(command_str, &command)) {
                 send_message(state, "Mi ne komprenas vin.");
                 return;
@@ -2248,6 +2300,12 @@ free_movables(struct pcx_avt_state *state)
                 pcx_free(movable->base.adjective);
                 pcx_free(movable);
         }
+}
+
+bool
+pcx_avt_state_game_is_over(struct pcx_avt_state *state)
+{
+        return state->game_over;
 }
 
 void

@@ -51,6 +51,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
 const struct pcx_avt_state_message *
 pcx_avt_state_get_next_message(struct pcx_avt_state *state);
 
+bool
+pcx_avt_state_game_is_over(struct pcx_avt_state *state);
+
 void
 pcx_avt_state_free(struct pcx_avt_state *state);
 
