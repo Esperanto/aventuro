@@ -288,7 +288,8 @@ add_movable_to_message(struct pcx_avt_state *state,
 
 static void
 add_movables_to_message(struct pcx_avt_state *state,
-                        struct pcx_list *list)
+                        struct pcx_list *list,
+                        const char *suffix)
 {
         struct pcx_avt_state_movable *object;
 
@@ -300,7 +301,7 @@ add_movables_to_message(struct pcx_avt_state *state,
                                            ", ");
                 }
 
-                add_movable_to_message(state, &object->base, "n");
+                add_movable_to_message(state, &object->base, suffix);
         }
 }
 
@@ -1122,7 +1123,7 @@ send_end_game_messages(struct pcx_avt_state *state)
         if (pcx_list_empty(&state->carrying))
                 add_message_string(state, "nenion");
         else
-                add_movables_to_message(state, &state->carrying);
+                add_movables_to_message(state, &state->carrying, "n");
 
         add_message_string(state,
                            ". "
@@ -1590,7 +1591,7 @@ handle_inventory(struct pcx_avt_state *state,
         if (pcx_list_empty(&state->carrying))
                 add_message_string(state, "nenion");
         else
-                add_movables_to_message(state, &state->carrying);
+                add_movables_to_message(state, &state->carrying, "n");
 
         add_message_c(state, '.');
 
@@ -1694,7 +1695,7 @@ handle_look(struct pcx_avt_state *state,
                         const char *pronoun =
                                 get_pronoun_name(movable->base.pronoun);
                         add_message_printf(state, " En %s vi vidas ", pronoun);
-                        add_movables_to_message(state, &movable->contents);
+                        add_movables_to_message(state, &movable->contents, "n");
                         add_message_c(state, '.');
                 }
         }
