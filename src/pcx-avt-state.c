@@ -1629,6 +1629,39 @@ handle_look_direction(struct pcx_avt_state *state,
         return false;
 }
 
+static void
+show_monster_contents(struct pcx_avt_state *state,
+                      struct pcx_avt_state_movable *movable)
+{
+        if (movable->monster.aggression > 0) {
+                const char *pronoun =
+                        get_capital_pronoun_name(movable->base.pronoun);
+                add_message_printf(state, " %s gardas ", pronoun);
+                add_movables_to_message(state, &movable->contents, "n");
+        } else {
+                const char *pronoun =
+                        get_pronoun_name(movable->base.pronoun);
+                add_message_printf(state, " Apud %s estas ", pronoun);
+                add_movables_to_message(state, &movable->contents, NULL);
+        }
+
+        add_message_c(state, '.');
+}
+
+static void
+show_movable_with_monster(struct pcx_avt_state *state,
+                          struct pcx_avt_state_movable *movable)
+{
+        if (movable->base.location_type != PCX_AVT_LOCATION_TYPE_WITH_MONSTER)
+                return;
+
+        const char *pronoun =
+                get_capital_pronoun_name(movable->base.pronoun);
+        add_message_printf(state, " %s estas apud ", pronoun);
+        add_movable_to_message(state, &movable->container->base, NULL);
+        add_message_c(state, '.');
+}
+
 static bool
 handle_look(struct pcx_avt_state *state,
             const struct pcx_avt_command *command)
@@ -1672,7 +1705,10 @@ handle_look(struct pcx_avt_state *state,
                 add_message_c(state, '.');
         }
 
-        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
+        show_movable_with_monster(state, movable);
+
+        switch (movable->type) {
+        case PCX_AVT_STATE_MOVABLE_TYPE_OBJECT:
                 if ((movable->base.attributes &
                      PCX_AVT_OBJECT_ATTRIBUTE_CLOSED)) {
                         if ((movable->base.attributes &
@@ -1698,6 +1734,11 @@ handle_look(struct pcx_avt_state *state,
                         add_movables_to_message(state, &movable->contents, "n");
                         add_message_c(state, '.');
                 }
+                break;
+        case PCX_AVT_STATE_MOVABLE_TYPE_MONSTER:
+                if (!pcx_list_empty(&movable->contents))
+                        show_monster_contents(state, movable);
+                break;
         }
 
         end_message(state);
