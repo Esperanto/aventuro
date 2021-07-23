@@ -54,6 +54,15 @@ pcx_avt_state_get_next_message(struct pcx_avt_state *state);
 bool
 pcx_avt_state_game_is_over(struct pcx_avt_state *state);
 
+/* Sets a callback to use for generating random numbers. The number
+ * returned should be in the range [0,99] inclusive. If this isn’t
+ * called then rand() will be used. This is mostly just for debugging.
+ */
+void
+pcx_avt_state_set_random_cb(struct pcx_avt_state *state,
+                            int (* cb)(void *),
+                            void *user_data);
+
 void
 pcx_avt_state_free(struct pcx_avt_state *state);
 

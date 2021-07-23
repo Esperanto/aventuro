@@ -126,7 +126,16 @@ struct pcx_avt_state {
 
         /* Used to prevent infinite recursion when executing rules */
         int rule_recursion_depth;
+
+        int (* random_cb)(void *);
+        void *random_cb_data;
 };
+
+static int
+get_random(struct pcx_avt_state *state)
+{
+        return state->random_cb(state->random_cb_data);
+}
 
 static bool
 run_special_rules(struct pcx_avt_state *state,
@@ -661,7 +670,7 @@ check_condition(struct pcx_avt_state *state,
         case PCX_AVT_CONDITION_NOT_PLAYER_ATTRIBUTE:
                 return (state->game_attributes & (1 << condition->data)) == 0;
         case PCX_AVT_CONDITION_CHANCE:
-                return rand() % 100 < condition->data;
+                return get_random(state) < condition->data;
         case PCX_AVT_CONDITION_OBJECT_SAME_ADJECTIVE:
                 return (movable &&
                         !strcmp(movable->base.adjective,
@@ -1158,6 +1167,12 @@ after_command(struct pcx_avt_state *state)
                 send_end_game_messages(state);
 }
 
+static int
+default_random_cb(void *user_data)
+{
+        return rand() % 100;
+}
+
 struct pcx_avt_state *
 pcx_avt_state_new(const struct pcx_avt *avt)
 {
@@ -1165,6 +1180,8 @@ pcx_avt_state_new(const struct pcx_avt *avt)
 
         pcx_buffer_init(&state->message_buf);
         pcx_buffer_init(&state->stack);
+
+        state->random_cb = default_random_cb;
 
         state->avt = avt;
         state->current_room = 0;
@@ -2375,6 +2392,15 @@ bool
 pcx_avt_state_game_is_over(struct pcx_avt_state *state)
 {
         return state->game_over;
+}
+
+void
+pcx_avt_state_set_random_cb(struct pcx_avt_state *state,
+                            int (* cb)(void *),
+                            void *user_data)
+{
+        state->random_cb = cb;
+        state->random_cb_data = user_data;
 }
 
 void
