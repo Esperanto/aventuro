@@ -140,8 +140,13 @@ main(int argc, char **argv)
         assert(!memcmp(command.object.name.start, "rat", 3));
         assert(command.object.adjective.start == NULL);
 
-        assert(command.direction.length == 5);
-        assert(!memcmp(command.direction.start, "plaĝ", 5));
+        assert(command.direction.article);
+        assert(!command.direction.plural);
+        assert(!command.direction.accusative);
+        assert(!command.direction.is_pronoun);
+        assert(command.direction.name.length == 5);
+        assert(!memcmp(command.direction.name.start, "plaĝ", 5));
+        assert(command.direction.adjective.start == NULL);
 
         assert(command.tool.article);
         assert(!command.tool.plural);
@@ -225,17 +230,27 @@ main(int argc, char **argv)
         assert(command.in.name.length == 6);
         assert(!memcmp(command.in.name.start, "skatol", 6));
 
-        assert(!pcx_avt_command_parse("al la blanka skatolo", &command));
+        assert(pcx_avt_command_parse("al la blanka skatolo", &command));
+        assert(command.has == PCX_AVT_COMMAND_HAS_DIRECTION);
+        assert(command.direction.name.length == 6);
+        assert(!memcmp(command.direction.name.start, "skatol", 6));
+        assert(command.direction.adjective.start);
+        assert(command.direction.adjective.length == 5);
+        assert(!memcmp(command.direction.adjective.start, "blank", 5));
 
         assert(pcx_avt_command_parse("AL LA    skatolo   ", &command));
         assert(command.has == PCX_AVT_COMMAND_HAS_DIRECTION);
-        assert(command.direction.length == 6);
-        assert(!memcmp(command.direction.start, "skatol", 6));
+        assert(command.direction.name.length == 6);
+        assert(!memcmp(command.direction.name.start, "skatol", 6));
 
         assert(pcx_avt_command_parse("  merden   ", &command));
         assert(command.has == PCX_AVT_COMMAND_HAS_DIRECTION);
-        assert(command.direction.length == 4);
-        assert(!memcmp(command.direction.start, "merd", 4));
+        assert(!command.direction.article);
+        assert(!command.direction.plural);
+        assert(!command.direction.accusative);
+        assert(!command.direction.is_pronoun);
+        assert(command.direction.name.length == 4);
+        assert(!memcmp(command.direction.name.start, "merd", 4));
 
         assert(!pcx_avt_command_parse("hundo hundo", &command));
         assert(!pcx_avt_command_parse("hundon hundon", &command));
@@ -280,8 +295,9 @@ main(int argc, char **argv)
         assert(command.has == (PCX_AVT_COMMAND_HAS_VERB |
                                PCX_AVT_COMMAND_HAS_SUBJECT |
                                PCX_AVT_COMMAND_HAS_DIRECTION));
-        assert(command.direction.length == 3);
-        assert(!memcmp(command.direction.start, "urb", 3));
+        assert(command.direction.name.length == 3);
+        assert(!memcmp(command.direction.name.start, "urb", 3));
+        assert(command.direction.adjective.start == NULL);
         assert(!command.subject.article);
         assert(!command.subject.plural);
         assert(!command.subject.accusative);

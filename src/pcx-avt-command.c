@@ -416,32 +416,35 @@ parse_tool(struct parse_pos *pos_in_out,
 
 static bool
 parse_direction(struct parse_pos *pos_in_out,
-                struct pcx_avt_command_word *word_out)
+                struct pcx_avt_command_noun *noun)
 {
         struct parse_pos pos = *pos_in_out;
-        struct pcx_avt_command_noun noun;
+        struct pcx_avt_command_word word;
 
-        if (!get_next_word(&pos, &noun.name))
+        if (!get_next_word(&pos, &word))
                 return false;
 
         /* Accept directions like “maren” for “al la maro” */
-        if (noun.name.length > 2 &&
-            is_word(noun.name.start + noun.name.length - 2, 2, "en")) {
+        if (word.length > 2 &&
+            is_word(word.start + word.length - 2, 2, "en")) {
                 *pos_in_out = pos;
-                *word_out = noun.name;
-                word_out->length -= 2;
+                noun->name = word;
+                noun->name.length -= 2;
+                noun->adjective.start = NULL;
+                noun->plural = false;
+                noun->article = false;
+                noun->accusative = false;
+                noun->is_pronoun = false;
                 return true;
         }
 
-        if (!is_word(noun.name.start, noun.name.length, "al"))
+        if (!is_word(word.start, word.length, "al"))
                 return false;
 
-        if (!parse_noun(&pos, &noun) ||
-            noun.accusative ||
-            noun.adjective.start)
+        if (!parse_noun(&pos, noun) ||
+            noun->accusative)
                 return false;
 
-        *word_out = noun.name;
         *pos_in_out = pos;
 
         return true;

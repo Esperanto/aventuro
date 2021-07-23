@@ -72,7 +72,7 @@ struct pcx_avt_command {
         struct pcx_avt_command_noun subject;
         struct pcx_avt_command_noun object;
         struct pcx_avt_command_noun tool;
-        struct pcx_avt_command_word direction;
+        struct pcx_avt_command_noun direction;
         struct pcx_avt_command_noun in;
         struct pcx_avt_command_word verb;
 };

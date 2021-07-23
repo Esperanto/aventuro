@@ -1619,24 +1619,10 @@ is_carrying_movable(struct pcx_avt_state *state,
 }
 
 static bool
-handle_direction(struct pcx_avt_state *state,
-                 const struct pcx_avt_command *command,
-                 const struct pcx_avt_state_references *references)
+handle_compass_direction(struct pcx_avt_state *state,
+                         const struct pcx_avt_command_noun *noun)
 {
-        /* Must have direction. Subject and verb optional. */
-        if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
-                              PCX_AVT_COMMAND_HAS_VERB)) !=
-            PCX_AVT_COMMAND_HAS_DIRECTION)
-                return false;
-
-        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
-            (!command->subject.is_pronoun ||
-             command->subject.pronoun.person != 1 ||
-             command->subject.pronoun.plural))
-                return false;
-
-        if ((command->has & PCX_AVT_COMMAND_HAS_VERB) &&
-            !pcx_avt_command_word_equal(&command->verb, "ir"))
+        if (noun->plural || noun->is_pronoun)
                 return false;
 
         static const struct {
@@ -1657,7 +1643,7 @@ handle_direction(struct pcx_avt_state *state,
                 state->avt->rooms + state->current_room;
 
         for (int i = 0; i < PCX_N_ELEMENTS(direction_map); i++) {
-                if (pcx_avt_command_word_equal(&command->direction,
+                if (pcx_avt_command_word_equal(&noun->name,
                                                direction_map[i].word)) {
                         int dir = direction_map[i].direction;
                         int new_room = room->movements[dir];
@@ -1676,8 +1662,41 @@ handle_direction(struct pcx_avt_state *state,
                 }
         }
 
+        return false;
+}
+
+static bool
+handle_direction(struct pcx_avt_state *state,
+                 const struct pcx_avt_command *command,
+                 const struct pcx_avt_state_references *references)
+{
+        /* Must have direction. Subject and verb optional. */
+        if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
+                              PCX_AVT_COMMAND_HAS_VERB)) !=
+            PCX_AVT_COMMAND_HAS_DIRECTION)
+                return false;
+
+        if (command->direction.adjective.start)
+                return false;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural))
+                return false;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_VERB) &&
+            !pcx_avt_command_word_equal(&command->verb, "ir"))
+                return false;
+
+        if (handle_compass_direction(state, &command->direction))
+                return true;
+
+        const struct pcx_avt_room *room =
+                state->avt->rooms + state->current_room;
+
         for (int i = 0; i < room->n_directions; i++) {
-                if (pcx_avt_command_word_equal(&command->direction,
+                if (pcx_avt_command_word_equal(&command->direction.name,
                                                room->directions[i].name)) {
                         state->current_room = room->directions[i].target;
                         send_room_description(state);
