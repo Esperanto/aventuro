@@ -1775,6 +1775,21 @@ is_verb_object_command(const struct pcx_avt_command *command)
         return is_verb_command_and_has(command, PCX_AVT_COMMAND_HAS_OBJECT);
 }
 
+static struct pcx_avt_state_movable *
+find_aggressive_holder(struct pcx_avt_state_movable *movable)
+{
+        while (true) {
+                movable = movable->container;
+
+                if (movable == NULL)
+                        return NULL;
+
+                if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER &&
+                    movable->monster.aggression > 0)
+                        return movable;
+        }
+}
+
 static bool
 validate_take(struct pcx_avt_state *state,
               struct pcx_avt_state_movable *movable)
@@ -1792,6 +1807,18 @@ validate_take(struct pcx_avt_state *state,
              (movable->base.attributes &
               PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) == 0)) {
                 add_message_string(state, "Vi ne povas porti la ");
+                add_movable_to_message(state, &movable->base, "n");
+                add_message_c(state, '.');
+                end_message(state);
+                return false;
+        }
+
+        struct pcx_avt_state_movable *aggressive_holder =
+                find_aggressive_holder(movable);
+        if (aggressive_holder) {
+                add_message_string(state, "La ");
+                add_movable_to_message(state, &aggressive_holder->base, NULL);
+                add_message_string(state, " malebligas al vi preni la ");
                 add_movable_to_message(state, &movable->base, "n");
                 add_message_c(state, '.');
                 end_message(state);
