@@ -35,7 +35,26 @@ struct data {
         struct pcx_avt_state *state;
         FILE *input;
         int line_num;
+        int random_number;
 };
+
+static int
+random_cb(void *user_data)
+{
+        struct data *data = user_data;
+
+        return data->random_number;
+}
+
+static void
+create_avt_state(struct data *data)
+{
+        data->state = pcx_avt_state_new(data->avt);
+
+        pcx_avt_state_set_random_cb(data->state,
+                                    random_cb,
+                                    data);
+}
 
 static bool
 read_line(struct data *data)
@@ -91,7 +110,7 @@ handle_test_command(struct data *data,
                         return false;
 
                 pcx_avt_state_free(data->state);
-                data->state = pcx_avt_state_new(data->avt);
+                create_avt_state(data);
 
                 return true;
         } else if (!strcmp(command, "game_over")) {
@@ -112,6 +131,9 @@ handle_test_command(struct data *data,
                         return false;
                 }
 
+                return true;
+        } else if (!strncmp(command, "random ", 7)) {
+                data->random_number = strtol(command + 7, NULL, 10);
                 return true;
         } else {
                 fprintf(stderr,
@@ -240,7 +262,7 @@ main(int argc, char **argv)
                                 strerror(errno));
                         retval = EXIT_FAILURE;
                 } else {
-                        data.state = pcx_avt_state_new(data.avt);
+                        create_avt_state(&data);
 
                         if (!run_test(&data))
                                 retval = EXIT_FAILURE;
