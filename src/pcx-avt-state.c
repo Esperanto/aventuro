@@ -90,6 +90,7 @@ struct pcx_avt_state_references {
         struct pcx_avt_state_movable *object;
         struct pcx_avt_state_movable *tool;
         struct pcx_avt_state_movable *in;
+        struct pcx_avt_state_movable *direction;
 };
 
 struct pcx_avt_state {
@@ -1436,6 +1437,10 @@ find_movable_by_pronoun(struct pcx_avt_state *state,
             pronoun_can_reference(state, pronoun, prev_refs->in))
                 return prev_refs->in;
 
+        if (prev_refs->direction &&
+            pronoun_can_reference(state, pronoun, prev_refs->direction))
+                return prev_refs->direction;
+
         return NULL;
 }
 
@@ -1521,6 +1526,19 @@ get_in_or_message(struct pcx_avt_state *state,
         }
 
         return references->in;
+}
+
+static struct pcx_avt_state_movable *
+get_direction_or_message(struct pcx_avt_state *state,
+                    const struct pcx_avt_command *command,
+                    const struct pcx_avt_state_references *references)
+{
+        if (references->direction == NULL) {
+                send_missing_reference_message(state, &command->direction);
+                return NULL;
+        }
+
+        return references->direction;
 }
 
 static int
@@ -2479,6 +2497,10 @@ get_references(struct pcx_avt_state *state,
                 references->tool = find_movable(state, &command->tool);
         if ((command->has & PCX_AVT_COMMAND_HAS_IN))
                 references->in = find_movable(state, &command->in);
+        if ((command->has & PCX_AVT_COMMAND_HAS_DIRECTION)) {
+                references->direction =
+                        find_movable(state, &command->direction);
+        }
 }
 
 void

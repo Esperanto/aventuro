@@ -942,6 +942,14 @@ Mi ne komprenas vin.
 
 Estas multe da ili.
 
+> lanĉu la virinon al la viro
+
+Mi ne komprenas vin.
+
+> rigardu lin
+
+Li aspektas kontenta.
+
 > forigi la sablerojn
 
 La etaj sableroj malaperis.
