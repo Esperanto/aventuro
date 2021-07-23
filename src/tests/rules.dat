@@ -439,7 +439,7 @@ FINO_SALONO;
 
 SALONO chevalejo; Vi estas en ejo por chevaloj. Estas trogo en la angulo. @
 LUMA;
-ORIENTEN cirklo;
+ORIENTEN agresejo;
 NORDEN sekurejo;
 
 AJHO plasta chevalo; Ghi estas tre malgranda plasta ludilo en la formo de chevalo por infanoj. @
@@ -466,6 +466,43 @@ FINO_SALONO;
 AJHO fora ajho; Kio ghi estas? Neniu scias. @
 SINONIMO forajho;
 FINO_AJHO;
+
+SALONO agresejo; Estas etoso de agresemo chi tie. @
+ORIENTEN cirklo;
+LUMA;
+
+MONSTRO malafabla ogro; La malafabla ogro rigardas vin malice. @
+VIRO;
+MORTITA verda vaporo; Chiu scias ke mortinta ogro ighas vaporo. @
+FINO_MORTITA;
+AGRESO 50;
+
+AJHO verda skatolo; Ghi estas verda. @
+ENHAVO 50;
+
+AJHO verda jhetono; Ghi estas verda. @
+FINO_AJHO;
+
+FINO_AJHO;
+
+FINO_MONSTRO;
+
+MONSTRO afabla ogro; La afabla ogro ridetas al vi. @
+INO;
+MORTITA blua vaporo; Chiu scias ke mortinta ogro ighas vaporo. @
+FINO_MORTITA;
+
+AJHO blua skatolo; Ghi estas blua. @
+ENHAVO 50;
+
+AJHO bongusta kuketo; Ghi aspektas bongusta. @
+FINO_AJHO;
+
+FINO_AJHO;
+
+FINO_MONSTRO;
+
+FINO_SALONO;
 
 SALONO cirklo; Vi estas che la rando de cirklo. @
 LUMA;

@@ -732,6 +732,58 @@ Vi estas en ejo por ĉevaloj. Estas trogo en la angulo.
 
 > o
 
+Estas etoso de agresemo ĉi tie. Vi vidas malafablan ogron kaj afablan ogron.
+
+> rigardi la malafablan ogron
+
+La malafabla ogro rigardas vin malice. Li gardas verdan skatolon.
+
+> rigardi la verdan skatolon
+
+Ĝi estas verda. Ĝi estas apud malafabla ogro. En ĝi vi vidas verdan ĵetonon.
+
+> preni la verdan skatolon
+
+La malafabla ogro malebligas al vi preni la verdan skatolon.
+
+> preni la verdan ĵetonon
+
+La malafabla ogro malebligas al vi preni la verdan ĵetonon.
+
+> metu la verdan skatolon en la bluan skatolon
+
+La malafabla ogro malebligas al vi preni la verdan skatolon.
+
+> rigardi la afablan ogron
+
+La afabla ogro ridetas al vi. Apud ŝi estas blua skatolo.
+
+> rigardi la bluan skatolon
+
+Ĝi estas blua. Ĝi estas apud afabla ogro. En ĝi vi vidas bongustan kuketon.
+
+> rigardi la kuketon
+
+Ĝi aspektas bongusta.
+
+> preni la kuketon
+
+Vi prenis la bongustan kuketon.
+
+> preni la bluan skatolon
+
+Vi prenis la bluan skatolon.
+
+> ĵetu la bluan skatolon
+
+Vi ĵetis la bluan skatolon.
+
+> rigardi
+
+Estas etoso de agresemo ĉi tie. Vi vidas malafablan ogron, afablan ogron kaj bluan skatolon.
+
+> o
+
 # These two rooms are linked with a rule that sends you to the other
 # room immediately after displaying the description. This checks that
 # the rules can’t cause infinite recursion and that the interpreter
