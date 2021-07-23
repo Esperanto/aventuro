@@ -473,7 +473,7 @@ SINONIMO forajho;
 FINO_AJHO;
 
 SALONO agresejo; Estas etoso de agresemo chi tie. @
-ORIENTEN cirklo;
+ORIENTEN pronomejo;
 LUMA;
 
 MONSTRO malafabla ogro; La malafabla ogro rigardas vin malice. @
@@ -506,6 +506,32 @@ FINO_AJHO;
 FINO_AJHO;
 
 FINO_MONSTRO;
+
+FINO_SALONO;
+
+SALONO pronomejo; Tipa esperanta loko. @
+ORIENTEN cirklo;
+
+FENOMENO forigi; La $A malaperis. @
+AJHO IO;
+NOVAAJHO ALIEN neniejo;
+FINO_FENOMENO;
+
+AJHO blanka taso; Bona por teo. @
+ENHAVO 10;
+FINO_AJHO;
+
+AJHO etaj sableroj; Estas multe da ili. @
+PLURALO;
+FINO_AJHO;
+
+AJHO kontenta viro; Li aspektas kontenta. @
+VIRO;
+FINO_AJHO;
+
+AJHO kontenta virino; Shi aspektas kontenta. @
+INO;
+FINO_AJHO;
 
 FINO_SALONO;
 

@@ -800,6 +800,174 @@ Estas etoso de agresemo ĉi tie. Vi vidas malafablan ogron, afablan ogron kaj bl
 
 > o
 
+Tipa esperanta loko. Vi vidas blankan tason, etajn sablerojn, kontentan viron kaj kontentan virinon.
+
+> rigardi la tason
+
+Bona por teo.
+
+> rigardi ĝin
+
+Bona por teo.
+
+> rigardi ĝin
+
+Bona por teo.
+
+> rigardi ilin
+
+Mi ne scias kion “ili” indikas.
+
+> rigardi sablerojn
+
+Estas multe da ili.
+
+> rigardi nin
+
+Mi ne scias kion “ni” indikas.
+
+> rigardi sablerojn
+
+Estas multe da ili.
+
+> rigardi ilin
+
+Estas multe da ili.
+
+> rigardi sablerojn
+
+Estas multe da ili.
+
+> rigardi ĝin
+
+Mi ne scias kion “ĝi” indikas.
+
+> rigardi la virinon
+
+Ŝi aspektas kontenta.
+
+> rigardi ŝin
+
+Ŝi aspektas kontenta.
+
+> rigardi ĝin
+
+Mi ne scias kion “ĝi” indikas.
+
+> rigardi ŝin
+
+Mi ne scias kion “ŝi” indikas.
+
+> rigardi la viron
+
+Li aspektas kontenta.
+
+> rigardi lin
+
+Li aspektas kontenta.
+
+> rigardi la virinon
+
+Ŝi aspektas kontenta.
+
+> rigardi rin
+
+Ŝi aspektas kontenta.
+
+> rigardi la viron
+
+Li aspektas kontenta.
+
+> rigardi rin
+
+Li aspektas kontenta.
+
+> rigardi la tason
+
+Bona por teo.
+
+> rigardi rin
+
+Mi ne scias kion “ri” indikas.
+
+> metu la viron en la tason
+
+Vi prenis la kontentan viron.
+
+Vi metis la kontentan viron en la blankan tason.
+
+> rigardi ĝin
+
+Bona por teo. En ĝi vi vidas kontentan viron.
+
+> metu la viron en la tason
+
+Vi prenis la kontentan viron.
+
+Vi metis la kontentan viron en la blankan tason.
+
+> rigardi lin
+
+Li aspektas kontenta.
+
+> savu la virinon per la sableroj
+
+Mi ne komprenas vin.
+
+> rigardi ilin
+
+Estas multe da ili.
+
+> savu la virinon per la viro
+
+Mi ne komprenas vin.
+
+> rigardi lin
+
+Li aspektas kontenta.
+
+> savu la virinon per la viro
+
+Mi ne komprenas vin.
+
+> rigardi rin
+
+Ŝi aspektas kontenta.
+
+> savu la virinon en la sableroj per la viro
+
+Mi ne komprenas vin.
+
+> rigardi ilin
+
+Estas multe da ili.
+
+> forigi la sablerojn
+
+La etaj sableroj malaperis.
+
+> rigardi ilin
+
+Mi ne scias kion “ili” indikas.
+
+> forigi la viron
+
+La kontenta viro malaperis.
+
+> rigardi rin
+
+Mi ne scias kion “ri” indikas.
+
+> forigi la virinon
+
+La kontenta virino malaperis.
+
+> rigardi ŝin
+
+Mi ne scias kion “ŝi” indikas.
+
+> o
+
 # These two rooms are linked with a rule that sends you to the other
 # room immediately after displaying the description. This checks that
 # the rules can’t cause infinite recursion and that the interpreter

@@ -133,6 +133,11 @@ struct pcx_avt_state {
         /* Used to prevent infinite recursion when executing rules */
         int rule_recursion_depth;
 
+        /* The references that were used in the last command. This
+         * will be used to resolve pronouns.
+         */
+        struct pcx_avt_state_references previous_references;
+
         int (* random_cb)(void *);
         void *random_cb_data;
 };
@@ -1376,11 +1381,72 @@ find_movable_via_alias(struct pcx_avt_state *state,
         return NULL;
 }
 
+static bool
+pronoun_can_reference(struct pcx_avt_state *state,
+                      const struct pcx_avt_command_pronoun *pronoun,
+                      const struct pcx_avt_state_movable *movable)
+{
+        switch (movable->base.pronoun) {
+        case PCX_AVT_PRONOUN_MAN:
+                if ((pronoun->genders & PCX_AVT_COMMAND_GENDER_MAN) == 0 ||
+                    pronoun->plural)
+                        return false;
+                break;
+        case PCX_AVT_PRONOUN_WOMAN:
+                if ((pronoun->genders & PCX_AVT_COMMAND_GENDER_WOMAN) == 0 ||
+                    pronoun->plural)
+                        return false;
+                break;
+        case PCX_AVT_PRONOUN_ANIMAL:
+                if ((pronoun->genders & PCX_AVT_COMMAND_GENDER_THING) == 0 ||
+                    pronoun->plural)
+                        return false;
+                break;
+        case PCX_AVT_PRONOUN_PLURAL:
+                if (!pronoun->plural)
+                        return false;
+                break;
+        }
+
+        if (!is_movable_present(state, movable))
+                return false;
+
+        return true;
+}
+
+static struct pcx_avt_state_movable *
+find_movable_by_pronoun(struct pcx_avt_state *state,
+                        const struct pcx_avt_command_pronoun *pronoun)
+{
+        const struct pcx_avt_state_references *prev_refs =
+                &state->previous_references;
+
+        if (pronoun->person != 3)
+                return NULL;
+
+        if (prev_refs->object &&
+            pronoun_can_reference(state, pronoun, prev_refs->object))
+                return prev_refs->object;
+
+        if (prev_refs->tool &&
+            pronoun_can_reference(state, pronoun, prev_refs->tool))
+                return prev_refs->tool;
+
+        if (prev_refs->in &&
+            pronoun_can_reference(state, pronoun, prev_refs->in))
+                return prev_refs->in;
+
+        return NULL;
+}
+
 static struct pcx_avt_state_movable *
 find_movable(struct pcx_avt_state *state,
              const struct pcx_avt_command_noun *noun)
 {
         struct pcx_avt_state_movable *found;
+
+        if (noun->is_pronoun)
+                return find_movable_by_pronoun(state, &noun->pronoun);
 
         found = find_movable_in_list(state, &state->carrying, noun);
         if (found)
@@ -1405,9 +1471,16 @@ static void
 send_missing_reference_message(struct pcx_avt_state *state,
                                const struct pcx_avt_command_noun *noun)
 {
-        add_message_string(state, "Vi ne vidas ");
-        add_noun_to_message(state, noun, "n");
-        add_message_c(state, '.');
+        if (noun->is_pronoun) {
+                add_message_string(state, "Mi ne scias kion “");
+                add_word_to_message(state, &noun->name);
+                add_message_string(state, "” indikas.");
+        } else {
+                add_message_string(state, "Vi ne vidas ");
+                add_noun_to_message(state, noun, "n");
+                add_message_c(state, '.');
+        }
+
         end_message(state);
 }
 
@@ -2422,6 +2495,8 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
         handle_command(state, &command, &references);
 
         after_command(state);
+
+        state->previous_references = references;
 }
 
 const struct pcx_avt_state_message *
