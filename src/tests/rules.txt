@@ -181,6 +181,8 @@ La monstro nun estas rekoblita.
 
 Mi ne komprenas vin.
 
+@random 99
+
 > o
 
 Vi estas en sfero. Vi vidas bluan ranon kaj ruĝan ranon.
@@ -250,6 +252,20 @@ Vi malfajrodaŭris.
 > rigardi la ruĝan ranon
 
 Ĝi estas rano kun enhavo kaj fajrodaŭro.
+
+@random 50
+
+> rigardi
+
+Vi estas en sfero. Vi vidas bluan ranon kaj ruĝan ranon.
+
+@random 49
+
+> rigardi
+
+Vi estas en sfero. Vi vidas bluan ranon kaj ruĝan ranon.
+
+La ŝanco estas.
 
 > o
 
