@@ -86,6 +86,12 @@ struct pcx_avt_state_room {
         uint32_t attributes;
 };
 
+struct pcx_avt_state_references {
+        struct pcx_avt_state_movable *object;
+        struct pcx_avt_state_movable *tool;
+        struct pcx_avt_state_movable *in;
+};
+
 struct pcx_avt_state {
         const struct pcx_avt *avt;
 
@@ -1395,20 +1401,53 @@ find_movable(struct pcx_avt_state *state,
         return NULL;
 }
 
-static struct pcx_avt_state_movable *
-find_movable_or_message(struct pcx_avt_state *state,
-                        const struct pcx_avt_command_noun *noun)
+static void
+send_missing_reference_message(struct pcx_avt_state *state,
+                               const struct pcx_avt_command_noun *noun)
 {
-        struct pcx_avt_state_movable *movable = find_movable(state, noun);
+        add_message_string(state, "Vi ne vidas ");
+        add_noun_to_message(state, noun, "n");
+        add_message_c(state, '.');
+        end_message(state);
+}
 
-        if (movable == NULL) {
-                add_message_string(state, "Vi ne vidas ");
-                add_noun_to_message(state, noun, "n");
-                add_message_c(state, '.');
-                end_message(state);
+static struct pcx_avt_state_movable *
+get_object_or_message(struct pcx_avt_state *state,
+                      const struct pcx_avt_command *command,
+                      const struct pcx_avt_state_references *references)
+{
+        if (references->object == NULL) {
+                send_missing_reference_message(state, &command->object);
+                return NULL;
         }
 
-        return movable;
+        return references->object;
+}
+
+static struct pcx_avt_state_movable *
+get_tool_or_message(struct pcx_avt_state *state,
+                    const struct pcx_avt_command *command,
+                    const struct pcx_avt_state_references *references)
+{
+        if (references->tool == NULL) {
+                send_missing_reference_message(state, &command->tool);
+                return NULL;
+        }
+
+        return references->tool;
+}
+
+static struct pcx_avt_state_movable *
+get_in_or_message(struct pcx_avt_state *state,
+                  const struct pcx_avt_command *command,
+                  const struct pcx_avt_state_references *references)
+{
+        if (references->in == NULL) {
+                send_missing_reference_message(state, &command->in);
+                return NULL;
+        }
+
+        return references->in;
 }
 
 static int
@@ -1508,7 +1547,8 @@ is_carrying_movable(struct pcx_avt_state *state,
 
 static bool
 handle_direction(struct pcx_avt_state *state,
-                 const struct pcx_avt_command *command)
+                 const struct pcx_avt_command *command,
+                 const struct pcx_avt_state_references *references)
 {
         /* Must have direction. Subject and verb optional. */
         if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
@@ -1577,7 +1617,8 @@ handle_direction(struct pcx_avt_state *state,
 
 static bool
 handle_inventory(struct pcx_avt_state *state,
-                 const struct pcx_avt_command *command)
+                 const struct pcx_avt_command *command,
+                 const struct pcx_avt_state_references *references)
 {
         /* Must have object. Verb and subject optional. */
         if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
@@ -1681,7 +1722,8 @@ show_movable_with_monster(struct pcx_avt_state *state,
 
 static bool
 handle_look(struct pcx_avt_state *state,
-            const struct pcx_avt_command *command)
+            const struct pcx_avt_command *command,
+            const struct pcx_avt_state_references *references)
 {
         /* Must have verb. Object and subject optional. */
         if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
@@ -1707,7 +1749,7 @@ handle_look(struct pcx_avt_state *state,
                 return true;
 
         struct pcx_avt_state_movable *movable =
-                find_movable_or_message(state, &command->object);
+                get_object_or_message(state, command, references);
 
         if (movable == NULL)
                 return true;
@@ -1875,7 +1917,8 @@ validate_take(struct pcx_avt_state *state,
 
 static bool
 handle_take(struct pcx_avt_state *state,
-            const struct pcx_avt_command *command)
+            const struct pcx_avt_command *command,
+            const struct pcx_avt_state_references *references)
 {
         if (!is_verb_object_command(command))
                 return false;
@@ -1884,7 +1927,7 @@ handle_take(struct pcx_avt_state *state,
                 return false;
 
         struct pcx_avt_state_movable *movable =
-                find_movable_or_message(state, &command->object);
+                get_object_or_message(state, command, references);
 
         if (movable == NULL)
                 return true;
@@ -1936,11 +1979,12 @@ try_take(struct pcx_avt_state *state,
 }
 
 static struct pcx_avt_state_movable *
-find_carrying_movable_or_message(struct pcx_avt_state *state,
-                                 const struct pcx_avt_command_noun *noun)
+get_carrying_object_or_message(struct pcx_avt_state *state,
+                               const struct pcx_avt_command *command,
+                               const struct pcx_avt_state_references *refs)
 {
         struct pcx_avt_state_movable *movable =
-                find_movable_or_message(state, noun);
+                get_object_or_message(state, command, refs);
 
         if (movable == NULL)
                 return NULL;
@@ -1955,7 +1999,8 @@ find_carrying_movable_or_message(struct pcx_avt_state *state,
 
 static bool
 handle_drop(struct pcx_avt_state *state,
-            const struct pcx_avt_command *command)
+            const struct pcx_avt_command *command,
+            const struct pcx_avt_state_references *references)
 {
         if (!is_verb_object_command(command))
                 return false;
@@ -1967,7 +2012,7 @@ handle_drop(struct pcx_avt_state *state,
                 return false;
 
         struct pcx_avt_state_movable *movable =
-                find_movable_or_message(state, &command->object);
+                get_object_or_message(state, command, references);
 
         if (movable == NULL)
                 return true;
@@ -2011,7 +2056,8 @@ container_would_create_cycle(struct pcx_avt_state_movable *container,
 
 static bool
 handle_put(struct pcx_avt_state *state,
-           const struct pcx_avt_command *command)
+           const struct pcx_avt_command *command,
+           const struct pcx_avt_state_references *references)
 {
         if (!is_verb_command_and_has(command,
                                      PCX_AVT_COMMAND_HAS_OBJECT |
@@ -2023,7 +2069,7 @@ handle_put(struct pcx_avt_state *state,
                 return false;
 
         struct pcx_avt_state_movable *container =
-                find_movable_or_message(state, &command->in);
+                get_in_or_message(state, command, references);
         if (container == NULL)
                 return true;
 
@@ -2049,7 +2095,7 @@ handle_put(struct pcx_avt_state *state,
         }
 
         struct pcx_avt_state_movable *containee =
-                find_carrying_movable_or_message(state, &command->object);
+                get_carrying_object_or_message(state, command, references);
         if (containee == NULL)
                 return true;
 
@@ -2087,23 +2133,21 @@ handle_put(struct pcx_avt_state *state,
 
 static bool
 handle_enter(struct pcx_avt_state *state,
-             const struct pcx_avt_command *command)
+             const struct pcx_avt_command *command,
+             const struct pcx_avt_state_references *references)
 {
-        const struct pcx_avt_command_noun *enter_noun;
+        struct pcx_avt_state_movable *movable;
 
         if (is_verb_object_command(command) &&
             pcx_avt_command_word_equal(&command->verb, "enir"))
-                enter_noun = &command->object;
+                movable = get_object_or_message(state, command, references);
         else if (is_verb_command_and_has(command,
                                          PCX_AVT_COMMAND_HAS_IN) &&
                  (pcx_avt_command_word_equal(&command->verb, "enir") ||
                   pcx_avt_command_word_equal(&command->verb, "ir")))
-                enter_noun = &command->in;
+                movable = get_in_or_message(state, command, references);
         else
                 return false;
-
-        struct pcx_avt_state_movable *movable =
-                find_movable_or_message(state, enter_noun);
 
         if (movable == NULL)
                 return true;
@@ -2128,7 +2172,8 @@ handle_enter(struct pcx_avt_state *state,
 
 static bool
 handle_exit(struct pcx_avt_state *state,
-            const struct pcx_avt_command *command)
+            const struct pcx_avt_command *command,
+            const struct pcx_avt_state_references *references)
 {
         if (!is_verb_command_and_has(command, 0) ||
             !pcx_avt_command_word_equal(&command->verb, "elir"))
@@ -2150,7 +2195,8 @@ handle_exit(struct pcx_avt_state *state,
 
 static bool
 handle_open_close(struct pcx_avt_state *state,
-                  const struct pcx_avt_command *command)
+                  const struct pcx_avt_command *command,
+                  const struct pcx_avt_state_references *references)
 {
         if (!is_verb_object_command(command))
                 return false;
@@ -2165,7 +2211,7 @@ handle_open_close(struct pcx_avt_state *state,
                 return false;
 
         struct pcx_avt_state_movable *movable =
-                find_movable_or_message(state, &command->object);
+                get_object_or_message(state, command, references);
 
         if (movable == NULL)
                 return true;
@@ -2216,7 +2262,8 @@ handle_open_close(struct pcx_avt_state *state,
 
 static bool
 handle_read(struct pcx_avt_state *state,
-            const struct pcx_avt_command *command)
+            const struct pcx_avt_command *command,
+            const struct pcx_avt_state_references *references)
 {
         if (!is_verb_object_command(command))
                 return false;
@@ -2225,7 +2272,7 @@ handle_read(struct pcx_avt_state *state,
                 return false;
 
         struct pcx_avt_state_movable *movable =
-                find_movable_or_message(state, &command->object);
+                get_object_or_message(state, command, references);
 
         if (movable == NULL)
                 return true;
@@ -2249,7 +2296,8 @@ handle_read(struct pcx_avt_state *state,
 
 static bool
 handle_custom_command(struct pcx_avt_state *state,
-                      const struct pcx_avt_command *command)
+                      const struct pcx_avt_command *command,
+                      const struct pcx_avt_state_references *references)
 {
         /* The custom rules only know how to handle the object and the
          * tool.
@@ -2269,7 +2317,7 @@ handle_custom_command(struct pcx_avt_state *state,
         struct pcx_avt_state_movable *object = NULL;
 
         if ((command->has & PCX_AVT_COMMAND_HAS_OBJECT)) {
-                object = find_movable_or_message(state, &command->object);
+                object = get_object_or_message(state, command, references);
                 if (object == NULL)
                         return true;
         }
@@ -2277,7 +2325,7 @@ handle_custom_command(struct pcx_avt_state *state,
         struct pcx_avt_state_movable *tool = NULL;
 
         if ((command->has & PCX_AVT_COMMAND_HAS_TOOL)) {
-                tool = find_movable_or_message(state, &command->tool);
+                tool = get_tool_or_message(state, command, references);
                 if (tool == NULL)
                         return true;
         }
@@ -2287,42 +2335,58 @@ handle_custom_command(struct pcx_avt_state *state,
 
 static void
 handle_command(struct pcx_avt_state *state,
-               const struct pcx_avt_command *command)
+               const struct pcx_avt_command *command,
+               const struct pcx_avt_state_references *references)
 {
-        if (handle_direction(state, command))
+        if (handle_direction(state, command, references))
                 return;
 
-        if (handle_look(state, command))
+        if (handle_look(state, command, references))
                 return;
 
-        if (handle_take(state, command))
+        if (handle_take(state, command, references))
                 return;
 
-        if (handle_drop(state, command))
+        if (handle_drop(state, command, references))
                 return;
 
-        if (handle_put(state, command))
+        if (handle_put(state, command, references))
                 return;
 
-        if (handle_inventory(state, command))
+        if (handle_inventory(state, command, references))
                 return;
 
-        if (handle_enter(state, command))
+        if (handle_enter(state, command, references))
                 return;
 
-        if (handle_exit(state, command))
+        if (handle_exit(state, command, references))
                 return;
 
-        if (handle_open_close(state, command))
+        if (handle_open_close(state, command, references))
                 return;
 
-        if (handle_read(state, command))
+        if (handle_read(state, command, references))
                 return;
 
-        if (handle_custom_command(state, command))
+        if (handle_custom_command(state, command, references))
                 return;
 
         send_message(state, "Mi ne komprenas vin.");
+}
+
+static void
+get_references(struct pcx_avt_state *state,
+               const struct pcx_avt_command *command,
+               struct pcx_avt_state_references *references)
+{
+        memset(references, 0, sizeof *references);
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_OBJECT))
+                references->object = find_movable(state, &command->object);
+        if ((command->has & PCX_AVT_COMMAND_HAS_TOOL))
+                references->tool = find_movable(state, &command->tool);
+        if ((command->has & PCX_AVT_COMMAND_HAS_IN))
+                references->in = find_movable(state, &command->in);
 }
 
 void
@@ -2330,6 +2394,7 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                           const char *command_str)
 {
         struct pcx_avt_command command;
+        struct pcx_avt_state_references references;
 
         /* Free up any messages that we’ve already reported to the
          * caller
@@ -2352,7 +2417,9 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
         }
 
-        handle_command(state, &command);
+        get_references(state, &command, &references);
+
+        handle_command(state, &command, &references);
 
         after_command(state);
 }
