@@ -2405,6 +2405,56 @@ handle_read(struct pcx_avt_state *state,
 }
 
 static bool
+handle_throw_to(struct pcx_avt_state *state,
+                const struct pcx_avt_command *command,
+                const struct pcx_avt_state_references *references)
+{
+        /* The original interpreter seems to have a special case for
+         * “ĵeti X al Y”. If there is a rule then inexplicably X is
+         * the tool and Y is the object. Otherwise it seems to just
+         * drop the object. It also seems to do something weird if
+         * there is a rule and in that case the objects just
+         * disappear. We need to handle this in order to make a puzzle
+         * work in the Texel sample game.
+         */
+
+        if (!is_verb_command_and_has(command,
+                                     PCX_AVT_COMMAND_HAS_OBJECT |
+                                     PCX_AVT_COMMAND_HAS_DIRECTION))
+                return false;
+
+        if (!pcx_avt_command_word_equal(&command->verb, "ĵet"))
+                return false;
+
+        struct pcx_avt_state_movable *target =
+                get_direction_or_message(state, command, references);
+        if (target == NULL)
+                return true;
+
+        struct pcx_avt_state_movable *projectile =
+                get_carrying_object_or_message(state, command, references);
+        if (projectile == NULL)
+                return true;
+
+        if (run_special_rules(state,
+                              "ĵet",
+                              /* target is the object for some reason */
+                              target,
+                              /* projectile is the tool for some reason */
+                              projectile))
+                return true;
+
+        add_message_string(state, "Vi ne povas ĵeti la ");
+        add_movable_to_message(state, &projectile->base, "n");
+        add_message_string(state, " al la ");
+        add_movable_to_message(state, &target->base, NULL);
+        add_message_c(state, '.');
+        end_message(state);
+
+        return true;
+}
+
+static bool
 handle_custom_command(struct pcx_avt_state *state,
                       const struct pcx_avt_command *command,
                       const struct pcx_avt_state_references *references)
@@ -2476,6 +2526,9 @@ handle_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_read(state, command, references))
+                return;
+
+        if (handle_throw_to(state, command, references))
                 return;
 
         if (handle_custom_command(state, command, references))

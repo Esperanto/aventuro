@@ -976,6 +976,34 @@ Mi ne scias kion “ŝi” indikas.
 
 > o
 
+Vi staras en la maro. Vi vidas piratan ŝipon kaj siselan ŝnuron.
+
+> ĵetu la ŝipon al la sisela ŝnuro.
+
+Vi prenis la piratan ŝipon.
+
+Vi ne povas ĵeti la piratan ŝipon al la sisela ŝnuro.
+
+> ĵetu la ŝipon.
+
+Vi ĵetis la piratan ŝipon.
+
+> ĵetu la ŝnuron ŝipen.
+
+Vi prenis la siselan ŝnuron.
+
+Vi jhetis la siselan ŝnuron al la pirata ŝipo.
+
+> rigardi la ĵetitan ŝnuron
+
+Ĝi pendas sur la ŝipo.
+
+> ĵeti la ŝnuron al la ŝipo
+
+Vi ne povas porti la ĵetitan ŝnuron.
+
+> o
+
 # These two rooms are linked with a rule that sends you to the other
 # room immediately after displaying the description. This checks that
 # the rules can’t cause infinite recursion and that the interpreter

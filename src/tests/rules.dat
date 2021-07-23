@@ -510,7 +510,7 @@ FINO_MONSTRO;
 FINO_SALONO;
 
 SALONO pronomejo; Tipa esperanta loko. @
-ORIENTEN cirklo;
+ORIENTEN maro;
 
 FENOMENO forigi; La $A malaperis. @
 AJHO IO;
@@ -534,6 +534,29 @@ INO;
 FINO_AJHO;
 
 FINO_SALONO;
+
+SALONO maro; Vi staras en la maro. @
+LUMA;
+ORIENTEN cirklo;
+
+AJHO pirata shipo; Ghi estas shipo por piratoj. @
+FINO_AJHO;
+
+AJHO sisela shnuro; Ghi estas shnuro por siseloj. @
+FINO_AJHO;
+
+FINO_SALONO;
+
+AJHO jhetita shnuro; Ghi pendas sur la shipo. @
+NEPORTEBLA;
+FINO_AJHO;
+
+FENOMENO jheti; Vi jhetis la $Pn al la $A. @
+AJHO NEPRE pirata shipo;
+PERO sisela shnuro;
+NOVAPERO NEPRE jhetita shnuro;
+POENTOJ 1;
+FINO_FENOMENO;
 
 SALONO cirklo; Vi estas che la rando de cirklo. @
 LUMA;
