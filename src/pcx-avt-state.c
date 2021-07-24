@@ -2126,23 +2126,14 @@ try_take(struct pcx_avt_state *state,
         return true;
 }
 
-static struct pcx_avt_state_movable *
-get_carrying_object_or_message(struct pcx_avt_state *state,
-                               const struct pcx_avt_command *command,
-                               const struct pcx_avt_state_references *refs)
+static bool
+ensure_carrying(struct pcx_avt_state *state,
+                struct pcx_avt_state_movable *movable)
 {
-        struct pcx_avt_state_movable *movable =
-                get_object_or_message(state, command, refs);
+        if (movable->base.location_type == PCX_AVT_LOCATION_TYPE_CARRYING)
+                return true;
 
-        if (movable == NULL)
-                return NULL;
-
-        if (movable->base.location_type != PCX_AVT_LOCATION_TYPE_CARRYING) {
-                if (!try_take(state, movable))
-                        return NULL;
-        }
-
-        return movable;
+        return try_take(state, movable);
 }
 
 static bool
@@ -2247,8 +2238,8 @@ handle_put(struct pcx_avt_state *state,
         }
 
         struct pcx_avt_state_movable *containee =
-                get_carrying_object_or_message(state, command, references);
-        if (containee == NULL)
+                get_object_or_message(state, command, references);
+        if (containee == NULL || !ensure_carrying(state, containee))
                 return true;
 
         if (container_would_create_cycle(container, containee)) {
@@ -2491,8 +2482,8 @@ handle_throw_to(struct pcx_avt_state *state,
                 return true;
 
         struct pcx_avt_state_movable *projectile =
-                get_carrying_object_or_message(state, command, references);
-        if (projectile == NULL)
+                get_object_or_message(state, command, references);
+        if (projectile == NULL || !ensure_carrying(state, projectile))
                 return true;
 
         if (run_special_rules(state,
