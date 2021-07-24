@@ -93,3 +93,4 @@ test_avt = executable('test-avt', test_avt_src,
                       include_directories: configinc)
 
 test('rules', test_avt, args : files('tests/rules.avt', 'tests/rules.txt'))
+test('burn', test_avt, args : files('tests/burn.avt', 'tests/burn.txt'))

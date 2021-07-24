@@ -1,0 +1,193 @@
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton kaj sekan lignopecon.
+
+> mi fajrigos la anason.
+
+Per kio vi volas bruligi la plastan anason?
+
+> vi fajrigos la anason.
+
+Mi ne komprenas vin.
+
+> fajrigi la anason per la alumeto.
+
+Vi prenis la magian alumeton.
+
+Vi ne povas bruligi la plastan anason per la magia alumeto.
+
+> bruligi la monon per la alumeto
+
+La valora monbileto ekbrulas.
+
+> rigardi la monon.
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la alumeton
+
+Ĝi neniam elĉerpiĝas.
+
+La valora monbileto elbrulis.
+
+> bruligi la lignon per la anaso.
+
+Vi prenis la plastan anason.
+
+Vi ne povas bruligi la sekan lignopecon per la plasta anaso.
+
+> bruligi la lignon per la alumeto
+
+La seka lignopeco ekbrulas.
+
+** Ekfajras la seka lignopeco **.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la monbileton
+
+Vi ne vidas monbileton.
+
+> bruligi la lignon per la alumeto.
+
+La seka lignopeco jam brulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+La seka lignopeco elbrulis.
+
+La seka lignopeco malaperas. Vi sentas la mankon de io.
+
+@restart
+
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton kaj sekan lignopecon.
+
+> bruligi la lignon per la alumeto
+
+Vi prenis la magian alumeton.
+
+La seka lignopeco ekbrulas.
+
+** Ekfajras la seka lignopeco **.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> rigardi la lignon
+
+Ĝi nun fajras kaj forbrulas.
+
+> orienten
+
+Vi estas en paca kampo.
+
+Vi sentas la mankon de io.
+
+> okcidenten
+
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas ruĝan fajrilon, plastan anason kaj valoran monbileton.
+
+> bruligi la fojnon per la fajrilo
+
+Vi prenis la ruĝan fajrilon.
+
+La seka fojno ekbrulas.
+
+La fojno rapide ekbrulas kaj tuj komencas bruligi ankaŭ la ĉevalejon. Vi ne havas tempon por eskapi antaŭ ol viaj pulmoj pleniĝas je fulmo kaj vi pulmoj mortas.
+
+@game_over
+
+Vi kunportis magian alumeton kaj ruĝan fajrilon. Vi havis neniun poenton.
+
+Fino.
+
+@restart
+
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton kaj sekan lignopecon.
+
+> kontroli la monon
+
+Mi ne komprenas vin.
+
+> bruligi la monon per la alumeto
+
+Vi prenis la magian alumeton.
+
+La valora monbileto ekbrulas.
+
+> kontroli la monon
+
+La valora monbileto estas brulanta.
+
+> rigardi la monon
+
+Ĝi nun fajras kaj forbrulas.
+
+La valora monbileto elbrulis.
+
+> kion mi havas?
+
+Vi kunportas magian alumeton.
+
+> rigardi
+
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas ruĝan fajrilon, plastan anason kaj sekan lignopecon.
+
+> venigi
+
+Vi venigas la valoran monbileton.
+
+> kontroli la monon
+
+La valora monbileto estas bruligita.
+
+> MI fajrigOS la monon per la alumeto !
+
+Vi ne povas bruligi la valoran monbileton per la magia alumeto.

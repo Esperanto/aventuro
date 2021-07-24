@@ -1182,6 +1182,80 @@ send_end_game_messages(struct pcx_avt_state *state)
         send_message(state, "Fino.");
 }
 
+static bool
+check_game_over(struct pcx_avt_state *state)
+{
+        const struct pcx_avt_room *room =
+                state->avt->rooms + state->current_room;
+
+        if ((room->attributes & PCX_AVT_ROOM_ATTRIBUTE_GAME_OVER))
+                state->game_over = true;
+
+        return state->game_over;
+}
+
+static void
+burn_out_object(struct pcx_avt_state *state,
+                struct pcx_avt_state_movable *movable)
+{
+        bool is_present = is_movable_present(state, movable);
+
+        movable->base.attributes |= PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT;
+
+        disappear_movable(state, movable);
+
+        if (is_present) {
+                add_message_string(state, "La ");
+                add_movable_to_message(state, &movable->base, NULL);
+                add_message_string(state, " elbrulis.");
+                end_message(state);
+        }
+
+        run_special_rules(state,
+                          "fajrig",
+                          movable,
+                          NULL, /* tool */
+                          is_present);
+}
+
+static void
+object_after_command(struct pcx_avt_state *state,
+                     struct pcx_avt_state_movable *movable)
+{
+        if ((movable->base.attributes & PCX_AVT_OBJECT_ATTRIBUTE_BURNING)) {
+                if (movable->object.burn_time > 0)
+                        movable->object.burn_time--;
+
+                if (movable->object.burn_time <= 0) {
+                        movable->base.attributes &=
+                                ~PCX_AVT_OBJECT_ATTRIBUTE_BURNING;
+
+                        if ((movable->base.attributes &
+                             PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT) == 0)
+                                burn_out_object(state, movable);
+                }
+        }
+}
+
+static void
+movables_after_command(struct pcx_avt_state *state)
+{
+        struct pcx_avt_state_movable *movable;
+
+        pcx_list_for_each(movable, &state->all_movables, all_node) {
+                switch (movable->type) {
+                case PCX_AVT_STATE_MOVABLE_TYPE_OBJECT:
+                        object_after_command(state, movable);
+                        break;
+                case PCX_AVT_STATE_MOVABLE_TYPE_MONSTER:
+                        break;
+                }
+
+                if (check_game_over(state))
+                        break;
+        }
+}
+
 static void
 after_command(struct pcx_avt_state *state)
 {
@@ -1191,13 +1265,10 @@ after_command(struct pcx_avt_state *state)
                           NULL, /* tool */
                           true /* present */);
 
-        const struct pcx_avt_room *room =
-                state->avt->rooms + state->current_room;
+        if (!check_game_over(state))
+                movables_after_command(state);
 
-        if ((room->attributes & PCX_AVT_ROOM_ATTRIBUTE_GAME_OVER))
-                state->game_over = true;
-
-        if (state->game_over)
+        if (check_game_over(state))
                 send_end_game_messages(state);
 }
 
@@ -1899,7 +1970,14 @@ handle_look(struct pcx_avt_state *state,
         if (movable == NULL)
                 return true;
 
-        if (movable->base.description) {
+        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+            (movable->base.attributes & PCX_AVT_OBJECT_ATTRIBUTE_BURNING)) {
+                const char *pronoun =
+                        get_capital_pronoun_name(movable->base.pronoun);
+                add_message_printf(state,
+                                   "%s nun fajras kaj forbrulas.",
+                                   pronoun);
+        } else if (movable->base.description) {
                 add_message_string(state, movable->base.description);
         } else {
                 add_message_string(state, "Vi vidas nenion specialan pri la ");
@@ -2455,6 +2533,91 @@ handle_read(struct pcx_avt_state *state,
 }
 
 static bool
+handle_set_alight(struct pcx_avt_state *state,
+                  const struct pcx_avt_command *command,
+                  const struct pcx_avt_state_references *references)
+{
+        /* Must have verb and object. Subject and tool optional. */
+        if ((command->has & ~(PCX_AVT_COMMAND_HAS_SUBJECT |
+                              PCX_AVT_COMMAND_HAS_TOOL)) !=
+            (PCX_AVT_COMMAND_HAS_VERB | PCX_AVT_COMMAND_HAS_OBJECT))
+                return false;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural))
+                return false;
+
+        if (!pcx_avt_command_word_equal(&command->verb, "fajrig") &&
+            !pcx_avt_command_word_equal(&command->verb, "brulig"))
+                return false;
+
+        struct pcx_avt_state_movable *object =
+                get_object_or_message(state, command, references);
+
+        if (object == NULL)
+                return true;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_TOOL) == 0) {
+                add_message_string(state, "Per kio vi volas bruligi la ");
+                add_movable_to_message(state, &object->base, "n");
+                add_message_c(state, '?');
+                end_message(state);
+                return true;
+        }
+
+        struct pcx_avt_state_movable *tool =
+                get_tool_or_message(state, command, references);
+
+        if (tool == NULL || !ensure_carrying(state, tool))
+                return true;
+
+        if ((object->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) &&
+            (object->base.attributes & PCX_AVT_OBJECT_ATTRIBUTE_BURNING)) {
+                add_message_string(state, "La ");
+                add_movable_to_message(state, &object->base, NULL);
+                add_message_string(state, " jam brulas.");
+                end_message(state);
+                return true;
+        }
+
+        if ((object->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) ||
+            (object->base.attributes & (PCX_AVT_OBJECT_ATTRIBUTE_BURNING |
+                                        PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT |
+                                        PCX_AVT_OBJECT_ATTRIBUTE_FLAMMABLE)) !=
+            PCX_AVT_OBJECT_ATTRIBUTE_FLAMMABLE ||
+            (tool->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) ||
+            (tool->base.attributes & PCX_AVT_OBJECT_ATTRIBUTE_LIGHTER) == 0) {
+                add_message_string(state, "Vi ne povas bruligi la ");
+                add_movable_to_message(state, &object->base, "n");
+                add_message_string(state, " per la ");
+                add_movable_to_message(state, &tool->base, NULL);
+                add_message_c(state, '.');
+                end_message(state);
+                return true;
+        }
+
+        object->base.attributes |= PCX_AVT_OBJECT_ATTRIBUTE_BURNING;
+
+        add_message_string(state, "La ");
+        add_movable_to_message(state, &object->base, NULL);
+        add_message_string(state, " ekbrulas.");
+        end_message(state);
+
+        /* The verbs in the original interpreter seem to be the other
+         * way around from what is described in the document.
+         */
+        run_special_rules(state,
+                          "brulig",
+                          object,
+                          NULL, /* tool */
+                          true /* present */);
+
+        return true;
+}
+
+static bool
 handle_throw_to(struct pcx_avt_state *state,
                 const struct pcx_avt_command *command,
                 const struct pcx_avt_state_references *references)
@@ -2581,6 +2744,9 @@ handle_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_read(state, command, references))
+                return;
+
+        if (handle_set_alight(state, command, references))
                 return;
 
         if (handle_throw_to(state, command, references))

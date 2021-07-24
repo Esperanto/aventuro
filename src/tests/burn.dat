@@ -1,0 +1,76 @@
+NOMO Test 2021 Test;
+
+SALONO chevalejo; Vi estas en chevalejo sen la chevaloj.
+Estas fojno en la angulo. @
+LUMA;
+ORIENTEN kampo;
+
+AJHO magia alumeto; Ghi neniam elcherpighas. @
+FAJRILO;
+FINO_AJHO;
+
+AJHO rugha fajrilo; Ghi havas brulan likvon ene. @
+FAJRILO;
+FINO_AJHO;
+
+AJHO plasta anaso; Ghi ne utilas por fajrigi. @
+FINO_AJHO;
+
+AJHO valora monbileto; Ghi valoras 100 eurojn. @
+SINONIMO mono;
+FAJREBLA;
+FAJRODAURO 3;
+FINO_AJHO;
+
+AJHO seka lignopeco; Ghi povus longe bruli. @
+SINONIMO ligno;
+FAJREBLA;
+FAJRODAURO 10;
+FINO_AJHO;
+
+AJHO seka fojno; Ghi estas por la neekzistantaj chevaloj. @
+NEPORTEBLA;
+FAJREBLA;
+FAJRODAURO 5;
+FINO_AJHO;
+
+FINO_SALONO;
+
+SALONO kampo; Vi estas en paca kampo. @
+OKCIDENTEN chevalejo;
+FINO_SALONO;
+
+FENOMENO fajrigi; La $A malaperas. $SVi sentas la mankon de io. @
+AJHO seka lignopeco;
+FINO_FENOMENO;
+
+FENOMENO bruligi; ** Ekfajras la $A **. @
+AJHO seka lignopeco;
+FINO_FENOMENO;
+
+FENOMENO bruligi; @
+AJHO seka fojno;
+NOVALOKO finchevalejo;
+FINO_FENOMENO;
+
+SALONO finchevalejo; La fojno rapide ekbrulas kaj tuj komencas
+bruligi ankaw la chevalejon.
+Vi ne havas tempon por eskapi antaw ol viaj pulmoj plenighas je fulmo
+kaj vi pulmoj mortas. @
+LUMA;
+LUDFINO;
+FINO_SALONO;
+
+FENOMENO kontroli; La $A estas brulanta. @
+AJHO ECO AJHO brulanta;
+FINO_FENOMENO;
+
+FENOMENO kontroli; La $A estas bruligita. @
+AJHO ECO AJHO bruligita;
+FINO_FENOMENO;
+
+FENOMENO venigi; Vi venigas la valoran monbileton. @
+NOVAAJHO valora monbileto;
+FINO_FENOMENO;
+
+FINO_PROGRAMO;;
