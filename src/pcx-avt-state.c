@@ -153,7 +153,8 @@ static bool
 run_special_rules(struct pcx_avt_state *state,
                   const char *verb_str,
                   struct pcx_avt_state_movable *object,
-                  struct pcx_avt_state_movable *tool);
+                  struct pcx_avt_state_movable *tool,
+                  bool is_present);
 
 static void
 end_message(struct pcx_avt_state *state);
@@ -489,8 +490,9 @@ send_room_description(struct pcx_avt_state *state)
 
         run_special_rules(state,
                           "priskrib",
-                          NULL /* object */,
-                          NULL /* tool */);
+                          NULL, /* object */
+                          NULL, /* tool */
+                          true /* present */);
 }
 
 static void
@@ -915,7 +917,8 @@ send_rule_message(struct pcx_avt_state *state,
                   const char *text,
                   struct pcx_avt_state_movable *object,
                   struct pcx_avt_state_movable *monster,
-                  struct pcx_avt_state_movable *tool)
+                  struct pcx_avt_state_movable *tool,
+                  bool present)
 {
         while (true) {
                 const char *dollar = strchr(text, '$');
@@ -923,7 +926,8 @@ send_rule_message(struct pcx_avt_state *state,
                 if (dollar == NULL)
                         break;
 
-                add_message_data(state, text, dollar - text);
+                if (present)
+                        add_message_data(state, text, dollar - text);
 
                 switch (dollar[1]) {
                 case '\0':
@@ -937,9 +941,11 @@ send_rule_message(struct pcx_avt_state *state,
                                         dollar++;
                                 }
 
-                                add_movable_to_message(state,
-                                                       &object->base,
-                                                       suffix);
+                                if (present) {
+                                        add_movable_to_message(state,
+                                                               &object->base,
+                                                               suffix);
+                                }
                         }
                         break;
                 case 'P':
@@ -951,9 +957,11 @@ send_rule_message(struct pcx_avt_state *state,
                                         dollar++;
                                 }
 
-                                add_movable_to_message(state,
-                                                       &tool->base,
-                                                       suffix);
+                                if (present) {
+                                        add_movable_to_message(state,
+                                                               &tool->base,
+                                                               suffix);
+                                }
                         }
                         break;
                 case 'M':
@@ -965,22 +973,28 @@ send_rule_message(struct pcx_avt_state *state,
                                         dollar++;
                                 }
 
-                                add_movable_to_message(state,
-                                                       &monster->base,
-                                                       suffix);
+                                if (present) {
+                                        add_movable_to_message(state,
+                                                               &monster->base,
+                                                               suffix);
+                                }
                         }
                         break;
                 case 'D':
-                        start_message_type(state,
-                                           PCX_AVT_STATE_MESSAGE_TYPE_DELAY);
+                        if (present) {
+                                enum pcx_avt_state_message_type type =
+                                        PCX_AVT_STATE_MESSAGE_TYPE_DELAY;
+                                start_message_type(state, type);
+                        }
                         break;
                 case 'F':
                         /* The monsters flee. FIXME */
                         break;
                 case 'S':
                         /* Show the following even if the player isn’t
-                         * present. FIXME
+                         * present.
                          */
+                        present = true;
                         break;
                 case '$':
                         /* This isn’t mentioned in the docs but it
@@ -994,7 +1008,8 @@ send_rule_message(struct pcx_avt_state *state,
         }
 
 done:
-        add_message_string(state, text);
+        if (present)
+                add_message_string(state, text);
 
         end_message(state);
 }
@@ -1003,7 +1018,8 @@ static bool
 run_rules(struct pcx_avt_state *state,
           const struct pcx_avt_command_word *verb,
           struct pcx_avt_state_movable *command_object,
-          struct pcx_avt_state_movable *tool)
+          struct pcx_avt_state_movable *tool,
+          bool present)
 {
         /* Prevent infinite recursion when rule actions trigger other rules.
          */
@@ -1048,7 +1064,8 @@ run_rules(struct pcx_avt_state *state,
                                                   rule->text,
                                                   object,
                                                   monster,
-                                                  tool);
+                                                  tool,
+                                                  present);
                         }
 
                         execute_action(state,
@@ -1083,14 +1100,15 @@ static bool
 run_special_rules(struct pcx_avt_state *state,
                   const char *verb_str,
                   struct pcx_avt_state_movable *object,
-                  struct pcx_avt_state_movable *tool)
+                  struct pcx_avt_state_movable *tool,
+                  bool present)
 {
         struct pcx_avt_command_word verb = {
                 .start = verb_str,
                 .length = strlen(verb_str),
         };
 
-        return run_rules(state, &verb, object, tool);
+        return run_rules(state, &verb, object, tool, present);
 }
 
 static void
@@ -1167,7 +1185,11 @@ send_end_game_messages(struct pcx_avt_state *state)
 static void
 after_command(struct pcx_avt_state *state)
 {
-        run_special_rules(state, "est", NULL /* object */, NULL /* tool */);
+        run_special_rules(state,
+                          "est",
+                          NULL, /* object */
+                          NULL, /* tool */
+                          true /* present */);
 
         const struct pcx_avt_room *room =
                 state->avt->rooms + state->current_room;
@@ -1928,7 +1950,8 @@ handle_look(struct pcx_avt_state *state,
         run_special_rules(state,
                           "rigard",
                           movable,
-                          NULL /* tool */);
+                          NULL, /* tool */
+                          true /* present */);
 
         return true;
 }
@@ -2061,7 +2084,8 @@ handle_take(struct pcx_avt_state *state,
         if (!run_special_rules(state,
                                "pren",
                                movable,
-                               NULL /* tool */)) {
+                               NULL, /* tool */
+                               true /* present */)) {
                 carry_movable(state, movable);
 
                 add_message_string(state, "Vi prenis la ");
@@ -2083,7 +2107,8 @@ try_take(struct pcx_avt_state *state,
         if (run_special_rules(state,
                               "pren",
                               movable,
-                              NULL /* tool */)) {
+                              NULL, /* tool */
+                              true /* present */)) {
                 /* The rule replaces the default action, but it might
                  * end up causing the object to be carried anyway.
                  */
@@ -2149,7 +2174,11 @@ handle_drop(struct pcx_avt_state *state,
                 return true;
         }
 
-        if (!run_special_rules(state, "ĵet", movable, NULL /* tool */)) {
+        if (!run_special_rules(state,
+                               "ĵet",
+                               movable,
+                               NULL, /* tool */
+                               true /* present */)) {
                 put_movable_in_room(state,
                                     state->rooms + state->current_room,
                                     movable);
@@ -2280,7 +2309,11 @@ handle_enter(struct pcx_avt_state *state,
         if (movable == NULL)
                 return true;
 
-        if (run_special_rules(state, "enir", movable, NULL /* tool */))
+        if (run_special_rules(state,
+                              "enir",
+                              movable,
+                              NULL, /* tool */
+                              true))
                 return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
@@ -2344,7 +2377,11 @@ handle_open_close(struct pcx_avt_state *state,
         if (movable == NULL)
                 return true;
 
-        if (run_rules(state, &command->verb, movable, NULL /* tool */))
+        if (run_rules(state,
+                      &command->verb,
+                      movable,
+                      NULL, /* tool */
+                      true /* present */))
                 return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
@@ -2405,7 +2442,11 @@ handle_read(struct pcx_avt_state *state,
         if (movable == NULL)
                 return true;
 
-        if (run_special_rules(state, "leg", movable, NULL /* tool */))
+        if (run_special_rules(state,
+                              "leg",
+                              movable,
+                              NULL, /* tool */
+                              true /* present */))
                 return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
@@ -2459,7 +2500,8 @@ handle_throw_to(struct pcx_avt_state *state,
                               /* target is the object for some reason */
                               target,
                               /* projectile is the tool for some reason */
-                              projectile))
+                              projectile,
+                              true /* present */))
                 return true;
 
         add_message_string(state, "Vi ne povas ĵeti la ");
@@ -2508,7 +2550,11 @@ handle_custom_command(struct pcx_avt_state *state,
                         return true;
         }
 
-        return run_rules(state, &command->verb, object, tool);
+        return run_rules(state,
+                         &command->verb,
+                         object,
+                         tool,
+                         true /* present */);
 }
 
 static void
