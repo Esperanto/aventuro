@@ -1684,6 +1684,28 @@ handle_compass_direction(struct pcx_avt_state *state,
 }
 
 static bool
+handle_named_direction(struct pcx_avt_state *state,
+                       const struct pcx_avt_command_noun *noun)
+{
+        if (noun->adjective.start)
+                return false;
+
+        const struct pcx_avt_room *room =
+                state->avt->rooms + state->current_room;
+
+        for (int i = 0; i < room->n_directions; i++) {
+                if (pcx_avt_command_word_equal(&noun->name,
+                                               room->directions[i].name)) {
+                        state->current_room = room->directions[i].target;
+                        send_room_description(state);
+                        return true;
+                }
+        }
+
+        return false;
+}
+
+static bool
 handle_direction(struct pcx_avt_state *state,
                  const struct pcx_avt_command *command,
                  const struct pcx_avt_state_references *references)
@@ -1710,17 +1732,8 @@ handle_direction(struct pcx_avt_state *state,
         if (handle_compass_direction(state, &command->direction))
                 return true;
 
-        const struct pcx_avt_room *room =
-                state->avt->rooms + state->current_room;
-
-        for (int i = 0; i < room->n_directions; i++) {
-                if (pcx_avt_command_word_equal(&command->direction.name,
-                                               room->directions[i].name)) {
-                        state->current_room = room->directions[i].target;
-                        send_room_description(state);
-                        return true;
-                }
-        }
+        if (handle_named_direction(state, &command->direction))
+                return true;
 
         return false;
 }
@@ -2249,15 +2262,20 @@ handle_enter(struct pcx_avt_state *state,
         struct pcx_avt_state_movable *movable;
 
         if (is_verb_object_command(command) &&
-            pcx_avt_command_word_equal(&command->verb, "enir"))
+            pcx_avt_command_word_equal(&command->verb, "enir")) {
+                if (handle_named_direction(state, &command->object))
+                        return true;
                 movable = get_object_or_message(state, command, references);
-        else if (is_verb_command_and_has(command,
-                                         PCX_AVT_COMMAND_HAS_IN) &&
-                 (pcx_avt_command_word_equal(&command->verb, "enir") ||
-                  pcx_avt_command_word_equal(&command->verb, "ir")))
+        } else if (is_verb_command_and_has(command,
+                                           PCX_AVT_COMMAND_HAS_IN) &&
+                   (pcx_avt_command_word_equal(&command->verb, "enir") ||
+                    pcx_avt_command_word_equal(&command->verb, "ir"))) {
+                if (handle_named_direction(state, &command->in))
+                        return true;
                 movable = get_in_or_message(state, command, references);
-        else
+        } else {
                 return false;
+        }
 
         if (movable == NULL)
                 return true;

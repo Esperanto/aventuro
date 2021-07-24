@@ -1004,6 +1004,70 @@ Vi ne povas porti la ĵetitan ŝnuron.
 
 > o
 
+Estas direktoj ĉi tie.
+
+> rigardi la ŝrankon
+
+Ĝi estas sufiĉe granda por eniri.
+
+> iri en la ŝrankon
+
+Ne estas multe da spaco.
+
+> eliri
+
+Estas direktoj ĉi tie.
+
+> iri ŝranken
+
+Mi ne komprenas vin.
+
+> eniri la grandan ŝrankon
+
+Ne estas multe da spaco.
+
+> mi iros elen
+
+Estas direktoj ĉi tie.
+
+> rigardi la kosmon
+
+Estas granda verda stelo en la ĉielo.
+
+> rigardi la grandan kosmon
+
+Vi ne vidas grandan kosmon.
+
+> iru al la kosmo
+
+Vi ŝvebas en la kosmo.
+
+> teren
+
+Estas direktoj ĉi tie.
+
+> iru al la granda kosmo
+
+Mi ne komprenas vin.
+
+> iru en la kosmon
+
+Vi ŝvebas en la kosmo.
+
+> eniru teron
+
+Estas direktoj ĉi tie.
+
+> eniru la seĝon
+
+Vi ne povas eniri la bluan seĝon.
+
+> okcidenten
+
+Vi ne povas iri okcidenten de ĉi tie.
+
+> o
+
 # These two rooms are linked with a rule that sends you to the other
 # room immediately after displaying the description. This checks that
 # the rules can’t cause infinite recursion and that the interpreter

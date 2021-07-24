@@ -537,7 +537,7 @@ FINO_SALONO;
 
 SALONO maro; Vi staras en la maro. @
 LUMA;
-ORIENTEN cirklo;
+ORIENTEN direktejo;
 
 AJHO pirata shipo; Ghi estas shipo por piratoj. @
 FINO_AJHO;
@@ -557,6 +557,34 @@ PERO sisela shnuro;
 NOVAPERO NEPRE jhetita shnuro;
 POENTOJ 1;
 FINO_FENOMENO;
+
+SALONO direktejo; Estas direktoj chi tie. @
+ORIENTEN cirklo;
+DIREKTO kosmo kosmo; Estas granda verda stelo en la chielo. @
+LUMA;
+
+AJHO granda shranko; Ghi estas sufiche granda por eniri. @
+ENEN shranko;
+NEPORTEBLA;
+FINO_AJHO;
+
+AJHO blua segho; Ghi aspekatas komforta. @
+NEPORTEBLA;
+FINO_AJHO;
+
+FINO_SALONO;
+
+SALONO shranko; Ne estas multe da spaco. @
+LUMA;
+ORIENTEN cirklo;
+ELEN direktejo;
+FINO_SALONO;
+
+SALONO kosmo; Vi shvebas en la kosmo. @
+ORIENTEN cirklo;
+LUMA;
+DIREKTO tero direktejo; Ghi aspektas malgranda de chi tie. @
+FINO_SALONO;
 
 SALONO cirklo; Vi estas che la rando de cirklo. @
 LUMA;
