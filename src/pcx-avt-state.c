@@ -487,22 +487,6 @@ check_light(struct pcx_avt_state *state)
 }
 
 static bool
-movable_is_in_current_room(struct pcx_avt_state *state,
-                           const struct pcx_avt_state_movable *movable)
-{
-        const struct pcx_avt_state_movable *m;
-
-        pcx_list_for_each(m,
-                          &state->rooms[state->current_room].contents,
-                          location_node) {
-                if (m == movable)
-                        return true;
-        }
-
-        return false;
-}
-
-static bool
 is_movable_present(struct pcx_avt_state *state,
                    const struct pcx_avt_state_movable *base_movable)
 {
@@ -511,7 +495,7 @@ is_movable_present(struct pcx_avt_state *state,
         while (true) {
                 switch (movable->base.location_type) {
                 case PCX_AVT_LOCATION_TYPE_IN_ROOM:
-                        return (movable_is_in_current_room(state, movable) &&
+                        return (movable->base.location == state->current_room &&
                                 check_light(state));
                 case PCX_AVT_LOCATION_TYPE_CARRYING:
                         return true;
@@ -681,13 +665,16 @@ disappear_movable(struct pcx_avt_state *state,
 
 static void
 put_movable_in_room(struct pcx_avt_state *state,
-                    struct pcx_avt_state_room *room,
+                    int room_number,
                     struct pcx_avt_state_movable *movable)
 {
+        struct pcx_avt_state_room *room = state->rooms + room_number;
+
         pcx_list_remove(&movable->location_node);
         pcx_list_insert(room->contents.prev, &movable->location_node);
         movable->container = NULL;
         movable->base.location_type = PCX_AVT_LOCATION_TYPE_IN_ROOM;
+        movable->base.location = room_number;
 }
 
 static void
@@ -871,7 +858,7 @@ execute_action(struct pcx_avt_state *state,
                         }
                 } else {
                         put_movable_in_room(state,
-                                            state->rooms + action->data,
+                                            action->data,
                                             movable);
                 }
                 break;
@@ -889,7 +876,7 @@ execute_action(struct pcx_avt_state *state,
                         disappear_movable(state, movable);
 
                 put_movable_in_room(state,
-                                    state->rooms + state->current_room,
+                                    state->current_room,
                                     state->object_index[action->data]);
 
                 break;
@@ -900,7 +887,7 @@ execute_action(struct pcx_avt_state *state,
                         disappear_movable(state, movable);
 
                 put_movable_in_room(state,
-                                    state->rooms + state->current_room,
+                                    state->current_room,
                                     state->monster_index[action->data]);
 
                 break;
@@ -1249,7 +1236,7 @@ position_movables(struct pcx_avt_state *state)
                 switch (movable->base.location_type) {
                 case PCX_AVT_LOCATION_TYPE_IN_ROOM:
                         put_movable_in_room(state,
-                                            state->rooms + loc,
+                                            loc,
                                             movable);
                         break;
                 case PCX_AVT_LOCATION_TYPE_CARRYING:
@@ -2327,7 +2314,7 @@ handle_drop(struct pcx_avt_state *state,
                                NULL, /* tool */
                                true /* present */)) {
                 put_movable_in_room(state,
-                                    state->rooms + state->current_room,
+                                    state->current_room,
                                     movable);
 
                 add_message_string(state, "Vi ĵetis la ");
