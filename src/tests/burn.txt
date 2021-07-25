@@ -243,3 +243,125 @@ Vi ne povas lumigi la sekan fojnon.
 > ŝalti la fojnon.
 
 La fojno ne havas butonon por ŝalti ĝin.
+
+@restart
+
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton, sekan lignopecon kaj magian poŝlanternon.
+
+> prenu la magian poŝlanternon
+
+Vi prenis la magian poŝlanternon.
+
+> prenu la magian alumeton
+
+Vi prenis la magian alumeton.
+
+> prenu la valoran monbileton.
+
+Vi prenis la valoran monbileton.
+
+> o
+
+Vi estas en paca kampo.
+
+> suben
+
+Estas mallume. Vi vidas nenion.
+
+> rigardi la monbileton
+
+Ĝi valoras 100 eŭrojn.
+
+> rigardi la juvelon
+
+Vi ne vidas juvelon kaj estas tro mallume por serĉi.
+
+> rigardi la kolĉenon
+
+Vi ne vidas kolĉenon kaj estas tro mallume por serĉi.
+
+> bruligi la monon per la magia alumeto
+
+La valora monbileto ekbrulas.
+
+Vi estas en truo en la tero. Vi vidas oran juvelon kaj metalan skatolon.
+
+> rigardi la juvelon
+
+Ĝi aspektas tre valora.
+
+> rigardi la kolĉenon
+
+Ĝi aspektas tre valora.
+
+La valora monbileto elbrulis.
+
+> rigardi ĝin
+
+Mi ne scias kion “ĝi” indikas.
+
+> rigardi
+
+Estas mallume. Vi vidas nenion.
+
+> rigardi la juvelon
+
+Vi ne vidas juvelon kaj estas tro mallume por serĉi.
+
+> rigardi la kolĉenon
+
+Vi ne vidas kolĉenon kaj estas tro mallume por serĉi.
+
+> ŝalti poŝlanternon.
+
+Vi ŝaltis la magian poŝlanternon.
+
+Vi estas en truo en la tero. Vi vidas oran juvelon kaj metalan skatolon.
+
+> preni la juvelon
+
+Vi prenis la oran juvelon.
+
+> metu la poŝlanternon en la skatolon
+
+Vi metis la magian poŝlanternon en la metalan skatolon.
+
+> rigardi
+
+Vi estas en truo en la tero. Vi vidas metalan skatolon.
+
+> fermi la skatolon
+
+Vi fermis la metalan skatolon.
+
+> rigardi
+
+Estas mallume. Vi vidas nenion.
+
+> malfermi la skatolon
+
+Vi ne vidas skatolon kaj estas tro mallume por serĉi.
+
+@restart
+
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton, sekan lignopecon kaj magian poŝlanternon.
+
+> prenu la magian poŝlanternon
+
+Vi prenis la magian poŝlanternon.
+
+> o
+
+Vi estas en paca kampo.
+
+> ŝaltu poŝlanternon
+
+Vi ŝaltis la magian poŝlanternon.
+
+> suben
+
+Vi estas en truo en la tero. Vi vidas oran juvelon kaj metalan skatolon.
+
+> suben
+
+Estas mallume. Vi vidas nenion.

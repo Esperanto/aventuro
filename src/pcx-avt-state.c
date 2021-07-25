@@ -443,6 +443,50 @@ iterate_movables_in_list(struct pcx_avt_state *state,
 }
 
 static bool
+check_light_cb(struct pcx_avt_state_movable *movable,
+               void *user_data)
+{
+        return (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
+                (movable->base.attributes &
+                 (PCX_AVT_OBJECT_ATTRIBUTE_LIT |
+                  PCX_AVT_OBJECT_ATTRIBUTE_BURNING)) != 0);
+}
+
+static bool
+check_light(struct pcx_avt_state *state)
+{
+       struct pcx_avt_state_room *room = state->rooms + state->current_room;
+
+       if ((room->attributes & PCX_AVT_ROOM_ATTRIBUTE_LIT))
+               return true;
+
+       if ((room->attributes & PCX_AVT_ROOM_ATTRIBUTE_UNLIGHTABLE))
+               return false;
+
+       struct pcx_avt_state_movable *lit_movable;
+
+       lit_movable = iterate_movables_in_list(state,
+                                              &state->carrying,
+                                              false, /* descend_closed */
+                                              check_light_cb,
+                                              NULL /* user_data */);
+
+       if (lit_movable)
+               return true;
+
+       lit_movable = iterate_movables_in_list(state,
+                                              &room->contents,
+                                              false, /* descend_closed */
+                                              check_light_cb,
+                                              NULL /* user_data */);
+
+       if (lit_movable)
+               return true;
+
+       return false;
+}
+
+static bool
 movable_is_in_current_room(struct pcx_avt_state *state,
                            const struct pcx_avt_state_movable *movable)
 {
@@ -467,7 +511,8 @@ is_movable_present(struct pcx_avt_state *state,
         while (true) {
                 switch (movable->base.location_type) {
                 case PCX_AVT_LOCATION_TYPE_IN_ROOM:
-                        return movable_is_in_current_room(state, movable);
+                        return (movable_is_in_current_room(state, movable) &&
+                                check_light(state));
                 case PCX_AVT_LOCATION_TYPE_CARRYING:
                         return true;
                 case PCX_AVT_LOCATION_TYPE_NOWHERE:
@@ -548,27 +593,33 @@ add_points(struct pcx_avt_state *state,
 static void
 send_room_description(struct pcx_avt_state *state)
 {
-        const char *desc = state->avt->rooms[state->current_room].description;
-
-        add_message_string(state, desc);
-
         struct pcx_avt_state_room *room = state->rooms + state->current_room;
 
-        add_room_contents_to_message(state, room);
+        if (check_light(state)) {
+                const char *desc =
+                        state->avt->rooms[state->current_room].description;
 
-        end_message(state);
+                add_message_string(state, desc);
+
+
+                add_room_contents_to_message(state, room);
+
+                end_message(state);
+
+                run_special_rules(state,
+                                  "priskrib",
+                                  NULL, /* object */
+                                  NULL, /* tool */
+                                  true /* present */);
+        } else {
+                send_message(state, "Estas mallume. Vi vidas nenion.");
+        }
 
         if (!room->visited) {
                 add_points(state,
                            state->avt->rooms[state->current_room].points);
                 room->visited = true;
         }
-
-        run_special_rules(state,
-                          "priskrib",
-                          NULL, /* object */
-                          NULL, /* tool */
-                          true /* present */);
 }
 
 static void
@@ -1570,15 +1621,18 @@ find_movable(struct pcx_avt_state *state,
         if (found)
                 return found;
 
-        struct pcx_avt_state_room *room = state->rooms + state->current_room;
+        if (check_light(state)) {
+                struct pcx_avt_state_room *room =
+                        state->rooms + state->current_room;
 
-        found = iterate_movables_in_list(state,
-                                         &room->contents,
-                                         false, /* descend_closed */
-                                         find_movable_cb,
-                                         (void *) noun /* user_data */);
-        if (found)
-                return found;
+                found = iterate_movables_in_list(state,
+                                                 &room->contents,
+                                                 false, /* descend_closed */
+                                                 find_movable_cb,
+                                                 (void *) noun /* user_data */);
+                if (found)
+                        return found;
+        }
 
         found = find_movable_via_alias(state, noun);
         if (found)
@@ -1598,6 +1652,13 @@ send_missing_reference_message(struct pcx_avt_state *state,
         } else {
                 add_message_string(state, "Vi ne vidas ");
                 add_noun_to_message(state, noun, "n");
+
+                if (!check_light(state)) {
+                        add_message_string(state,
+                                           " kaj estas tro mallume "
+                                           "por serĉi");
+                }
+
                 add_message_c(state, '.');
         }
 
@@ -2615,12 +2676,17 @@ handle_set_alight(struct pcx_avt_state *state,
                 return true;
         }
 
+        bool had_light = check_light(state);
+
         object->base.attributes |= PCX_AVT_OBJECT_ATTRIBUTE_BURNING;
 
         add_message_string(state, "La ");
         add_movable_to_message(state, &object->base, NULL);
         add_message_string(state, " ekbrulas.");
         end_message(state);
+
+        if (!had_light)
+                send_room_description(state);
 
         /* The verbs in the original interpreter seem to be the other
          * way around from what is described in the document.
@@ -2692,6 +2758,8 @@ handle_turn_on_off(struct pcx_avt_state *state,
                 return true;
         }
 
+        bool had_light = check_light(state);
+
         movable->base.attributes = ((movable->base.attributes &
                                      ~PCX_AVT_OBJECT_ATTRIBUTE_LIT) |
                                     new_state);
@@ -2702,6 +2770,9 @@ handle_turn_on_off(struct pcx_avt_state *state,
         add_movable_to_message(state, &movable->base, "n");
         add_message_c(state, '.');
         end_message(state);
+
+        if (!had_light && new_state)
+                send_room_description(state);
 
         return true;
 }

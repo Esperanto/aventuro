@@ -176,6 +176,7 @@ NOVAAJHO ECO AJHO MALVERA mojosa;
 FINO_FENOMENO;
 
 SALONO triangulo; Vi estas en triangulo. @
+LUMA;
 ORIENTEN artejo;
 
 AJHO kripa pupo; Mankas al ghi unu okulo. @
@@ -221,6 +222,7 @@ FINO_AJHO;
 FINO_SALONO;
 
 SALONO jesejo; Jes. @
+LUMA;
 OKCIDENTEN artejo;
 ORIENTEN monstrejo;
 AJHO vizagha masko; Ghi estas kontrawvirusa vizaghmasko. @
@@ -419,6 +421,7 @@ AJHO magia libro;
 FINO_FENOMENO;
 
 SALONO alinomejo; Chi tie estas multaj nomoj. @
+LUMA;
 ORIENTEN chevalejo;
 
 AJHO plasta skribilo; Ghi ne funkcias. Kiu kreis tion? @
@@ -510,6 +513,7 @@ FINO_MONSTRO;
 FINO_SALONO;
 
 SALONO pronomejo; Tipa esperanta loko. @
+LUMA;
 ORIENTEN maro;
 
 FENOMENO forigi; La $A malaperis. @

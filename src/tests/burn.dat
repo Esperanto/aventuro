@@ -16,7 +16,7 @@ FINO_AJHO;
 AJHO plasta anaso; Ghi ne utilas por fajrigi. @
 FINO_AJHO;
 
-AJHO valora monbileto; Ghi valoras 100 eurojn. @
+AJHO valora monbileto; Ghi valoras 100 ewrojn. @
 SINONIMO mono;
 FAJREBLA;
 FAJRODAURO 3;
@@ -41,7 +41,9 @@ FINO_AJHO;
 FINO_SALONO;
 
 SALONO kampo; Vi estas en paca kampo. @
+LUMA;
 OKCIDENTEN chevalejo;
+SUBEN truo;
 FINO_SALONO;
 
 FENOMENO fajrigi; La $A malaperas. $SVi sentas la mankon de io. @
@@ -56,6 +58,28 @@ FENOMENO bruligi; @
 AJHO seka fojno;
 NOVALOKO finchevalejo;
 FINO_FENOMENO;
+
+SALONO truo; Vi estas en truo en la tero. @
+ELEN kampo;
+SUPREN kampo;
+SUBEN profundejo;
+
+AJHO ora juvelo; Ghi aspektas tre valora. @
+SINONIMO kolcheno;
+POENTOJ 1;
+FINO_AJHO;
+
+AJHO metala skatolo; Ghi ne ellasus lumon. @
+FERMEBLA;
+ENHAVO 90;
+FINO_AJHO;
+
+FINO_SALONO;
+
+SALONO profundejo; Vi estas tiel profunde ke lumo ne povas ekzisti. @
+SUPREN truo;
+NELUMIGEBLA;
+FINO_SALONO;
 
 SALONO finchevalejo; La fojno rapide ekbrulas kaj tuj komencas
 bruligi ankaw la chevalejon.
