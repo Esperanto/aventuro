@@ -1,4 +1,4 @@
-Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton kaj sekan lignopecon.
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton, sekan lignopecon kaj magian poŝlanternon.
 
 > mi fajrigos la anason.
 
@@ -82,7 +82,7 @@ La seka lignopeco malaperas. Vi sentas la mankon de io.
 
 @restart
 
-Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton kaj sekan lignopecon.
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton, sekan lignopecon kaj magian poŝlanternon.
 
 > bruligi la lignon per la alumeto
 
@@ -132,7 +132,7 @@ Vi sentas la mankon de io.
 
 > okcidenten
 
-Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas ruĝan fajrilon, plastan anason kaj valoran monbileton.
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas ruĝan fajrilon, plastan anason, valoran monbileton kaj magian poŝlanternon.
 
 > bruligi la fojnon per la fajrilo
 
@@ -150,7 +150,7 @@ Fino.
 
 @restart
 
-Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton kaj sekan lignopecon.
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian alumeton, ruĝan fajrilon, plastan anason, valoran monbileton, sekan lignopecon kaj magian poŝlanternon.
 
 > kontroli la monon
 
@@ -178,7 +178,7 @@ Vi kunportas magian alumeton.
 
 > rigardi
 
-Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas ruĝan fajrilon, plastan anason kaj sekan lignopecon.
+Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas ruĝan fajrilon, plastan anason, sekan lignopecon kaj magian poŝlanternon.
 
 > venigi
 
@@ -191,3 +191,55 @@ La valora monbileto estas bruligita.
 > MI fajrigOS la monon per la alumeto !
 
 Vi ne povas bruligi la valoran monbileton per la magia alumeto.
+
+> bruligi la poŝlanternon per la alumeto
+
+Vi ne povas bruligi la magian poŝlanternon per la magia alumeto.
+
+> lumigi la anason
+
+Vi ne povas lumigi la plastan anason.
+
+> malŝaltu la anason
+
+Vi ne povas malŝalti la plastan anason.
+
+> kontroli la poŝlanternon.
+
+Mi ne komprenas vin.
+
+> lumigi la poŝlanternon
+
+Vi lumigis la magian poŝlanternon.
+
+> kontroli la poŝlanternon.
+
+La magia poŝlanterno estas lumigita.
+
+> ŝalti la poŝlanternon
+
+La magia poŝlanterno jam estas ŝaltita.
+
+> lumigi la poŝlanternon
+
+La magia poŝlanterno jam estas lumigita.
+
+> mallumigi la poŝlanternon.
+
+Vi mallumigis la magian poŝlanternon.
+
+> malŝalti la poŝlanternon.
+
+La magia poŝlanterno jam estas malŝaltita.
+
+> kontroli la poŝlanternon.
+
+Mi ne komprenas vin.
+
+> lumigi la fojnon
+
+Vi ne povas lumigi la sekan fojnon.
+
+> ŝalti la fojnon.
+
+La fojno ne havas butonon por ŝalti ĝin.

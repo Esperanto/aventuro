@@ -2618,6 +2618,78 @@ handle_set_alight(struct pcx_avt_state *state,
 }
 
 static bool
+handle_turn_on_off(struct pcx_avt_state *state,
+                   const struct pcx_avt_command *command,
+                   const struct pcx_avt_state_references *references)
+{
+        if (!is_verb_object_command(command))
+                return false;
+
+        uint32_t new_state;
+
+        if (pcx_avt_command_word_equal(&command->verb, "ŝalt") ||
+            pcx_avt_command_word_equal(&command->verb, "lumig"))
+                new_state = PCX_AVT_OBJECT_ATTRIBUTE_LIT;
+        else if (pcx_avt_command_word_equal(&command->verb, "malŝalt") ||
+                 pcx_avt_command_word_equal(&command->verb, "mallumig"))
+                new_state = 0;
+        else
+                return false;
+
+        struct pcx_avt_state_movable *movable =
+                get_object_or_message(state, command, references);
+
+        if (movable == NULL)
+                return true;
+
+        if (run_rules(state,
+                      &command->verb,
+                      movable,
+                      NULL, /* tool */
+                      true /* present */))
+                return true;
+
+        if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+            (movable->base.attributes &
+             PCX_AVT_OBJECT_ATTRIBUTE_LIGHTABLE) == 0) {
+                add_message_string(state, "Vi ne povas ");
+                add_word_to_message(state, &command->verb);
+                add_message_string(state, "i la ");
+                add_movable_to_message(state, &movable->base, "n");
+                add_message_c(state, '.');
+                end_message(state);
+                return true;
+        }
+
+        if ((movable->base.attributes &
+             PCX_AVT_OBJECT_ATTRIBUTE_LIT) == new_state) {
+                add_message_string(state, "La ");
+                add_movable_to_message(state, &movable->base, NULL);
+                add_message_string(state, " jam estas ");
+                add_word_to_message(state, &command->verb);
+                add_message_string(state, "ita");
+                if (movable->base.pronoun == PCX_AVT_PRONOUN_PLURAL)
+                        add_message_c(state, 'j');
+                add_message_c(state, '.');
+                end_message(state);
+                return true;
+        }
+
+        movable->base.attributes = ((movable->base.attributes &
+                                     ~PCX_AVT_OBJECT_ATTRIBUTE_LIT) |
+                                    new_state);
+
+        add_message_string(state, "Vi ");
+        add_word_to_message(state, &command->verb);
+        add_message_string(state, "is la ");
+        add_movable_to_message(state, &movable->base, "n");
+        add_message_c(state, '.');
+        end_message(state);
+
+        return true;
+}
+
+static bool
 handle_throw_to(struct pcx_avt_state *state,
                 const struct pcx_avt_command *command,
                 const struct pcx_avt_state_references *references)
@@ -2747,6 +2819,9 @@ handle_command(struct pcx_avt_state *state,
                 return;
 
         if (handle_set_alight(state, command, references))
+                return;
+
+        if (handle_turn_on_off(state, command, references))
                 return;
 
         if (handle_throw_to(state, command, references))
