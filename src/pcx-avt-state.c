@@ -366,6 +366,82 @@ add_noun_to_message(struct pcx_avt_state *state,
                 add_message_string(state, suffix);
 }
 
+struct stack_entry {
+        struct pcx_list *parent;
+        struct pcx_list *child;
+};
+
+typedef bool
+(* iterate_movables_cb)(struct pcx_avt_state_movable *movable,
+                        void *user_data);
+
+static struct stack_entry *
+get_stack_top(struct pcx_avt_state *state)
+{
+        return (struct stack_entry *) ((state->stack.data +
+                                        state->stack.length -
+                                        sizeof (struct stack_entry)));
+}
+
+static void
+push_list_onto_stack(struct pcx_avt_state *state,
+                     struct pcx_list *list)
+{
+        pcx_buffer_set_length(&state->stack,
+                              state->stack.length +
+                              sizeof (struct stack_entry));
+
+        struct stack_entry *entry = get_stack_top(state);
+
+        entry->parent = list;
+        entry->child = list->next;
+}
+
+static struct pcx_avt_state_movable *
+iterate_movables_in_list(struct pcx_avt_state *state,
+                         struct pcx_list *list,
+                         bool descend_closed,
+                         iterate_movables_cb cb,
+                         void *user_data)
+{
+        pcx_buffer_set_length(&state->stack, 0);
+
+        struct pcx_avt_state_movable *ret = NULL;
+
+        push_list_onto_stack(state, list);
+
+        while (state->stack.length > 0) {
+                struct stack_entry *entry = get_stack_top(state);
+
+                /* Have we reached the end of the list? */
+                if (entry->child == entry->parent) {
+                        /* Pop the stack */
+                        state->stack.length -= sizeof (struct stack_entry);
+                        continue;
+                }
+
+                struct pcx_avt_state_movable *child =
+                        pcx_container_of(entry->child,
+                                         struct pcx_avt_state_movable,
+                                         location_node);
+
+                if (cb(child, user_data)) {
+                        ret = child;
+                        break;
+                }
+
+                entry->child = entry->child->next;
+
+                if (descend_closed ||
+                    child->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
+                    (child->base.attributes &
+                     PCX_AVT_OBJECT_ATTRIBUTE_CLOSED) == 0)
+                        push_list_onto_stack(state, &child->contents);
+        }
+
+        return ret;
+}
+
 static bool
 movable_is_in_current_room(struct pcx_avt_state *state,
                            const struct pcx_avt_state_movable *movable)
@@ -1368,75 +1444,6 @@ movable_matches_noun(const struct pcx_avt_movable *movable,
         return pcx_avt_command_word_equal(&noun->name, movable->name);
 }
 
-struct stack_entry {
-        struct pcx_list *parent;
-        struct pcx_list *child;
-};
-
-static struct stack_entry *
-get_stack_top(struct pcx_avt_state *state)
-{
-        return (struct stack_entry *) ((state->stack.data +
-                                        state->stack.length -
-                                        sizeof (struct stack_entry)));
-}
-
-static void
-push_list_onto_stack(struct pcx_avt_state *state,
-                     struct pcx_list *list)
-{
-        pcx_buffer_set_length(&state->stack,
-                              state->stack.length +
-                              sizeof (struct stack_entry));
-
-        struct stack_entry *entry = get_stack_top(state);
-
-        entry->parent = list;
-        entry->child = list->next;
-}
-
-static struct pcx_avt_state_movable *
-find_movable_in_list(struct pcx_avt_state *state,
-                     struct pcx_list *list,
-                     const struct pcx_avt_command_noun *noun)
-{
-        pcx_buffer_set_length(&state->stack, 0);
-
-        struct pcx_avt_state_movable *ret = NULL;
-
-        push_list_onto_stack(state, list);
-
-        while (state->stack.length > 0) {
-                struct stack_entry *entry = get_stack_top(state);
-
-                /* Have we reached the end of the list? */
-                if (entry->child == entry->parent) {
-                        /* Pop the stack */
-                        state->stack.length -= sizeof (struct stack_entry);
-                        continue;
-                }
-
-                struct pcx_avt_state_movable *child =
-                        pcx_container_of(entry->child,
-                                         struct pcx_avt_state_movable,
-                                         location_node);
-
-                if (movable_matches_noun(&child->base, noun)) {
-                        ret = child;
-                        break;
-                }
-
-                entry->child = entry->child->next;
-
-                if (child->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
-                    (child->base.attributes &
-                     PCX_AVT_OBJECT_ATTRIBUTE_CLOSED) == 0)
-                        push_list_onto_stack(state, &child->contents);
-        }
-
-        return ret;
-}
-
 static struct pcx_avt_state_movable *
 find_movable_via_alias(struct pcx_avt_state *state,
                        const struct pcx_avt_command_noun *noun)
@@ -1537,6 +1544,15 @@ find_movable_by_pronoun(struct pcx_avt_state *state,
         return NULL;
 }
 
+static bool
+find_movable_cb(struct pcx_avt_state_movable *movable,
+                void *user_data)
+{
+        const struct pcx_avt_command_noun *noun = user_data;
+
+        return movable_matches_noun(&movable->base, noun);
+}
+
 static struct pcx_avt_state_movable *
 find_movable(struct pcx_avt_state *state,
              const struct pcx_avt_command_noun *noun)
@@ -1546,15 +1562,21 @@ find_movable(struct pcx_avt_state *state,
         if (noun->is_pronoun)
                 return find_movable_by_pronoun(state, &noun->pronoun);
 
-        found = find_movable_in_list(state, &state->carrying, noun);
+        found = iterate_movables_in_list(state,
+                                         &state->carrying,
+                                         false, /* descend_closed */
+                                         find_movable_cb,
+                                         (void *) noun /* user_data */);
         if (found)
                 return found;
 
         struct pcx_avt_state_room *room = state->rooms + state->current_room;
 
-        found = find_movable_in_list(state,
-                                     &room->contents,
-                                     noun);
+        found = iterate_movables_in_list(state,
+                                         &room->contents,
+                                         false, /* descend_closed */
+                                         find_movable_cb,
+                                         (void *) noun /* user_data */);
         if (found)
                 return found;
 
@@ -1634,40 +1656,35 @@ get_direction_or_message(struct pcx_avt_state *state,
         return references->direction;
 }
 
+struct get_weight_closure {
+        int weight;
+};
+
+static bool
+get_weight_cb(struct pcx_avt_state_movable *movable,
+              void *user_data)
+{
+        struct get_weight_closure *data = user_data;
+
+        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
+                data->weight += movable->object.weight;
+
+        return false;
+}
+
 static int
 get_weight_of_list(struct pcx_avt_state *state,
                    struct pcx_list *list)
 {
-        int weight = 0;
+        struct get_weight_closure closure = { .weight = 0 };
 
-        pcx_buffer_set_length(&state->stack, 0);
+        iterate_movables_in_list(state,
+                                 list,
+                                 true, /* descend_closed */
+                                 get_weight_cb,
+                                 &closure);
 
-        push_list_onto_stack(state, list);
-
-        while (state->stack.length > 0) {
-                struct stack_entry *entry = get_stack_top(state);
-
-                /* Have we reached the end of the list? */
-                if (entry->child == entry->parent) {
-                        /* Pop the stack */
-                        state->stack.length -= sizeof (struct stack_entry);
-                        continue;
-                }
-
-                struct pcx_avt_state_movable *child =
-                        pcx_container_of(entry->child,
-                                         struct pcx_avt_state_movable,
-                                         location_node);
-
-                if (child->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
-                        weight += child->object.weight;
-
-                entry->child = entry->child->next;
-
-                push_list_onto_stack(state, &child->contents);
-        }
-
-        return weight;
+        return closure.weight;
 }
 
 static int
