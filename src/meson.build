@@ -94,3 +94,5 @@ test_avt = executable('test-avt', test_avt_src,
 
 test('rules', test_avt, args : files('tests/rules.avt', 'tests/rules.txt'))
 test('burn', test_avt, args : files('tests/burn.avt', 'tests/burn.txt'))
+test('contain', test_avt,
+     args : files('tests/contain.avt', 'tests/contain.txt'))

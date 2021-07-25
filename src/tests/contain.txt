@@ -1,0 +1,165 @@
+Vi estas en via salono. Vi vidas etajn rizerojn, plomban pilkon, paperan statueton, kartonan skatolon, magian sakon kaj grandan pezaĵon.
+
+> rigardi la skatolon
+
+Ĝi estas kartona skatolo por ŝuoj. Ĝi estas fermita.
+
+> malfermu la skatolon
+
+Vi malfermis la kartonan skatolon.
+
+> metu la rizerojn en la skatolon
+
+Vi prenis la etajn rizerojn.
+
+Vi metis la etajn rizerojn en la kartonan skatolon.
+
+> rigardi la skatolon
+
+Ĝi estas kartona skatolo por ŝuoj. En ĝi vi vidas etajn rizerojn.
+
+> rigardi la rizerojn
+
+Estas nur 3 da ili.
+
+> fermi la skatolon.
+
+Vi fermis la kartonan skatolon.
+
+> rigardi la skatolon
+
+Ĝi estas kartona skatolo por ŝuoj. Ĝi estas fermita.
+
+> rigardi la rizerojn.
+
+Vi ne vidas rizerojn.
+
+> metu la paperan statueton en la skatolon.
+
+Vi ne povas meti ion en la kartonan skatolon ĉar ĝi estas fermita.
+
+> malfermu la skatolon
+
+Vi malfermis la kartonan skatolon.
+
+> metu la skatolon en la skatolon.
+
+Vi prenis la kartonan skatolon.
+
+Vi ne povas meti ion en sin mem.
+
+> metu la skatolon en la sakon
+
+Vi metis la kartonan skatolon en la magian sakon.
+
+> rigardi la rizerojn
+
+Estas nur 3 da ili.
+
+> fermi la skatolon
+
+Vi fermis la kartonan skatolon.
+
+> rigardi la rizerojn
+
+Vi ne vidas rizerojn.
+
+> malfermi la skatolon
+
+Vi malfermis la kartonan skatolon.
+
+> rigardi la rizerojn
+
+Estas nur 3 da ili.
+
+> meti la magian sakon en la skatolon.
+
+Vi prenis la magian sakon.
+
+Vi ne povas meti ion en sin mem.
+
+> rigardi
+
+Vi estas en via salono. Vi vidas plomban pilkon, paperan statueton kaj grandan pezaĵon.
+
+> rigardi la sakon
+
+Ĝi povas enhavi multegon. En ĝi vi vidas kartonan skatolon.
+
+> rigardi la skatolon
+
+Ĝi estas kartona skatolo por ŝuoj. En ĝi vi vidas etajn rizerojn.
+
+> meti la paperan statueton en la skatolon.
+
+Vi prenis la paperan statueton.
+
+La papera statueto estas tro granda por eniri la kartonan skatolon.
+
+> meti la statueton en la sakon.
+
+Vi metis la paperan statueton en la magian sakon.
+
+> kion mi havas?
+
+Vi kunportas magian sakon.
+
+> prenu la pilkon.
+
+Vi prenis la plomban pilkon.
+
+> prenu la pezaĵon.
+
+Kune kun tio kion vi jam portas la granda pezaĵo estas tro peza por porti.
+
+> ĵeti la pilkon
+
+Vi ĵetis la plomban pilkon.
+
+> prenu la pezaĵon.
+
+Vi prenis la grandan pezaĵon.
+
+> preni la paperan statueton
+
+Kune kun tio kion vi jam portas la papera statueto estas tro granda por teni.
+
+> ĵeti la sakon
+
+Vi ĵetis la magian sakon.
+
+> preni la paperan statueton
+
+Kune kun tio kion vi jam portas la papera statueto estas tro granda por teni.
+
+> preni la sakon
+
+Vi prenis la magian sakon.
+
+> ĵeti la grandan pezaĵon
+
+Vi ĵetis la grandan pezaĵon.
+
+> preni la paperan statueton
+
+Vi prenis la paperan statueton.
+
+> preni la grandan pezaĵon.
+
+Kune kun tio kion vi jam portas la granda pezaĵo estas tro granda por teni.
+
+> meti la paperan statueton en la sakon
+
+Vi metis la paperan statueton en la magian sakon.
+
+> preni la grandan pezaĵon
+
+Vi prenis la grandan pezaĵon.
+
+> meti la grandan pezaĵon en la magian sakon.
+
+Vi metis la grandan pezaĵon en la magian sakon.
+
+> preni plomban pilkon
+
+Kune kun tio kion vi jam portas la plomba pilko estas tro peza por porti.
