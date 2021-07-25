@@ -1068,6 +1068,34 @@ Vi ne povas iri okcidenten de ĉi tie.
 
 > o
 
+Vi estas en la kuirejo. Vi vidas ovforman mezurilon.
+
+> sxalti la mezurilon
+
+La ovforma mezurilo komencis klakadi.
+
+> mi iros en la ŝrankon.
+
+Vi estas en malplena manĝoŝranko.
+
+> rigardi la muron
+
+Vi ne vidas muron.
+
+Vi aŭdas laŭtan sonorilon.
+
+> elen
+
+Vi estas en la kuirejo. Vi vidas novan kokidon.
+
+> rigardi la kokidon
+
+Ĝi estas malgranda.
+
+La nova kokido pepis. Vi aŭdas pepon.
+
+> o
+
 # These two rooms are linked with a rule that sends you to the other
 # room immediately after displaying the description. This checks that
 # the rules can’t cause infinite recursion and that the interpreter

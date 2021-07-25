@@ -563,7 +563,7 @@ POENTOJ 1;
 FINO_FENOMENO;
 
 SALONO direktejo; Estas direktoj chi tie. @
-ORIENTEN cirklo;
+ORIENTEN kuirejo;
 DIREKTO kosmo kosmo; Estas granda verda stelo en la chielo. @
 LUMA;
 
@@ -580,15 +580,49 @@ FINO_SALONO;
 
 SALONO shranko; Ne estas multe da spaco. @
 LUMA;
-ORIENTEN cirklo;
+ORIENTEN kuirejo;
 ELEN direktejo;
 FINO_SALONO;
 
 SALONO kosmo; Vi shvebas en la kosmo. @
-ORIENTEN cirklo;
+ORIENTEN kuirejo;
 LUMA;
 DIREKTO tero direktejo; Ghi aspektas malgranda de chi tie. @
 FINO_SALONO;
+
+SALONO kuirejo; Vi estas en la kuirejo. @
+LUMA;
+DIREKTO shranko manghoshranko; Ghi estas shranko por manghajhoj. @
+ORIENTEN cirklo;
+
+AJHO ovforma mezurilo; Ghi mezuras 3 minutojn. @
+FINO_AJHO;
+
+FINO_SALONO;
+
+AJHO nova kokido; Ghi estas malgranda. @
+FINO 3;
+FINO_AJHO;
+
+SALONO manghoshranko; Vi estas en malplena manghoshranko. @
+ELEN kuirejo;
+LUMA;
+FINO_SALONO;
+
+FENOMENO shalti; La $A komencis klakadi. @
+AJHO ovforma mezurilo;
+NOVAAJHO fino 3;
+FINO_FENOMENO;
+
+FENOMENO fini; La $A finighis. $SVi awdas lawtan sonorilon. @
+AJHO ovforma mezurilo;
+NOVAAJHO NEPRE nova kokido;
+FINO_FENOMENO;
+
+FENOMENO fini; La $A pepis. $SVi awdas pepon. @
+AJHO nova kokido;
+NOVAAJHO fino 0;
+FINO_FENOMENO;
 
 SALONO cirklo; Vi estas che la rando de cirklo. @
 LUMA;

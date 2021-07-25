@@ -1382,6 +1382,19 @@ object_after_command(struct pcx_avt_state *state,
                                 burn_out_object(state, movable);
                 }
         }
+
+        if (movable->object.end > 0 &&
+            movable->base.location_type != PCX_AVT_LOCATION_TYPE_NOWHERE) {
+                movable->object.end--;
+
+                if (movable->object.end <= 0) {
+                        run_special_rules(state,
+                                          "fin",
+                                          movable,
+                                          NULL, /* tool */
+                                          get_movable_room(state, movable));
+                }
+        }
 }
 
 static void
