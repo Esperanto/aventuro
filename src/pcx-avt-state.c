@@ -154,7 +154,7 @@ run_special_rules(struct pcx_avt_state *state,
                   const char *verb_str,
                   struct pcx_avt_state_movable *object,
                   struct pcx_avt_state_movable *tool,
-                  bool is_present);
+                  int room);
 
 static void
 end_message(struct pcx_avt_state *state);
@@ -594,7 +594,7 @@ send_room_description(struct pcx_avt_state *state)
                                   "priskrib",
                                   NULL, /* object */
                                   NULL, /* tool */
-                                  true /* present */);
+                                  state->current_room);
         } else {
                 send_message(state, "Estas mallume. Vi vidas nenion.");
         }
@@ -728,11 +728,12 @@ copy_movable(struct pcx_avt_state_movable *dst,
 static bool
 check_condition(struct pcx_avt_state *state,
                 const struct pcx_avt_condition_data *condition,
-                struct pcx_avt_state_movable *movable)
+                struct pcx_avt_state_movable *movable,
+                int room)
 {
         switch (condition->condition) {
         case PCX_AVT_CONDITION_IN_ROOM:
-                return state->current_room == condition->data;
+                return room == condition->data;
         case PCX_AVT_CONDITION_OBJECT_IS:
                 return movable == state->object_index[condition->data];
         case PCX_AVT_CONDITION_ANOTHER_OBJECT_PRESENT:
@@ -779,10 +780,10 @@ check_condition(struct pcx_avt_state *state,
                         (movable->base.attributes &
                          (1 << condition->data)) == 0);
         case PCX_AVT_CONDITION_ROOM_ATTRIBUTE:
-                return (state->rooms[state->current_room].attributes &
+                return (state->rooms[room].attributes &
                         (1 << condition->data));
         case PCX_AVT_CONDITION_NOT_ROOM_ATTRIBUTE:
-                return (state->rooms[state->current_room].attributes &
+                return (state->rooms[room].attributes &
                         (1 << condition->data)) == 0;
         case PCX_AVT_CONDITION_MONSTER_ATTRIBUTE:
                 return (movable &&
@@ -844,7 +845,8 @@ static void
 execute_action(struct pcx_avt_state *state,
                const struct pcx_avt_action_data *action,
                bool is_room,
-               struct pcx_avt_state_movable *movable)
+               struct pcx_avt_state_movable *movable,
+               int room)
 {
         switch (action->action) {
         case PCX_AVT_ACTION_MOVE_TO:
@@ -876,7 +878,7 @@ execute_action(struct pcx_avt_state *state,
                         disappear_movable(state, movable);
 
                 put_movable_in_room(state,
-                                    state->current_room,
+                                    room,
                                     state->object_index[action->data]);
 
                 break;
@@ -887,7 +889,7 @@ execute_action(struct pcx_avt_state *state,
                         disappear_movable(state, movable);
 
                 put_movable_in_room(state,
-                                    state->current_room,
+                                    room,
                                     state->monster_index[action->data]);
 
                 break;
@@ -952,11 +954,11 @@ execute_action(struct pcx_avt_state *state,
                         movable->base.attributes &= ~(1 << action->data);
                 break;
         case PCX_AVT_ACTION_SET_ROOM_ATTRIBUTE:
-                state->rooms[state->current_room].attributes |=
+                state->rooms[room].attributes |=
                         1 << action->data;
                 break;
         case PCX_AVT_ACTION_UNSET_ROOM_ATTRIBUTE:
-                state->rooms[state->current_room].attributes &=
+                state->rooms[room].attributes &=
                         ~(1 << action->data);
                 break;
         case PCX_AVT_ACTION_SET_MONSTER_ATTRIBUTE:
@@ -1133,7 +1135,7 @@ run_rules(struct pcx_avt_state *state,
           const struct pcx_avt_command_word *verb,
           struct pcx_avt_state_movable *command_object,
           struct pcx_avt_state_movable *tool,
-          bool present)
+          int room)
 {
         /* Prevent infinite recursion when rule actions trigger other rules.
          */
@@ -1161,16 +1163,20 @@ run_rules(struct pcx_avt_state *state,
 
                 if (check_condition(state,
                                     &rule->room_condition,
-                                    command_object) &&
+                                    command_object,
+                                    room) &&
                     check_condition(state,
                                     &rule->object_condition,
-                                    object) &&
+                                    object,
+                                    room) &&
                     check_condition(state,
                                     &rule->tool_condition,
-                                    tool) &&
+                                    tool,
+                                    room) &&
                     check_condition(state,
                                     &rule->monster_condition,
-                                    monster)) {
+                                    monster,
+                                    room)) {
                         state->rule_recursion_depth++;
 
                         if (rule->text) {
@@ -1179,25 +1185,29 @@ run_rules(struct pcx_avt_state *state,
                                                   object,
                                                   monster,
                                                   tool,
-                                                  present);
+                                                  state->current_room == room);
                         }
 
                         execute_action(state,
                                        &rule->room_action,
                                        true, /* is_room */
-                                       command_object);
+                                       command_object,
+                                       room);
                         execute_action(state,
                                        &rule->object_action,
                                        false, /* is_room */
-                                       object);
+                                       object,
+                                       room);
                         execute_action(state,
                                        &rule->tool_action,
                                        false, /* is_room */
-                                       tool);
+                                       tool,
+                                       room);
                         execute_action(state,
                                        &rule->monster_action,
                                        false, /* is_room */
-                                       monster);
+                                       monster,
+                                       room);
 
                         add_points(state, rule->points);
 
@@ -1215,14 +1225,14 @@ run_special_rules(struct pcx_avt_state *state,
                   const char *verb_str,
                   struct pcx_avt_state_movable *object,
                   struct pcx_avt_state_movable *tool,
-                  bool present)
+                  int room)
 {
         struct pcx_avt_command_word verb = {
                 .start = verb_str,
                 .length = strlen(verb_str),
         };
 
-        return run_rules(state, &verb, object, tool, present);
+        return run_rules(state, &verb, object, tool, room);
 }
 
 static void
@@ -1308,10 +1318,33 @@ check_game_over(struct pcx_avt_state *state)
         return state->game_over;
 }
 
+static int
+get_movable_room(struct pcx_avt_state *state,
+                 const struct pcx_avt_state_movable *movable)
+{
+        while (true) {
+                switch (movable->base.location_type) {
+                case PCX_AVT_LOCATION_TYPE_IN_ROOM:
+                        return movable->base.location;
+                case PCX_AVT_LOCATION_TYPE_CARRYING:
+                        return state->current_room;
+                case PCX_AVT_LOCATION_TYPE_NOWHERE:
+                        return -1;
+                case PCX_AVT_LOCATION_TYPE_WITH_MONSTER:
+                case PCX_AVT_LOCATION_TYPE_IN_OBJECT:
+                        movable = movable->container;
+                        continue;
+                }
+
+                return -1;
+        }
+}
+
 static void
 burn_out_object(struct pcx_avt_state *state,
                 struct pcx_avt_state_movable *movable)
 {
+        int room = get_movable_room(state, movable);
         bool is_present = is_movable_present(state, movable);
 
         movable->base.attributes |= PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT;
@@ -1329,7 +1362,7 @@ burn_out_object(struct pcx_avt_state *state,
                           "fajrig",
                           movable,
                           NULL, /* tool */
-                          is_present);
+                          room);
 }
 
 static void
@@ -1377,7 +1410,7 @@ after_command(struct pcx_avt_state *state)
                           "est",
                           NULL, /* object */
                           NULL, /* tool */
-                          true /* present */);
+                          state->current_room);
 
         if (!check_game_over(state))
                 movables_after_command(state);
@@ -2094,7 +2127,7 @@ handle_look(struct pcx_avt_state *state,
                           "rigard",
                           movable,
                           NULL, /* tool */
-                          true /* present */);
+                          state->current_room);
 
         return true;
 }
@@ -2228,7 +2261,7 @@ handle_take(struct pcx_avt_state *state,
                                "pren",
                                movable,
                                NULL, /* tool */
-                               true /* present */)) {
+                               state->current_room)) {
                 carry_movable(state, movable);
 
                 add_message_string(state, "Vi prenis la ");
@@ -2251,7 +2284,7 @@ try_take(struct pcx_avt_state *state,
                               "pren",
                               movable,
                               NULL, /* tool */
-                              true /* present */)) {
+                              state->current_room)) {
                 /* The rule replaces the default action, but it might
                  * end up causing the object to be carried anyway.
                  */
@@ -2312,7 +2345,7 @@ handle_drop(struct pcx_avt_state *state,
                                "ĵet",
                                movable,
                                NULL, /* tool */
-                               true /* present */)) {
+                               state->current_room)) {
                 put_movable_in_room(state,
                                     state->current_room,
                                     movable);
@@ -2447,7 +2480,7 @@ handle_enter(struct pcx_avt_state *state,
                               "enir",
                               movable,
                               NULL, /* tool */
-                              true))
+                              state->current_room))
                 return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
@@ -2515,7 +2548,7 @@ handle_open_close(struct pcx_avt_state *state,
                       &command->verb,
                       movable,
                       NULL, /* tool */
-                      true /* present */))
+                      state->current_room))
                 return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
@@ -2580,7 +2613,7 @@ handle_read(struct pcx_avt_state *state,
                               "leg",
                               movable,
                               NULL, /* tool */
-                              true /* present */))
+                              state->current_room))
                 return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
@@ -2682,7 +2715,7 @@ handle_set_alight(struct pcx_avt_state *state,
                           "brulig",
                           object,
                           NULL, /* tool */
-                          true /* present */);
+                          state->current_room);
 
         return true;
 }
@@ -2716,7 +2749,7 @@ handle_turn_on_off(struct pcx_avt_state *state,
                       &command->verb,
                       movable,
                       NULL, /* tool */
-                      true /* present */))
+                      state->current_room))
                 return true;
 
         if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT ||
@@ -2802,7 +2835,7 @@ handle_throw_to(struct pcx_avt_state *state,
                               target,
                               /* projectile is the tool for some reason */
                               projectile,
-                              true /* present */))
+                              state->current_room))
                 return true;
 
         add_message_string(state, "Vi ne povas ĵeti la ");
@@ -2855,7 +2888,7 @@ handle_custom_command(struct pcx_avt_state *state,
                          &command->verb,
                          object,
                          tool,
-                         true /* present */);
+                         state->current_room);
 }
 
 static void
