@@ -102,6 +102,27 @@ ensure_empty_message_queue(struct data *data)
 }
 
 static bool
+check_room_name(struct data *data,
+                const char *room_name)
+{
+        const char *state_room_name =
+                pcx_avt_state_get_current_room_name(data->state);
+
+        if (strcmp(room_name, state_room_name)) {
+                fprintf(stderr,
+                        "Wrong room name at line %i:\n"
+                        " Expected: %s\n"
+                        " Received: %s\n",
+                        data->line_num,
+                        room_name,
+                        state_room_name);
+                return false;
+        }
+
+        return true;
+}
+
+static bool
 handle_test_command(struct data *data,
                     const char *command)
 {
@@ -135,6 +156,8 @@ handle_test_command(struct data *data,
         } else if (!strncmp(command, "random ", 7)) {
                 data->random_number = strtol(command + 7, NULL, 10);
                 return true;
+        } else if (!strncmp(command, "room ", 5)) {
+                return check_room_name(data, command + 5);
         } else {
                 fprintf(stderr,
                         "Unknown test command “%s” at line %i\n",
