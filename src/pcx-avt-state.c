@@ -579,7 +579,11 @@ send_room_description(struct pcx_avt_state *state)
 {
         struct pcx_avt_state_room *room = state->rooms + state->current_room;
 
-        if (check_light(state)) {
+        /* The original interpreter seems to show the room description
+         * for unlit rooms if it is also marked as game over.
+         */
+        if ((room->attributes & PCX_AVT_ROOM_ATTRIBUTE_GAME_OVER) ||
+            check_light(state)) {
                 const char *desc =
                         state->avt->rooms[state->current_room].description;
 

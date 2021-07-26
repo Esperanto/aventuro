@@ -645,6 +645,7 @@ FINO_FENOMENO;
 SALONO finvojo; Vi estas en tunelo al la fino. @
 NORDEN poentejo;
 OKCIDENTEN finejo;
+SUBEN mallumfino;
 LUMA;
 
 AJHO ora premio; Vi gajnas 2 poentojn kiam vi prenas chi tion. @
@@ -661,6 +662,11 @@ FINO_SALONO;
 
 SALONO finejo; La ludo finighas chi tie. @
 LUMA;
+LUDFINO;
+FINO_SALONO;
+
+SALONO mallumfino;
+Ne estas lumo chi tie sed vi tamen povas legi chi tiun mesaghon. @
 LUDFINO;
 FINO_SALONO;
 

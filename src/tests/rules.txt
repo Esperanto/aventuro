@@ -145,6 +145,26 @@ Fino.
 
 Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
 
+> okc
+
+Vi estas en tunelo al la fino. Vi vidas oran premion.
+
+> suben
+
+Ne estas lumo ĉi tie sed vi tamen povas legi ĉi tiun mesaĝon.
+
+@game_over
+
+Vi kunportis nenion. Vi havis neniun poenton.
+
+Fino.
+
+@restart
+
+Ĉi tiu ĉambro ne havas regulon por la priskribo.
+
+Bonvenon al la testo. Ĉi tiu mesaĝo okazas nur unu fojon.
+
 > o
 
 Ĉi tiu ĉambro ja havas regulon por la priskribo.
