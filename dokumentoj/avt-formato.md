@@ -269,6 +269,12 @@ Sekve ĉe 0xc8da estas 6 bajtoj por la ludaj ecoj. Unu bito por ĉiu eco. La kom
 
 | Adreso | Signifo                          |
 | ------ | -------------------------------- |
+| 0xc8e1 | Longeco de la nomo de la aventuro |
+| 0xc8e2 | 20 bajtoj por la nomo de la aventuro |
+| 0xc8f6 | Longeco de la nomo de la aŭtoro  |
+| 0xc8f7 | 20 bajtoj por la nomo de la aŭtoro |
+| 0xc90b | Longeco de la nomo de la jaro    |
+| 0xc90c | 4 bajtoj por la jaro             |
 | 0xc910 | 2 bajtoj por la komenca soifo    |
 | 0xc912 | 2 bajtoj por la komenca malsato  |
 | 0xc914 | 1=Debug, 0=Ne debug              |
