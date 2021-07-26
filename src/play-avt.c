@@ -175,6 +175,13 @@ main(int argc, char **argv)
                 pcx_error_free(error);
                 data.retval = EXIT_FAILURE;
         } else {
+                printf("%s\n"
+                       "© %s %s\n"
+                       "\n",
+                       data.avt->name,
+                       data.avt->year,
+                       data.avt->author);
+
                 data.state = pcx_avt_state_new(data.avt);
 
                 print_messages(&data);
