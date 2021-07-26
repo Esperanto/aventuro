@@ -156,6 +156,29 @@
      sendCommand();
    }
 
+   function addTitleMessage()
+   {
+     var namePtr = getValue(avt + 0, '*');
+     var name = UTF8ToString(namePtr);
+     var authorPtr = getValue(avt + 4, '*');
+     var author = UTF8ToString(authorPtr);
+     var yearPtr = getValue(avt + 8, '*');
+     var year = UTF8ToString(yearPtr);
+
+     var textDiv = addMessage("gameTitle", "© " + author + " " + year);
+     var br = document.createElement("br");
+     textDiv.insertBefore(br, textDiv.firstChild);
+
+     var nameNode = document.createElement("b");
+     nameNode.appendChild(document.createTextNode(name));
+     textDiv.insertBefore(nameNode, br);
+
+     document.title = name;
+     var chatTitle = document.getElementById("chatTitleText");
+     chatTitle.innerHTML = "";
+     chatTitle.appendChild(document.createTextNode(name));
+   }
+
    function checkRun()
    {
      if (hasRun || avtData == null || !hasRuntime)
@@ -186,6 +209,8 @@
      messagesDiv = document.getElementById("messages");
 
      document.getElementById("sendButton").onclick = sendCommand;
+
+     addTitleMessage();
 
      processMessages();
    }

@@ -54,7 +54,11 @@ body {
     text-align: right;
 }
 
-.message.note {
+.message.note, .message.gameTitle {
+    text-align: center;
+}
+
+.message.gameTitle .messageInner {
     text-align: center;
 }
 
