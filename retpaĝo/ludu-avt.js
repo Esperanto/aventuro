@@ -26,6 +26,7 @@
    var avtState;
    var inputbox;
    var messagesDiv;
+   var statusMessageDiv;
    var gameIsOver = false;
 
    function seekAvtData(source, pos, error)
@@ -123,6 +124,16 @@
      }
    }
 
+   function setRoomName()
+   {
+     var roomNameStr = _pcx_avt_state_get_current_room_name(avtState);
+     var roomName = UTF8ToString(roomNameStr);
+     var roomNameNode = document.createTextNode(roomName);
+
+     statusMessageDiv.innerHTML = "";
+     statusMessageDiv.appendChild(roomNameNode);
+   }
+
    function sendCommand()
    {
      if (gameIsOver)
@@ -144,6 +155,7 @@
      _free(stringOnWasmHeap);
 
      processMessages();
+     setRoomName();
    }
 
    function commandKeyCb(e)
@@ -207,12 +219,15 @@
      inputbox = document.getElementById("inputbox");
      inputbox.addEventListener("keydown", commandKeyCb);
      messagesDiv = document.getElementById("messages");
+     statusMessageDiv = document.getElementById("statusMessage");
+     statusMessageDiv.style.display = "block";
 
      document.getElementById("sendButton").onclick = sendCommand;
 
      addTitleMessage();
 
      processMessages();
+     setRoomName();
    }
 
    function gotRuntime()

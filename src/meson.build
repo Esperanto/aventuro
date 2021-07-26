@@ -49,6 +49,7 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
     '_pcx_avt_state_get_next_message',
     '_pcx_avt_state_free',
     '_pcx_avt_state_game_is_over',
+    '_pcx_avt_state_get_current_room_name',
   ]
 
   web_lib_src = [
