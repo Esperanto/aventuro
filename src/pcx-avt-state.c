@@ -934,7 +934,12 @@ execute_action(struct pcx_avt_state *state,
                         movable->object.burn_time = action->data;
                 }
                 break;
+        case PCX_AVT_ACTION_SOMETHING:
+                break;
         case PCX_AVT_ACTION_NOTHING:
+                if (movable)
+                        disappear_movable(state, movable);
+                break;
         case PCX_AVT_ACTION_NOTHING_ROOM:
                 break;
         case PCX_AVT_ACTION_CARRY:

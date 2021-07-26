@@ -908,6 +908,7 @@ extract_action(struct load_data *data,
         case PCX_AVT_ACTION_CHANGE_SIZE:
         case PCX_AVT_ACTION_CHANGE_CONTAINER_SIZE:
         case PCX_AVT_ACTION_CHANGE_BURN_TIME:
+        case PCX_AVT_ACTION_SOMETHING:
         case PCX_AVT_ACTION_NOTHING:
         case PCX_AVT_ACTION_NOTHING_ROOM:
         case PCX_AVT_ACTION_CARRY:

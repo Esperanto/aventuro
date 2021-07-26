@@ -210,7 +210,8 @@ Agoj:
 | 0x08 |  Ŝanĝi grandon                                                 |
 | 0x09 |  Ŝanĝi enhavon                                                 |
 | 0x0a |  Ŝanĝi fajrodaŭro                                              |
-| 0x0c |  Nenio (defaŭlta por ĉio krom loko)                            |
+| 0x0b |  Io (fari nenion)                                              |
+| 0x0c |  Nenio (forigi aĵon) (defaŭlta por ĉio krom loko)              |
 | 0x0f |  Defaŭlto por loko                                             |
 | 0x10 |  Kunportiĝu                                                    |
 | 0x11 |  Aĵo ekhavu econ                                               |

@@ -48,6 +48,7 @@ AGOJ = {
     0x08: "ŝanĝi grandon",
     0x09: "ŝanĝi enhavon",
     0x0a: "ŝanĝi fajrodaŭro",
+    0x0b: "io",
     0x0c: "nenio",
     0x0f: "defaŭlto por loko",
     0x10: "kunportiĝu",

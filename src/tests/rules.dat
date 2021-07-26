@@ -35,10 +35,12 @@ FINO_MONSTRO;
 
 FENOMENO rebokli; La ajho nun estas reboklita. @
 AJHO IO;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO rekobli; La monstro nun estas rekoblita. @
 MONSTRO IO;
+NOVAMONSTRO IO;
 FINO_FENOMENO;
 
 FINO_SALONO;
@@ -63,26 +65,31 @@ FINO_SALONO;
 FENOMENO rigardi; Ghi havas shargon. @
 LOKO sfero;
 AJHO SHARGO 50;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO rigardi; Ghi havas pezon. @
 LOKO sfero;
 AJHO PEZO 51;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO rigardi; Ghi havas grandon. @
 LOKO sfero;
 AJHO grando 52;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO rigardi; Ghi havas enhavon. @
 LOKO sfero;
 AJHO enhavo 53;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO rigardi; Ghi havas fajrodawron. @
 LOKO sfero;
 AJHO fajrodauro 54;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO malshargi; Vi malshargis. @
@@ -118,6 +125,7 @@ FINO_FENOMENO;
 FENOMENO priskribi; La shanco estas. @
 LOKO sfero;
 AJHO SHANCO 50;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 SALONO ecejo; Vi estas en ejo plena je ecoj. @
@@ -136,11 +144,13 @@ FINO_SALONO;
 FENOMENO rigardi; Ghi estas mojosa. @
 LOKO ecejo;
 AJHO ECO AJHO mojosa;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO rigardi; Ghi ne estas mojosa. @
 LOKO ecejo;
 AJHO ECO AJHO MALVERA mojosa;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO preni; Nun ankaw vi estas mojosa! @
@@ -189,9 +199,6 @@ FINO_AJHO;
 
 FINO_SALONO;
 
-SALONO neniejo; Nenie. @
-FINO_SALONO;
-
 FENOMENO rideti; Vi ne povas rideti dum la kripa pupo rigardis vin. @
 LOKO triangulo;
 AJHO NEPRE kripa pupo;
@@ -200,7 +207,6 @@ FINO_FENOMENO;
 FENOMENO tushi; La pupo malaperis post kiam vi tushis ghin! @
 LOKO triangulo;
 AJHO kripa pupo;
-NOVAAJHO ALIEN neniejo;
 FINO_FENOMENO;
 
 SALONO artejo; Chi tie estas iloj por artumi. @
@@ -232,14 +238,17 @@ FINO_SALONO;
 
 FENOMENO tushi; Vi tushis ion bluan. @
 AJHO ADJEKTIVO blua skribilo;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO tushi; Vi tushis krajonon. @
 AJHO NOMO blua krajono;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO tushi; Vi tushis bluan krajonon. @
 AJHO KOPIO blua krajono;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 FENOMENO bluigi; Vi bluigis. @
@@ -286,37 +295,42 @@ FINO_MONSTRO;
 FENOMENO tushi; Vi tushis ion mojosan. @
 LOKO monstrejo;
 MONSTRO ADJEKTIVO mojosa araneo;
+NOVAMONSTRO IO;
 FINO_FENOMENO;
 
 FENOMENO tushi; Vi tushis serpenton. @
 LOKO monstrejo;
 MONSTRO NOMO mojosa serpento;
+NOVAMONSTRO IO;
 FINO_FENOMENO;
 
 FENOMENO tushi; Vi tushis mojosan serpenton. @
 LOKO monstrejo;
 MONSTRO KOPIO mojosa serpento;
+NOVAMONSTRO IO;
 FINO_FENOMENO;
 
 FENOMENO leki; La timiga serpento montras al vi sian langon. @
 LOKO monstrejo;
 MONSTRO NEPRE timiga serpento;
+NOVAMONSTRO IO;
 FINO_FENOMENO;
 
 FENOMENO piki; La monstro malaperas. @
 LOKO monstrejo;
 MONSTRO IO;
-NOVAMONSTRO ALIEN neniejo;
 FINO_FENOMENO;
 
 FENOMENO mkontroli; La monstro estas mojosa. @
 LOKO monstrejo;
 MONSTRO ECO MONSTRO mojosa;
+NOVAMONSTRO IO;
 FINO_FENOMENO;
 
 FENOMENO mkontroli; La monstro ne estas mojosa. @
 LOKO monstrejo;
 MONSTRO ECO MONSTRO MALVERA mojosa;
+NOVAMONSTRO IO;
 FINO_FENOMENO;
 
 FENOMENO mojigi; Vi mojosigis monstron. @
@@ -418,6 +432,7 @@ FINO_SALONO;
 
 FENOMENO legi; Kiam vi legas la strangan lingvon en la $A, sorcho okazas. @
 AJHO magia libro;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 SALONO alinomejo; Chi tie estas multaj nomoj. @
@@ -464,6 +479,7 @@ FINO_SALONO;
 
 FENOMENO esti; La plasta chevalo rigardas vin. @
 AJHO NEPRE plasta chevalo;
+NOVAAJHO IO;
 FINO_FENOMENO;
 
 SALONO sekurejo; Vi estas en sekura loko. @
@@ -518,7 +534,6 @@ ORIENTEN maro;
 
 FENOMENO forigi; La $A malaperis. @
 AJHO IO;
-NOVAAJHO ALIEN neniejo;
 FINO_FENOMENO;
 
 AJHO blanka taso; Bona por teo. @
@@ -559,6 +574,7 @@ FENOMENO jheti; Vi jhetis la $Pn al la $A. @
 AJHO NEPRE pirata shipo;
 PERO sisela shnuro;
 NOVAPERO NEPRE jhetita shnuro;
+NOVAAJHO IO;
 POENTOJ 1;
 FINO_FENOMENO;
 
