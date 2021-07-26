@@ -67,6 +67,9 @@
 #define PCX_AVT_LOAD_ALIASES_OFFSET 0x6853
 #define PCX_AVT_LOAD_ALIAS_SIZE 23
 
+#define PCX_AVT_LOAD_INFORMATION_OFFSET 0xc8e1
+#define PCX_AVT_LOAD_INFORMATION_SIZE 51
+
 struct pcx_error_domain
 pcx_avt_load_error;
 
@@ -661,6 +664,55 @@ load_attributes(struct load_data *data,
 
         if (!load_game_attributes(data, error))
                 return false;
+
+        return true;
+}
+
+static bool
+load_information(struct load_data *data,
+                 struct pcx_error **error)
+{
+        if (!seek_or_error(data, PCX_AVT_LOAD_INFORMATION_OFFSET, error))
+                return false;
+
+        uint8_t information_data[PCX_AVT_LOAD_INFORMATION_SIZE];
+
+        size_t got = data->source->read_source(data->source,
+                                               information_data,
+                                               sizeof information_data);
+
+        if (got < sizeof information_data) {
+                pcx_set_error(error,
+                              &pcx_avt_load_error,
+                              PCX_AVT_LOAD_ERROR_INVALID_INFORMATION,
+                              "Invalid information list");
+                return false;
+        }
+
+        const uint8_t *data_pos = information_data;
+
+        data->avt->name = extract_string(data_pos, 20, error);
+        if (data->avt->name == NULL)
+                return false;
+        data_pos += 21;
+
+        data->avt->author = extract_string(data_pos, 20, error);
+        if (data->avt->author == NULL)
+                return false;
+        data_pos += 21;
+
+        data->avt->year = extract_string(data_pos, 4, error);
+        if (data->avt->year == NULL)
+                return false;
+        data_pos += 5;
+
+        data->avt->start_thirst =
+                data_pos[0] | (((uint16_t) data_pos[1]) << 8);
+        data_pos += 2;
+
+        data->avt->start_hunger =
+                data_pos[0] | (((uint16_t) data_pos[1]) << 8);
+        data_pos += 2;
 
         return true;
 }
@@ -1618,6 +1670,11 @@ pcx_avt_load(struct pcx_avt_load_source *source,
         }
 
         if (!load_attributes(&data, error)) {
+                ret = false;
+                goto done;
+        }
+
+        if (!load_information(&data, error)) {
                 ret = false;
                 goto done;
         }

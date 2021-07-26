@@ -53,6 +53,7 @@ enum pcx_avt_load_error {
         PCX_AVT_LOAD_ERROR_INVALID_CONDITION,
         PCX_AVT_LOAD_ERROR_INVALID_ACTION,
         PCX_AVT_LOAD_ERROR_INVALID_ALIAS,
+        PCX_AVT_LOAD_ERROR_INVALID_INFORMATION,
 };
 
 struct pcx_avt *

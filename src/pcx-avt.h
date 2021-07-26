@@ -260,6 +260,10 @@ struct pcx_avt_alias {
 };
 
 struct pcx_avt {
+        char *name;
+        char *author;
+        char *year;
+
         size_t n_strings;
         char **strings;
 
@@ -279,6 +283,9 @@ struct pcx_avt {
         size_t n_monsters;
         struct pcx_avt_monster *monsters;
         uint64_t game_attributes;
+
+        uint16_t start_thirst;
+        uint16_t start_hunger;
 
         /* Text to be displayed at the start of the game. Can be NULL */
         char *introduction;
