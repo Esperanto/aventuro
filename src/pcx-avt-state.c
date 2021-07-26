@@ -3065,6 +3065,17 @@ pcx_avt_state_set_random_cb(struct pcx_avt_state *state,
         state->random_cb_data = user_data;
 }
 
+const char *
+pcx_avt_state_get_current_room_name(struct pcx_avt_state *state)
+{
+        if (state->game_over)
+                return "fino";
+        else if (!check_light(state))
+                return "mallume";
+        else
+                return state->avt->rooms[state->current_room].name;
+}
+
 void
 pcx_avt_state_free(struct pcx_avt_state *state)
 {

@@ -63,6 +63,9 @@ pcx_avt_state_set_random_cb(struct pcx_avt_state *state,
                             int (* cb)(void *),
                             void *user_data);
 
+const char *
+pcx_avt_state_get_current_room_name(struct pcx_avt_state *state);
+
 void
 pcx_avt_state_free(struct pcx_avt_state *state);
 
