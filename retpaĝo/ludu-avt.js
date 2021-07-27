@@ -23,10 +23,11 @@
    var hasRuntime = false;
    var seekPos = 0;
    var avt;
-   var avtState;
+   var avtState = 0;
    var inputbox;
    var messagesDiv;
    var statusMessageDiv;
+   var restartButton;
    var gameIsOver = false;
 
    function seekAvtData(source, pos, error)
@@ -93,6 +94,12 @@
 
    function processMessages()
    {
+     if (!gameIsOver && _pcx_avt_state_game_is_over(avtState)) {
+       gameIsOver = true;
+       inputbox.contentEditable = false;
+       restartButton.style.display = "block";
+     }
+
      var lastDiv = null;
      var messageDelay = 0;
 
@@ -116,11 +123,6 @@
          lastDiv.appendChild(span);
          showAtTime(span, ++messageDelay);
        }
-     }
-
-     if (!gameIsOver && _pcx_avt_state_game_is_over(avtState)) {
-       gameIsOver = true;
-       inputbox.contentEditable = false;
      }
    }
 
@@ -191,6 +193,26 @@
      chatTitle.appendChild(document.createTextNode(name));
    }
 
+   function startGame()
+   {
+     if (!hasRun)
+       return;
+     if (avtState != 0)
+       _pcx_avt_state_free(avtState);
+
+     messagesDiv.innerHTML = "";
+     restartButton.style.display = "none";
+     inputbox.contentEditable = true;
+     gameIsOver = false;
+
+     avtState = _pcx_avt_state_new(avt);
+
+     addTitleMessage();
+
+     processMessages();
+     setRoomName();
+   }
+
    function checkRun()
    {
      if (hasRun || avtData == null || !hasRuntime)
@@ -214,20 +236,17 @@
        return;
      }
 
-     avtState = _pcx_avt_state_new(avt);
-
      inputbox = document.getElementById("inputbox");
      inputbox.addEventListener("keydown", commandKeyCb);
      messagesDiv = document.getElementById("messages");
      statusMessageDiv = document.getElementById("statusMessage");
      statusMessageDiv.style.display = "block";
+     restartButton = document.getElementById("restartButton");
+     restartButton.onclick = startGame;
 
      document.getElementById("sendButton").onclick = sendCommand;
 
-     addTitleMessage();
-
-     processMessages();
-     setRoomName();
+     startGame();
    }
 
    function gotRuntime()
