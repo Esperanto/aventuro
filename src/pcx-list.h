@@ -93,7 +93,7 @@ pcx_list_insert_list(struct pcx_list *list, struct pcx_list *other);
                                  (char *) (iterator))))
 
 #define pcx_container_of(ptr, type, member)                     \
-        (type *) ((char *) (ptr) - offsetof (type, member))
+        ((type *) ((char *) (ptr) - offsetof (type, member)))
 
 #define pcx_list_for_each(pos, head, member)                            \
         for (pcx_list_set_iterator ((head)->next, pos, member);         \
