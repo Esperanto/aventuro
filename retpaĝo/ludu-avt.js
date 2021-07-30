@@ -227,7 +227,7 @@
      setValue(source + 4, read, '*');
 
      var err = _malloc(4);
-     avt = _pcx_avt_load(source, err);
+     avt = _pcx_load_or_parse(source, err);
 
      avtData = null;
 

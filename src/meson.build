@@ -35,6 +35,7 @@ play_avt_src = [
         'pcx-avt-hat.c',
         'pcx-lexer.c',
         'pcx-parser.c',
+        'pcx-load-or-parse.c',
 ]
 play_avt = executable('play-avt', play_avt_src,
                       include_directories: configinc)
@@ -44,7 +45,7 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
   web_lib_funcs = [
     '_free',
     '_malloc',
-    '_pcx_avt_load',
+    '_pcx_load_or_parse',
     '_pcx_avt_free',
     '_pcx_avt_state_new',
     '_pcx_avt_state_run_command',
@@ -67,6 +68,7 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
           'pcx-avt-hat.c',
           'pcx-lexer.c',
           'pcx-parser.c',
+          'pcx-load-or-parse.c',
   ]
   web_lib = executable('avtlib.js', web_lib_src,
                      include_directories: configinc,
@@ -95,6 +97,7 @@ test_avt_src = [
         'pcx-avt-hat.c',
         'pcx-lexer.c',
         'pcx-parser.c',
+        'pcx-load-or-parse.c',
 ]
 test_avt = executable('test-avt', test_avt_src,
                       include_directories: configinc)

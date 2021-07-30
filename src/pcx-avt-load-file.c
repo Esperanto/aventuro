@@ -24,7 +24,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "pcx-avt-load.h"
+#include "pcx-load-or-parse.h"
 #include "pcx-list.h"
 #include "pcx-file-error.h"
 
@@ -88,7 +88,7 @@ pcx_avt_load_file(const char *filename,
                 return NULL;
         }
 
-        struct pcx_avt *avt = pcx_avt_load(&data.source, error);
+        struct pcx_avt *avt = pcx_load_or_parse(&data.source, error);
 
         fclose(data.file);
 
