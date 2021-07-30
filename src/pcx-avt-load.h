@@ -24,18 +24,10 @@
 
 #include "pcx-avt.h"
 #include "pcx-error.h"
+#include "pcx-source.h"
 
 extern struct pcx_error_domain
 pcx_avt_load_error;
-
-struct pcx_avt_load_source {
-        bool (* seek_source)(struct pcx_avt_load_source *source,
-                             long pos,
-                             struct pcx_error **error);
-        size_t (* read_source)(struct pcx_avt_load_source *source,
-                               void *ptr,
-                               size_t length);
-};
 
 enum pcx_avt_load_error {
         PCX_AVT_LOAD_ERROR_INVALID_STRING,
@@ -57,7 +49,7 @@ enum pcx_avt_load_error {
 };
 
 struct pcx_avt *
-pcx_avt_load(struct pcx_avt_load_source *source,
+pcx_avt_load(struct pcx_source *source,
              struct pcx_error **error);
 
 #endif /* PCX_AVT_LOAD_H */

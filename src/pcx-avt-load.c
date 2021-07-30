@@ -75,7 +75,7 @@ pcx_avt_load_error;
 
 struct load_data {
         struct pcx_avt *avt;
-        struct pcx_avt_load_source *source;
+        struct pcx_source *source;
 };
 
 static bool
@@ -1614,7 +1614,7 @@ validate_locations(struct load_data *data,
 }
 
 struct pcx_avt *
-pcx_avt_load(struct pcx_avt_load_source *source,
+pcx_avt_load(struct pcx_source *source,
              struct pcx_error **error)
 {
         struct load_data data = {

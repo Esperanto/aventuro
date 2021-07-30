@@ -29,12 +29,12 @@
 #include "pcx-file-error.h"
 
 struct load_file_data {
-        struct pcx_avt_load_source source;
+        struct pcx_source source;
         FILE *file;
 };
 
 static bool
-seek_file_source(struct pcx_avt_load_source *source,
+seek_file_source(struct pcx_source *source,
                  long pos,
                  struct pcx_error **error)
 {
@@ -57,7 +57,7 @@ seek_file_source(struct pcx_avt_load_source *source,
 }
 
 static size_t
-read_file_source(struct pcx_avt_load_source *source,
+read_file_source(struct pcx_source *source,
                  void *ptr,
                  size_t length)
 {
