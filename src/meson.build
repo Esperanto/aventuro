@@ -106,3 +106,19 @@ test('rules', test_avt, args : files('tests/rules.avt', 'tests/rules.txt'))
 test('burn', test_avt, args : files('tests/burn.avt', 'tests/burn.txt'))
 test('contain', test_avt,
      args : files('tests/contain.avt', 'tests/contain.txt'))
+
+test_parser_src = [
+        'pcx-util.c',
+        'pcx-error.c',
+        'pcx-avt.c',
+        'pcx-buffer.c',
+        'test-parser.c',
+        'pcx-utf8.c',
+        'pcx-list.c',
+        'pcx-lexer.c',
+        'pcx-parser.c',
+]
+test_parser = executable('test-parser', test_parser_src,
+                         include_directories: configinc)
+
+test('parser', test_parser)
