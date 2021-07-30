@@ -33,6 +33,8 @@ play_avt_src = [
         'pcx-utf8.c',
         'pcx-list.c',
         'pcx-avt-hat.c',
+        'pcx-lexer.c',
+        'pcx-parser.c',
 ]
 play_avt = executable('play-avt', play_avt_src,
                       include_directories: configinc)
@@ -63,6 +65,8 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
           'pcx-utf8.c',
           'pcx-list.c',
           'pcx-avt-hat.c',
+          'pcx-lexer.c',
+          'pcx-parser.c',
   ]
   web_lib = executable('avtlib.js', web_lib_src,
                      include_directories: configinc,
@@ -89,6 +93,8 @@ test_avt_src = [
         'pcx-utf8.c',
         'pcx-list.c',
         'pcx-avt-hat.c',
+        'pcx-lexer.c',
+        'pcx-parser.c',
 ]
 test_avt = executable('test-avt', test_avt_src,
                       include_directories: configinc)
