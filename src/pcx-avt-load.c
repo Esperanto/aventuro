@@ -76,6 +76,8 @@ pcx_avt_load_error;
 struct load_data {
         struct pcx_avt *avt;
         struct pcx_source *source;
+        /* Array of buffers to store the list of rules for each verb */
+        struct pcx_buffer *rule_verbs;
 };
 
 static bool
@@ -741,14 +743,19 @@ load_verbs(struct load_data *data,
 
         data->avt->n_verbs = buf.length / PCX_AVT_LOAD_VERB_SIZE;
         data->avt->verbs = pcx_calloc(data->avt->n_verbs *
-                                      sizeof (char *));
+                                      sizeof (struct pcx_avt_verb));
+        data->rule_verbs = pcx_alloc(data->avt->n_verbs *
+                                     sizeof (struct pcx_buffer));
+
+        for (size_t i = 0; i < data->avt->n_verbs; i++)
+                pcx_buffer_init(data->rule_verbs + i);
 
         for (size_t i = 0; i < data->avt->n_verbs; i++) {
-                data->avt->verbs[i] =
+                data->avt->verbs[i].name =
                         extract_string(buf.data + i * PCX_AVT_LOAD_VERB_SIZE,
                                        10,
                                        error);
-                if (data->avt->verbs[i] == NULL) {
+                if (data->avt->verbs[i].name == NULL) {
                         ret = false;
                         goto done;
                 }
@@ -975,7 +982,10 @@ load_rules(struct load_data *data,
                         goto done;
                 }
 
-                rule->verb = data->avt->verbs[rule_data[0] - 1];
+                uint16_t rule_num = i;
+                pcx_buffer_append(data->rule_verbs + rule_data[0] - 1,
+                                  &rule_num,
+                                  sizeof rule_num);
 
                 rule_data++;
 
@@ -1634,6 +1644,21 @@ validate_locations(struct load_data *data,
         return true;
 }
 
+static void
+finalize_rule_verbs(struct load_data *data)
+{
+        for (size_t i = 0; i < data->avt->n_verbs; i++) {
+                struct pcx_avt_verb *verb = data->avt->verbs + i;
+                struct pcx_buffer *buf = data->rule_verbs + i;
+
+                verb->n_rules = buf->length / sizeof (uint16_t);
+                verb->rules = pcx_memdup(buf->data, buf->length);
+                pcx_buffer_destroy(buf);
+        }
+
+        pcx_free(data->rule_verbs);
+}
+
 struct pcx_avt *
 pcx_avt_load(struct pcx_source *source,
              struct pcx_error **error)
@@ -1702,6 +1727,9 @@ pcx_avt_load(struct pcx_source *source,
         }
 
 done:
+        if (data.rule_verbs)
+                finalize_rule_verbs(&data);
+
         if (ret) {
                 return data.avt;
         } else {

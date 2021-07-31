@@ -1,0 +1,22 @@
+# Tests a rule with multiple verbs
+
+nomo "Test"
+aŭtoro "Test"
+jaro "2021"
+
+ejo salono {
+ luma
+ priskribo "Vi estas en via salono."
+}
+
+fenomeno {
+ verbo "krii"
+ verbo "paroli"
+ verbo "kanti"
+ mesaĝo "Vi tro timas por fari bruon."
+}
+
+fenomeno {
+ verbo "silenti"
+ mesaĝo "Bone."
+}

@@ -30,8 +30,10 @@ pcx_avt_free(struct pcx_avt *avt)
 
         pcx_free(avt->strings);
 
-        for (size_t i = 0; i < avt->n_verbs; i++)
-                pcx_free(avt->verbs[i]);
+        for (size_t i = 0; i < avt->n_verbs; i++) {
+                pcx_free(avt->verbs[i].name);
+                pcx_free(avt->verbs[i].rules);
+        }
 
         pcx_free(avt->verbs);
 

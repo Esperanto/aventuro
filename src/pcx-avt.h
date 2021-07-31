@@ -239,9 +239,14 @@ struct pcx_avt_action_data {
         uint8_t data;
 };
 
+struct pcx_avt_verb {
+        char *name;
+
+        int n_rules;
+        uint16_t *rules;
+};
+
 struct pcx_avt_rule {
-        /* Owned by pcx_avt->verbs */
-        const char *verb;
         /* Owned by pcx_avt->strings. Can be NULL. */
         const char *text;
 
@@ -274,7 +279,7 @@ struct pcx_avt {
         char **strings;
 
         size_t n_verbs;
-        char **verbs;
+        struct pcx_avt_verb *verbs;
 
         size_t n_rules;
         struct pcx_avt_rule *rules;

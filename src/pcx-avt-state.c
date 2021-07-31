@@ -1140,17 +1140,12 @@ done:
 }
 
 static bool
-run_rules(struct pcx_avt_state *state,
-          const struct pcx_avt_command_word *verb,
-          struct pcx_avt_state_movable *command_object,
-          struct pcx_avt_state_movable *tool,
-          int room)
+run_verb_rules(struct pcx_avt_state *state,
+               const struct pcx_avt_verb *verb,
+               struct pcx_avt_state_movable *command_object,
+               struct pcx_avt_state_movable *tool,
+               int room)
 {
-        /* Prevent infinite recursion when rule actions trigger other rules.
-         */
-        if (state->rule_recursion_depth >= PCX_AVT_STATE_MAX_RECURSION_DEPTH)
-                return false;
-
         bool executed_rule = false;
 
         struct pcx_avt_state_movable *object =
@@ -1164,12 +1159,9 @@ run_rules(struct pcx_avt_state *state,
                 command_object :
                 NULL;
 
-        for (size_t i = 0; i < state->avt->n_rules; i++) {
-                const struct pcx_avt_rule *rule = state->avt->rules + i;
-
-                if (!pcx_avt_command_word_equal(verb, rule->verb))
-                        continue;
-
+        for (size_t i = 0; i < verb->n_rules; i++) {
+                const struct pcx_avt_rule *rule =
+                        state->avt->rules + verb->rules[i];
                 for (unsigned c = 0; c < rule->n_conditions; c++) {
                         const struct pcx_avt_condition_data *cond =
                                 rule->conditions + c;
@@ -1247,6 +1239,33 @@ run_rules(struct pcx_avt_state *state,
         }
 
         return executed_rule;
+}
+
+static bool
+run_rules(struct pcx_avt_state *state,
+          const struct pcx_avt_command_word *verb,
+          struct pcx_avt_state_movable *command_object,
+          struct pcx_avt_state_movable *tool,
+          int room)
+{
+        /* Prevent infinite recursion when rule actions trigger other rules.
+         */
+        if (state->rule_recursion_depth >= PCX_AVT_STATE_MAX_RECURSION_DEPTH)
+                return false;
+
+        for (size_t i = 0; i < state->avt->n_verbs; i++) {
+                const char *verb_name = state->avt->verbs[i].name;
+                if (!pcx_avt_command_word_equal(verb, verb_name))
+                        continue;
+
+                return run_verb_rules(state,
+                                      state->avt->verbs + i,
+                                      command_object,
+                                      tool,
+                                      room);
+        }
+
+        return false;
 }
 
 static bool

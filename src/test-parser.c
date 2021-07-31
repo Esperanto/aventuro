@@ -522,6 +522,40 @@ fail_checks[] = {
                 "}\n",
                 "Expected room name at line 6"
         },
+        {
+                BLURB
+                "ejo s1 { priskribo \"j\" }\n"
+                "fenomeno {\n"
+                "  mesaĝo \"Vi forgesis la verbon!\"\n"
+                "}\n",
+                "Every rule needs at least one verb at line 3"
+        },
+        {
+                BLURB
+                "ejo s1 { priskribo \"j\" }\n"
+                "fenomeno {\n"
+                "  mesaĝo \"Vi forgesis la verbon!\"\n"
+                "  3\n"
+                "}\n",
+                "Expected rule item or ‘}’ at line 5"
+        },
+        {
+                BLURB
+                "ejo s1 { priskribo \"j\" }\n"
+                "fenomeno {\n"
+                "  mesaĝo 3\n"
+                "}\n",
+                "Expected text item at line 4"
+        },
+        {
+                BLURB
+                "ejo s1 { priskribo \"j\" }\n"
+                "fenomeno {\n"
+                "  mesaĝo t23\n"
+                "  verbo \"kuri\"\n"
+                "}\n",
+                "Invalid text reference at line 4"
+        },
 };
 
 static bool
@@ -970,6 +1004,8 @@ main(int argc, char **argv)
                              "teksto t12 \"Vi manĝis!\"\n"
                              "fenomeno {\n"
                              "   verbo \"manĝi\"\n"
+                             "   verbo \"trinki\"\n"
+                             "   verbo \"rigardi\"\n"
                              "   poentoj 128\n"
                              "   mesaĝo t12\n"
                              "\n"
@@ -1022,10 +1058,14 @@ main(int argc, char **argv)
                              "   nova eco malvera bluba\n"
                              "}");
 
+        assert(avt->n_verbs == 4);
+
         assert(avt->n_rules == 3);
         const struct pcx_avt_rule *rule = avt->rules;
 
-        assert(!strcmp(rule->verb, "est"));
+        assert(!strcmp(avt->verbs[0].name, "est"));
+        assert(avt->verbs[0].n_rules == 1);
+        assert(avt->verbs[0].rules[0] == 0);
         assert(!strcmp(rule->text, "Ne dormu!"));
         assert(rule->points == 0);
         /* Implicitly added condition because the rule is in a room */
@@ -1043,7 +1083,10 @@ main(int argc, char **argv)
 
         rule++;
 
-        assert(!strcmp(rule->verb, "rigard"));
+        assert(!strcmp(avt->verbs[1].name, "rigard"));
+        assert(avt->verbs[1].n_rules == 2);
+        assert(avt->verbs[1].rules[0] == 1);
+        assert(avt->verbs[1].rules[1] == 2);
         assert(!strcmp(rule->text, "La terpomo ankaŭ rigardas vin!"));
         assert(rule->points == 0);
         /* Implicitly added condition because the rule is in an object */
@@ -1059,7 +1102,12 @@ main(int argc, char **argv)
 
         rule++;
 
-        assert(!strcmp(rule->verb, "manĝ"));
+        assert(!strcmp(avt->verbs[2].name, "manĝ"));
+        assert(avt->verbs[2].n_rules == 1);
+        assert(avt->verbs[2].rules[0] == 2);
+        assert(!strcmp(avt->verbs[3].name, "trink"));
+        assert(avt->verbs[3].n_rules == 1);
+        assert(avt->verbs[3].rules[0] == 2);
         assert(!strcmp(rule->text, "Vi manĝis!"));
         assert(rule->points == 128);
 

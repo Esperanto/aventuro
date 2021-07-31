@@ -49,6 +49,7 @@ struct pcx_parser {
         struct pcx_list objects;
         struct pcx_list texts;
         struct pcx_list rules;
+        struct pcx_list verbs;
         struct pcx_parser_attribute_set room_attributes;
         struct pcx_parser_attribute_set object_attributes;
         struct pcx_parser_attribute_set player_attributes;
@@ -127,6 +128,13 @@ struct pcx_parser_rule_parameter {
         };
 };
 
+struct pcx_parser_verb {
+        struct pcx_list link;
+        char *name;
+        /* Array of uint16_t to index into rules */
+        struct pcx_buffer rules;
+};
+
 struct pcx_parser_rule_condition {
         enum pcx_avt_rule_subject subject;
         enum pcx_avt_condition condition;
@@ -140,13 +148,12 @@ struct pcx_parser_rule_action {
 };
 
 struct pcx_parser_rule {
-        struct pcx_list link;
+        struct pcx_parser_target base;
         char *verb;
         struct pcx_parser_text_reference message;
         long points;
         struct pcx_buffer conditions;
         struct pcx_buffer actions;
-        int line_num;
 };
 
 struct pcx_parser_text {
@@ -759,12 +766,6 @@ parse_items(struct pcx_parser *parser,
 static const struct pcx_parser_property
 rule_props[] = {
         {
-                offsetof(struct pcx_parser_rule, verb),
-                PCX_PARSER_VALUE_TYPE_STRING,
-                PCX_LEXER_KEYWORD_VERB,
-                "Rule already has a verb",
-        },
-        {
                 offsetof(struct pcx_parser_rule, message),
                 PCX_PARSER_VALUE_TYPE_TEXT,
                 PCX_LEXER_KEYWORD_MESSAGE,
@@ -792,6 +793,57 @@ add_rule_condition(struct pcx_parser_rule *rule,
         condition->subject = subject;
 
         return condition;
+}
+
+static enum pcx_parser_return
+parse_verb(struct pcx_parser *parser,
+           struct pcx_parser_rule *rule,
+           struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_VERB, error);
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_STRING,
+                      "String expected",
+                      error);
+
+        char *name = pcx_strdup(token->string_value);
+        int len = strlen(name);
+
+        if (len < 2 || name[len - 1] != 'i') {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Verb must end in ‘i’ at line %i",
+                              pcx_lexer_get_line_num(parser->lexer));
+                pcx_free(name);
+                return PCX_PARSER_RETURN_ERROR;
+        }
+
+        name[len - 1] = '\0';
+
+        struct pcx_parser_verb *verb;
+
+        pcx_list_for_each(verb, &parser->verbs, link) {
+                if (!strcmp(verb->name, name)) {
+                        pcx_free(name);
+                        goto found;
+                }
+        }
+
+        verb = pcx_alloc(sizeof *verb);
+        verb->name = name;
+        pcx_buffer_init(&verb->rules);
+        pcx_list_insert(parser->verbs.prev, &verb->link);
+
+found: (void) 0;
+
+        uint16_t rule_num = rule->base.num;
+        pcx_buffer_append(&verb->rules, &rule_num, sizeof rule_num);
+
+        return PCX_PARSER_RETURN_OK;
 }
 
 static enum pcx_parser_return
@@ -1280,14 +1332,14 @@ parse_rule(struct pcx_parser *parser,
                       error);
 
         struct pcx_parser_rule *rule = pcx_calloc(sizeof *rule);
-        pcx_list_insert(parser->rules.prev, &rule->link);
-
-        rule->line_num = pcx_lexer_get_line_num(parser->lexer);
+        add_target(parser, &parser->rules, &rule->base);
 
         pcx_buffer_init(&rule->conditions);
         pcx_buffer_init(&rule->actions);
 
         process_parent_condition(parser, rule, parent_target);
+
+        bool had_verb = false;
 
         while (true) {
                 const struct pcx_lexer_token *token =
@@ -1332,11 +1384,31 @@ parse_rule(struct pcx_parser *parser,
                         return PCX_PARSER_RETURN_ERROR;
                 }
 
+                switch (parse_verb(parser, rule, error)) {
+                case PCX_PARSER_RETURN_OK:
+                        had_verb = true;
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
                 pcx_set_error(error,
                               &pcx_parser_error,
                               PCX_PARSER_ERROR_INVALID,
                               "Expected rule item or ‘}’ at line %i",
                               pcx_lexer_get_line_num(parser->lexer));
+
+                return PCX_PARSER_RETURN_ERROR;
+        }
+
+        if (!had_verb) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Every rule needs at least one verb at line %i",
+                              rule->base.line_num);
 
                 return PCX_PARSER_RETURN_ERROR;
         }
@@ -2563,38 +2635,16 @@ compile_alias(struct pcx_parser *parser,
 }
 
 static bool
-compile_verbs(struct pcx_parser *parser,
-              struct pcx_avt *avt,
-              struct pcx_error **error)
+compile_verb(struct pcx_parser *parser,
+             struct pcx_parser_verb *verb,
+             struct pcx_avt_verb *avt_verb,
+             struct pcx_error **error)
 {
-        /* FIXME: Maybe this could do something to sort the verbs and
-         * remove duplicates. Not sure if it’s really worth it.
-         */
-        avt->n_verbs = avt->n_rules;
-        avt->verbs = pcx_calloc(avt->n_verbs * sizeof (char *));
+        avt_verb->name = verb->name;
+        verb->name = NULL;
 
-        struct pcx_parser_rule *rule;
-        int i = 0;
-
-        pcx_list_for_each(rule, &parser->rules, link) {
-                int len = strlen(rule->verb);
-
-                if (len < 2 || rule->verb[len - 1] != 'i') {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Verb must end in ‘i’ at line %i",
-                                      rule->line_num);
-                        return false;
-                }
-
-                rule->verb[len - 1] = '\0';
-
-                avt->verbs[i] = rule->verb;
-                avt->rules[i].verb = rule->verb;
-                rule->verb = NULL;
-                i++;
-        }
+        avt_verb->n_rules = verb->rules.length / sizeof(uint16_t);
+        avt_verb->rules = pcx_memdup(verb->rules.data, verb->rules.length);
 
         return true;
 }
@@ -2892,19 +2942,36 @@ compile_file(struct pcx_parser *parser,
                 }
         }
 
+        avt->n_verbs = pcx_list_length(&parser->verbs);
+
+        if (avt->n_verbs > 0) {
+                avt->verbs = pcx_calloc(sizeof (struct pcx_avt_verb) *
+                                        avt->n_verbs);
+
+                struct pcx_parser_verb *verb;
+                int verb_num = 0;
+
+                pcx_list_for_each(verb, &parser->verbs, link) {
+                        if (!compile_verb(parser,
+                                          verb,
+                                          avt->verbs + verb_num,
+                                          error))
+                                return false;
+
+                        verb_num++;
+                }
+        }
+
         avt->n_rules = pcx_list_length(&parser->rules);
 
         if (avt->n_rules > 0) {
                 avt->rules = pcx_calloc(sizeof (struct pcx_avt_rule) *
                                         avt->n_rules);
 
-                if (!compile_verbs(parser, avt, error))
-                        return false;
-
                 struct pcx_parser_rule *rule;
                 int rule_num = 0;
 
-                pcx_list_for_each(rule, &parser->rules, link) {
+                pcx_list_for_each(rule, &parser->rules, base.link) {
                         if (!compile_rule(parser,
                                           rule,
                                           avt->rules + rule_num, error))
@@ -2927,14 +2994,25 @@ compile_file(struct pcx_parser *parser,
 }
 
 static void
+destroy_verbs(struct pcx_parser *parser)
+{
+        struct pcx_parser_verb *verb, *tmp;
+
+        pcx_list_for_each_safe(verb, tmp, &parser->verbs, link) {
+                pcx_buffer_destroy(&verb->rules);
+                pcx_free(verb->name);
+                pcx_free(verb);
+        }
+}
+
+static void
 destroy_rules(struct pcx_parser *parser)
 {
         struct pcx_parser_rule *rule, *tmp;
 
-        pcx_list_for_each_safe(rule, tmp, &parser->rules, link) {
+        pcx_list_for_each_safe(rule, tmp, &parser->rules, base.link) {
                 pcx_buffer_destroy(&rule->conditions);
                 pcx_buffer_destroy(&rule->actions);
-                pcx_free(rule->verb);
                 pcx_free(rule);
         }
 }
@@ -2998,6 +3076,7 @@ destroy_parser(struct pcx_parser *parser)
         destroy_texts(parser);
         destroy_aliases(parser);
         destroy_rules(parser);
+        destroy_verbs(parser);
 
         pcx_free(parser->game_name);
         pcx_free(parser->game_author);
@@ -3024,6 +3103,7 @@ pcx_parser_parse(struct pcx_source *source,
         pcx_list_init(&parser.rooms);
         pcx_list_init(&parser.objects);
         pcx_list_init(&parser.rules);
+        pcx_list_init(&parser.verbs);
         pcx_list_init(&parser.texts);
         pcx_list_init(&parser.aliases);
         pcx_buffer_init(&parser.symbols);
