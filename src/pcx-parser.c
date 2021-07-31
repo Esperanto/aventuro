@@ -195,7 +195,7 @@ struct pcx_parser_property {
 
 typedef enum pcx_parser_return
 (* item_parse_func)(struct pcx_parser *parser,
-                    unsigned parent_symbol,
+                    struct pcx_parser_target *parent_target,
                     struct pcx_error **error);
 
 #define check_item_keyword(parser, keyword, error)                      \
@@ -686,12 +686,12 @@ static enum pcx_parser_return
 parse_items(struct pcx_parser *parser,
             const item_parse_func *funcs,
             size_t n_funcs,
-            unsigned parent_symbol,
+            struct pcx_parser_target *parent_target,
             struct pcx_error **error)
 {
         for (unsigned i = 0; i < n_funcs; i++) {
                 enum pcx_parser_return ret =
-                        funcs[i](parser, parent_symbol, error);
+                        funcs[i](parser, parent_target, error);
 
                 if (ret != PCX_PARSER_RETURN_NOT_MATCHED)
                         return ret;
@@ -967,7 +967,7 @@ parse_unportable(struct pcx_parser *parser,
 
 static enum pcx_parser_return
 parse_object(struct pcx_parser *parser,
-             unsigned parent_symbol,
+             struct pcx_parser_target *parent_target,
              struct pcx_error **error)
 {
         const struct pcx_lexer_token *token;
@@ -984,8 +984,8 @@ parse_object(struct pcx_parser *parser,
                            error))
                 return PCX_PARSER_RETURN_ERROR;
 
-        if (parent_symbol) {
-                object->location.symbol = parent_symbol;
+        if (parent_target) {
+                object->location.symbol = parent_target->id;
                 object->location.line_num = object->base.line_num;
         }
 
@@ -1029,7 +1029,7 @@ parse_object(struct pcx_parser *parser,
                 switch (parse_items(parser,
                                     funcs,
                                     PCX_N_ELEMENTS(funcs),
-                                    object->base.id, /* parent_symbol */
+                                    &object->base, /* parent_target */
                                     error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
@@ -1216,10 +1216,10 @@ parse_direction(struct pcx_parser *parser,
 
 static enum pcx_parser_return
 parse_room(struct pcx_parser *parser,
-           unsigned parent_symbol,
+           struct pcx_parser_target *parent_target,
            struct pcx_error **error)
 {
-        assert(parent_symbol == 0);
+        assert(parent_target == NULL);
 
         const struct pcx_lexer_token *token;
 
@@ -1273,7 +1273,7 @@ parse_room(struct pcx_parser *parser,
                 switch (parse_items(parser,
                                     funcs,
                                     PCX_N_ELEMENTS(funcs),
-                                    room->base.id, /* parent_symbol */
+                                    &room->base, /* parent_target */
                                     error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
@@ -1305,10 +1305,10 @@ parse_room(struct pcx_parser *parser,
 
 static enum pcx_parser_return
 parse_text(struct pcx_parser *parser,
-           unsigned parent_symbol,
+           struct pcx_parser_target *parent_target,
            struct pcx_error **error)
 {
-        assert(parent_symbol == 0);
+        assert(parent_target == 0);
 
         const struct pcx_lexer_token *token;
 
@@ -1387,7 +1387,7 @@ parse_file(struct pcx_parser *parser,
                 switch (parse_items(parser,
                                     funcs,
                                     PCX_N_ELEMENTS(funcs),
-                                    0, /* parent_symbol */
+                                    NULL, /* parent_target */
                                     error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
