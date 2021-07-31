@@ -65,7 +65,7 @@ struct pcx_lexer {
 
 static const char * const
 keywords[] = {
-        [PCX_LEXER_KEYWORD_ROOM] = "salono",
+        [PCX_LEXER_KEYWORD_ROOM] = "ejo",
         [PCX_LEXER_KEYWORD_TEXT] = "teksto",
         [PCX_LEXER_KEYWORD_NAME] = "nomo",
         [PCX_LEXER_KEYWORD_AUTHOR] = "aŭtoro",

@@ -60,54 +60,54 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono { }",
+                "ejo { }",
                 "Expected room name at line 2",
         },
         {
                 BLURB
-                "salono salono1 { }",
+                "ejo ejo1 { }",
                 "Room is missing description at line 2",
         },
         {
                 BLURB
-                "salono salono1 {\n"
-                "nomo \"salono unu\"\n"
-                "nomo \"ankoraŭ salono unu\"\n"
+                "ejo ejo1 {\n"
+                "nomo \"ejo unu\"\n"
+                "nomo \"ankoraŭ ejo unu\"\n"
                 "}\n",
                 "Room already has a name at line 4"
         },
         {
                 BLURB
-                "salono salono1 {\n"
-                "priskribo \"salono unu\"\n"
-                "priskribo \"ankoraŭ salono unu\"\n"
+                "ejo ejo1 {\n"
+                "priskribo \"ejo unu\"\n"
+                "priskribo \"ankoraŭ ejo unu\"\n"
                 "}\n",
                 "Room already has a description at line 4"
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 "poentoj -1\n"
                 "}\n",
                 "Number out of range at line 3"
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 "poentoj 256\n"
                 "}\n",
                 "Number out of range at line 3"
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 "eco 42\n"
                 "}\n",
                 "Attribute name expected at line 3"
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 "eco a4 eco a5 eco a6 eco a7\n"
                 "eco a8 eco a9 eco a10 eco a11\n"
                 "eco a12 eco a13 eco a14 eco a15\n"
@@ -121,42 +121,42 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 "okcidenten 3\n"
                 "}\n",
                 "Item name expected at line 3"
         },
         {
                 BLURB
-                "salono salono1 {\n"
-                "okcidenten salono1\n"
-                "okcidenten salono1\n"
+                "ejo ejo1 {\n"
+                "okcidenten ejo1\n"
+                "okcidenten ejo1\n"
                 "}\n",
                 "Room already has a west direction at line 4"
         },
         {
                 BLURB
-                "salono salono1\n"
+                "ejo ejo1\n"
                 "{ priskribo \"!\" }\n"
-                "salono salono1\n"
+                "ejo ejo1\n"
                 "{ priskribo \"!\" }\n",
                 "Same name used for multiple objects at line 4",
         },
         {
                 BLURB
-                "salono salono1 { priskribo 3 }",
+                "ejo ejo1 { priskribo 3 }",
                 "Expected text item at line 2"
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 "3\n"
                 "}",
                 "Expected room item or ‘}’ at line 3"
         },
         {
                 BLURB
-                "salono salono1 {\n",
+                "ejo ejo1 {\n",
                 "Expected room item or ‘}’ at line 3"
         },
         {
@@ -179,24 +179,24 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono salono1 { priskribo salono2 }\n"
-                "salono salono2 { priskribo salono3 }\n"
-                "salono salono3 { priskribo salono1 }\n",
+                "ejo ejo1 { priskribo ejo2 }\n"
+                "ejo ejo2 { priskribo ejo3 }\n"
+                "ejo ejo3 { priskribo ejo1 }\n",
                 "Cyclic reference detected at line 2"
         },
         {
                 BLURB
-                "salono salono1 { priskribo salono1 }\n",
+                "ejo ejo1 { priskribo ejo1 }\n",
                 "Cyclic reference detected at line 2"
         },
         {
                 BLURB
-                "salono salono1 { priskribo salono3 }\n",
+                "ejo ejo1 { priskribo ejo3 }\n",
                 "Invalid text reference at line 2"
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 " priskribo \"j\"\n"
                 " norden wibble\n"
                 "}\n",
@@ -204,7 +204,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono salono1 {\n"
+                "ejo ejo1 {\n"
                 " priskribo \"j\"\n"
                 " norden t\n"
                 "}\n"
@@ -216,11 +216,11 @@ fail_checks[] = {
                 "String contains invalid UTF-8 at line 1"
         },
         {
-                "salono s\x80t",
+                "ejo s\x80t",
                 "Invalid UTF-8 encountered at line 1"
         },
         {
-                "salono s {\n"
+                "ejo s {\n"
                 "(\n",
                 "Unexpected character ‘(’ on line 2"
         },
@@ -238,49 +238,49 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " priskribo \"I forgot to close the door\n"
                 "}\n",
                 "Unterminated string sequence at line 3"
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " direkto potato potato \"potato\"\n"
                 "}\n",
                 "Expected direction name at line 3"
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " direkto \"potat\" potato \"potato\"\n"
                 "}\n",
                 "Direction name must be a noun at line 3"
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " direkto \"granda potato\" potato \"potato\"\n"
                 "}\n",
                 "Direction name must be a noun at line 3"
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " direkto \"\" potato \"potato\"\n"
                 "}\n",
                 "Direction name must be a noun at line 3"
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " direkto \"potato\" 3 \"potato\"\n"
                 "}\n",
                 "Expected room name at line 3"
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " direkto \"potato\" s2 \"potato\"\n"
                 " priskribo \"j\"\n"
                 "}\n",
@@ -288,7 +288,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 " direkto \"potato\" s1 s3\n"
                 " priskribo \"j\"\n"
                 "}\n",
@@ -319,19 +319,19 @@ fail_checks[] = {
         },
         {
                 "aĵo skribilo {\n"
-                " salono { }\n"
+                " ejo { }\n"
                 "}\n",
                 "Expected object item or ‘}’ at line 2"
         },
         {
-                "salono s1 { aĵo skribilo {\n"
-                " salono { }\n"
+                "ejo s1 { aĵo skribilo {\n"
+                " ejo { }\n"
                 "} }\n",
                 "Expected object item or ‘}’ at line 2"
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo ruza_juvelo {\n"
                 "  loko t1\n"
                 "}\n"
@@ -340,7 +340,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo ruza_juvelo {\n"
                 "  loko t1\n"
                 "}\n",
@@ -348,7 +348,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "}\n",
                 "The object name must be an adjective followed by a noun "
@@ -356,7 +356,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝo juvelo\"\n"
                 "}\n",
@@ -365,7 +365,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"a juvelo\"\n"
                 "}\n",
@@ -374,7 +374,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝa juvel\"\n"
                 "}\n",
@@ -383,7 +383,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝa \"\n"
                 "}\n",
@@ -392,7 +392,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj juvelo\"\n"
                 "}\n",
@@ -401,7 +401,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj &juveloj\"\n"
                 "}\n",
@@ -410,7 +410,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj juveloj\"\n"
                 "  besto\n"
@@ -420,7 +420,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj juveloj\"\n"
                 "  priskribo t\n"
@@ -429,7 +429,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj juveloj\"\n"
                 "  legebla t\n"
@@ -438,7 +438,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo ruĝa_juvelo {\n"
                 "   enen t\n"
                 "}\n",
@@ -446,7 +446,7 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 {\n"
+                "ejo s1 {\n"
                 "  priskribo \"j\"\n"
                 "  aĵo ruĝa_juvelo {\n"
                 "    kunportata\n"
@@ -499,13 +499,13 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "fenomeno { verbo \"talk\" }\n",
                 "Verb must end in ‘i’ at line 3"
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "fenomeno {\n"
                 "   verbo \"paroli\"\n"
                 "   aĵo s1\n"
@@ -514,11 +514,11 @@ fail_checks[] = {
         },
         {
                 BLURB
-                "salono s1 { priskribo \"j\" }\n"
+                "ejo s1 { priskribo \"j\" }\n"
                 "aĵo ruĝa_beto { }\n"
                 "fenomeno {\n"
                 "   verbo \"paroli\"\n"
-                "   nova salono ruĝa_beto\n"
+                "   nova ejo ruĝa_beto\n"
                 "}\n",
                 "Expected room name at line 6"
         },
@@ -644,16 +644,16 @@ main(int argc, char **argv)
         struct pcx_avt *avt;
 
         avt = expect_success(BLURB
-                             "salono salono1 { priskribo salono2 }\n"
-                             "salono salono2 { priskribo la_nomo }\n"
+                             "ejo ejo1 { priskribo ejo2 }\n"
+                             "ejo ejo2 { priskribo la_nomo }\n"
                              "teksto la_nomo \"hi\"\n");
         assert(avt->n_rooms == 2);
         assert(avt->rooms[0].description == avt->rooms[1].description);
         assert(!strcmp(avt->rooms[0].description, "hi"));
-        assert(!strcmp(avt->rooms[0].name, "salono1"));
+        assert(!strcmp(avt->rooms[0].name, "ejo1"));
         assert(avt->rooms[0].points == 0);
         assert(avt->rooms[0].attributes == 0);
-        assert(!strcmp(avt->rooms[1].name, "salono2"));
+        assert(!strcmp(avt->rooms[1].name, "ejo2"));
         assert(!strcmp(avt->name, "testnomo"));
         assert(!strcmp(avt->author, "testaŭtoro"));
         assert(!strcmp(avt->year, "2021"));
@@ -661,14 +661,14 @@ main(int argc, char **argv)
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono ruĝa_salono { priskribo \"j\" }\n");
+                             "ejo ruĝa_ejo { priskribo \"j\" }\n");
         assert(avt->n_rooms == 1);
         assert(!strcmp(avt->rooms[0].description, "j"));
-        assert(!strcmp(avt->rooms[0].name, "ruĝa salono"));
+        assert(!strcmp(avt->rooms[0].name, "ruĝa ejo"));
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono salono1 {\n"
+                             "ejo ejo1 {\n"
                              " norden n\n"
                              " orienten e\n"
                              " suden s\n"
@@ -678,13 +678,13 @@ main(int argc, char **argv)
                              " elen out\n"
                              " priskribo t\n"
                              "}\n"
-                             "salono n { priskribo t }\n"
-                             "salono e { priskribo t }\n"
-                             "salono s { priskribo t }\n"
-                             "salono w { priskribo t }\n"
-                             "salono up { priskribo t }\n"
-                             "salono down { priskribo t }\n"
-                             "salono out { priskribo t }\n"
+                             "ejo n { priskribo t }\n"
+                             "ejo e { priskribo t }\n"
+                             "ejo s { priskribo t }\n"
+                             "ejo w { priskribo t }\n"
+                             "ejo up { priskribo t }\n"
+                             "ejo down { priskribo t }\n"
+                             "ejo out { priskribo t }\n"
                              "teksto t \"j\"\n");
         assert(avt->n_rooms == 8);
         assert(!strcmp(avt->rooms[0].description, "j"));
@@ -699,7 +699,7 @@ main(int argc, char **argv)
 
         avt = expect_success(BLURB
                              "enkonduko \"Jen la ludo!\"\n"
-                             "salono ruĝa_salono {\n"
+                             "ejo ruĝa_ejo {\n"
                              " priskribo \"j\"\n"
                              " nomo \"ŝanĝita nomo\"\n"
                              " poentoj 42\n"
@@ -708,12 +708,12 @@ main(int argc, char **argv)
                              " ludfino\n"
                              " eco ruĝa\n"
                              "}\n"
-                             "salono verda_salono {\n"
+                             "ejo verda_ejo {\n"
                              " priskribo \"  j  \"\n"
                              " eco verda\n"
                              " poentoj 4_2"
                              "}\n"
-                             "salono verdruĝa_salono {\n"
+                             "ejo verdruĝa_ejo {\n"
                              " priskribo \"j    \n   \\\"j\\\"\"\n"
                              " eco verda\n"
                              " eco ruĝa\n"
@@ -736,17 +736,17 @@ main(int argc, char **argv)
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono vendejaro {\n"
+                             "ejo vendejaro {\n"
                              " priskribo \"Multe da vendejoj\"\n"
                              " direkto \"librejo\" librejo\n"
                              "         \"Ĝi estas brokanta librejo.\"\n"
                              " direkto \"gitaroj\" muzikejo nenio\n"
                              "}\n"
-                             "salono librejo {\n"
+                             "ejo librejo {\n"
                              " priskribo \"Estas nur 3 libroj aĉeteblaj.\"\n"
                              " direkto \"koridoro\" vendejaro vendejaro\n"
                              "}\n"
-                             "salono muzikejo {\n"
+                             "ejo muzikejo {\n"
                              " priskribo \"Ĉi tie estas ĉefe gitaroj.\"\n"
                              "}\n");
         assert(avt->n_rooms == 3);
@@ -767,7 +767,7 @@ main(int argc, char **argv)
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono j { priskribo \"j\" }\n"
+                             "ejo j { priskribo \"j\" }\n"
                              "aĵo skribilo {\n"
                              "   priskribo \"Ĝi estas skribilo.\"\n"
                              "   nomo \"blua skribilo\"\n"
@@ -835,13 +835,13 @@ main(int argc, char **argv)
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono j {\n"
+                             "ejo j {\n"
                              "   priskribo \"j\"\n"
                              "   aĵo zingebraj_rizeroj {\n"
                              "      pluralo\n"
                              "   }\n"
                              "}\n"
-                             "salono k {\n"
+                             "ejo k {\n"
                              "   priskribo \"k\"\n"
                              "}\n"
                              "aĵo blua_skatolo {\n"
@@ -916,7 +916,7 @@ main(int argc, char **argv)
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono nenio {\n"
+                             "ejo nenio {\n"
                              "   priskribo \"j\"\n"
                              "}\n"
                              "aĵo blua_skatolo {\n"
@@ -947,10 +947,10 @@ main(int argc, char **argv)
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono kuirejo {\n"
+                             "ejo kuirejo {\n"
                              "   priskribo \"j\"\n"
                              "}\n"
-                             "salono dormĉambro {\n"
+                             "ejo dormĉambro {\n"
                              "   priskribo \"k\"\n"
                              "   fenomeno {\n"
                              "      verbo \"esti\"\n"
@@ -989,11 +989,11 @@ main(int argc, char **argv)
                              "   aĵo eco malvera brulanta\n"
                              "   aĵo eco malvera bluba\n"
                              "   pero enhavo 7\n"
-                             "   salono dormĉambro\n"
-                             "   salono eco luma\n"
-                             "   salono eco malvera ludfino\n"
-                             "   salono eco bluba\n"
-                             "   salono eco malvera bluba\n"
+                             "   ejo dormĉambro\n"
+                             "   ejo eco luma\n"
+                             "   ejo eco malvera ludfino\n"
+                             "   ejo eco bluba\n"
+                             "   ejo eco malvera bluba\n"
                              "   eco bluba\n"
                              "   eco malvera bluba\n"
                              "   ŝanco 56\n"
@@ -1015,9 +1015,9 @@ main(int argc, char **argv)
                              "   nova aĵo enhavo 93\n"
                              "   nova aĵo fajrodaŭro 94\n"
                              "   nova pero nenio\n"
-                             "   nova salono dormĉambro\n"
-                             "   nova salono eco luma\n"
-                             "   nova salono eco malvera luma\n"
+                             "   nova ejo dormĉambro\n"
+                             "   nova ejo eco luma\n"
+                             "   nova ejo eco malvera luma\n"
                              "   nova eco bluba\n"
                              "   nova eco malvera bluba\n"
                              "}");
