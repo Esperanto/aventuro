@@ -3044,18 +3044,17 @@ pcx_avt_state_run_command(struct pcx_avt_state *state,
                 return;
         }
 
-        if (!pcx_avt_command_parse(command_str, &command)) {
+        if (pcx_avt_command_parse(command_str, &command)) {
+                get_references(state, &command, &references);
+
+                handle_command(state, &command, &references);
+
+                state->previous_references = references;
+        } else {
                 send_message(state, "Mi ne komprenas vin.");
-                return;
         }
 
-        get_references(state, &command, &references);
-
-        handle_command(state, &command, &references);
-
         after_command(state);
-
-        state->previous_references = references;
 }
 
 const struct pcx_avt_state_message *
