@@ -63,68 +63,66 @@ struct pcx_lexer {
         int string_start_line;
 };
 
-struct pcx_lexer_builtin_symbol {
-        const char *name;
-        enum pcx_lexer_token_type type;
+static const char * const
+keywords[] = {
+        [PCX_LEXER_KEYWORD_ROOM] = "salono",
+        [PCX_LEXER_KEYWORD_TEXT] = "teksto",
+        [PCX_LEXER_KEYWORD_NAME] = "nomo",
+        [PCX_LEXER_KEYWORD_AUTHOR] = "aŭtoro",
+        [PCX_LEXER_KEYWORD_YEAR] = "jaro",
+        [PCX_LEXER_KEYWORD_INTRODUCTION] = "enkonduko",
+        [PCX_LEXER_KEYWORD_DESCRIPTION] = "priskribo",
+        [PCX_LEXER_KEYWORD_NORTH] = "norden",
+        [PCX_LEXER_KEYWORD_EAST] = "orienten",
+        [PCX_LEXER_KEYWORD_SOUTH] = "suden",
+        [PCX_LEXER_KEYWORD_WEST] = "okcidenten",
+        [PCX_LEXER_KEYWORD_UP] = "supren",
+        [PCX_LEXER_KEYWORD_DOWN] = "suben",
+        [PCX_LEXER_KEYWORD_EXIT] = "elen",
+        [PCX_LEXER_KEYWORD_LIT] = "luma",
+        [PCX_LEXER_KEYWORD_UNLIGHTABLE] = "nelumigebla",
+        [PCX_LEXER_KEYWORD_GAME_OVER] = "ludfino",
+        [PCX_LEXER_KEYWORD_POINTS] = "poentoj",
+        [PCX_LEXER_KEYWORD_ATTRIBUTE] = "eco",
+        [PCX_LEXER_KEYWORD_NENIO] = "nenio",
+        [PCX_LEXER_KEYWORD_DIRECTION] = "direkto",
+        [PCX_LEXER_KEYWORD_OBJECT] = "aĵo",
+        [PCX_LEXER_KEYWORD_WEIGHT] = "pezo",
+        [PCX_LEXER_KEYWORD_SIZE] = "grando",
+        [PCX_LEXER_KEYWORD_CONTAINER_SIZE] = "enhavo",
+        [PCX_LEXER_KEYWORD_SHOT_DAMAGE] = "perpafi",
+        [PCX_LEXER_KEYWORD_SHOTS] = "ŝargo",
+        [PCX_LEXER_KEYWORD_HIT_DAMAGE] = "perbati",
+        [PCX_LEXER_KEYWORD_STAB_DAMAGE] = "perpiki",
+        [PCX_LEXER_KEYWORD_FOOD_POINTS] = "manĝeblo",
+        [PCX_LEXER_KEYWORD_TRINK_POINTS] = "trinkeblo",
+        [PCX_LEXER_KEYWORD_BURN_TIME] = "fajrodaŭro",
+        [PCX_LEXER_KEYWORD_END] = "fino",
+        [PCX_LEXER_KEYWORD_LEGIBLE] = "legebla",
+        [PCX_LEXER_KEYWORD_INTO] = "enen",
+        [PCX_LEXER_KEYWORD_LOCATION] = "loko",
+        [PCX_LEXER_KEYWORD_MAN] = "viro",
+        [PCX_LEXER_KEYWORD_WOMAN] = "ino",
+        [PCX_LEXER_KEYWORD_ANIMAL] = "besto",
+        [PCX_LEXER_KEYWORD_PLURAL] = "pluralo",
+        [PCX_LEXER_KEYWORD_PORTABLE] = "neportebla",
+        [PCX_LEXER_KEYWORD_CLOSABLE] = "fermebla",
+        [PCX_LEXER_KEYWORD_CLOSED] = "fermita",
+        [PCX_LEXER_KEYWORD_LIGHTABLE] = "lumigebla",
+        [PCX_LEXER_KEYWORD_OBJECT_LIT] = "lumigita",
+        [PCX_LEXER_KEYWORD_FLAMMABLE] = "fajrebla",
+        [PCX_LEXER_KEYWORD_LIGHTER] = "fajrilo",
+        [PCX_LEXER_KEYWORD_BURNING] = "brulanta",
+        [PCX_LEXER_KEYWORD_BURNT_OUT] = "bruligita",
+        [PCX_LEXER_KEYWORD_EDIBLE] = "manĝebla",
+        [PCX_LEXER_KEYWORD_DRINKABLE] = "trinkebla",
+        [PCX_LEXER_KEYWORD_POISONOUS] = "venena",
+        [PCX_LEXER_KEYWORD_CARRYING] = "kunportata",
+        [PCX_LEXER_KEYWORD_ALIAS] = "alinomo",
 };
 
-static const struct pcx_lexer_builtin_symbol
-symbols[] = {
-        { .name = "salono", .type = PCX_LEXER_TOKEN_TYPE_ROOM },
-        { .name = "teksto", .type = PCX_LEXER_TOKEN_TYPE_TEXT, },
-        { .name = "nomo", .type = PCX_LEXER_TOKEN_TYPE_NAME },
-        { .name = "aŭtoro", .type = PCX_LEXER_TOKEN_TYPE_AUTHOR },
-        { .name = "jaro", .type = PCX_LEXER_TOKEN_TYPE_YEAR },
-        { .name = "enkonduko", .type = PCX_LEXER_TOKEN_TYPE_INTRODUCTION },
-        { .name = "priskribo", .type = PCX_LEXER_TOKEN_TYPE_DESCRIPTION },
-        { .name = "norden", .type = PCX_LEXER_TOKEN_TYPE_NORTH },
-        { .name = "orienten", .type = PCX_LEXER_TOKEN_TYPE_EAST, },
-        { .name = "suden", .type = PCX_LEXER_TOKEN_TYPE_SOUTH },
-        { .name = "okcidenten", .type = PCX_LEXER_TOKEN_TYPE_WEST, },
-        { .name = "supren", .type = PCX_LEXER_TOKEN_TYPE_UP,   },
-        { .name = "suben", .type = PCX_LEXER_TOKEN_TYPE_DOWN, },
-        { .name = "elen", .type = PCX_LEXER_TOKEN_TYPE_EXIT, },
-        { .name = "luma", .type = PCX_LEXER_TOKEN_TYPE_LIT, },
-        { .name = "nelumigebla", .type = PCX_LEXER_TOKEN_TYPE_UNLIGHTABLE, },
-        { .name = "ludfino", .type = PCX_LEXER_TOKEN_TYPE_GAME_OVER, },
-        { .name = "poentoj", .type = PCX_LEXER_TOKEN_TYPE_POINTS, },
-        { .name = "eco", .type = PCX_LEXER_TOKEN_TYPE_ATTRIBUTE, },
-        { .name = "nenio", .type = PCX_LEXER_TOKEN_TYPE_NENIO, },
-        { .name = "direkto", .type = PCX_LEXER_TOKEN_TYPE_DIRECTION, },
-        { .name = "aĵo", .type = PCX_LEXER_TOKEN_TYPE_OBJECT, },
-        { .name = "pezo", .type = PCX_LEXER_TOKEN_TYPE_WEIGHT, },
-        { .name = "grando", .type = PCX_LEXER_TOKEN_TYPE_SIZE, },
-        { .name = "enhavo", .type = PCX_LEXER_TOKEN_TYPE_CONTAINER_SIZE, },
-        { .name = "perpafi", .type = PCX_LEXER_TOKEN_TYPE_SHOT_DAMAGE, },
-        { .name = "ŝargo", .type = PCX_LEXER_TOKEN_TYPE_SHOTS, },
-        { .name = "perbati", .type = PCX_LEXER_TOKEN_TYPE_HIT_DAMAGE, },
-        { .name = "perpiki", .type = PCX_LEXER_TOKEN_TYPE_STAB_DAMAGE, },
-        { .name = "manĝeblo", .type = PCX_LEXER_TOKEN_TYPE_FOOD_POINTS, },
-        { .name = "trinkeblo", .type = PCX_LEXER_TOKEN_TYPE_TRINK_POINTS, },
-        { .name = "fajrodaŭro", .type = PCX_LEXER_TOKEN_TYPE_BURN_TIME, },
-        { .name = "fino", .type = PCX_LEXER_TOKEN_TYPE_END, },
-        { .name = "legebla", .type = PCX_LEXER_TOKEN_TYPE_LEGIBLE, },
-        { .name = "enen", .type = PCX_LEXER_TOKEN_TYPE_INTO, },
-        { .name = "loko", .type = PCX_LEXER_TOKEN_TYPE_LOCATION, },
-        { .name = "viro", .type = PCX_LEXER_TOKEN_TYPE_MAN, },
-        { .name = "ino", .type = PCX_LEXER_TOKEN_TYPE_WOMAN, },
-        { .name = "besto", .type = PCX_LEXER_TOKEN_TYPE_ANIMAL, },
-        { .name = "pluralo", .type = PCX_LEXER_TOKEN_TYPE_PLURAL, },
-        { .name = "neportebla", .type = PCX_LEXER_TOKEN_TYPE_PORTABLE },
-        { .name = "fermebla", .type = PCX_LEXER_TOKEN_TYPE_CLOSABLE },
-        { .name = "fermita", .type = PCX_LEXER_TOKEN_TYPE_CLOSED },
-        { .name = "lumigebla", .type = PCX_LEXER_TOKEN_TYPE_LIGHTABLE },
-        { .name = "lumigita", .type = PCX_LEXER_TOKEN_TYPE_OBJECT_LIT },
-        { .name = "fajrebla", .type = PCX_LEXER_TOKEN_TYPE_FLAMMABLE },
-        { .name = "fajrilo", .type = PCX_LEXER_TOKEN_TYPE_LIGHTER },
-        { .name = "brulanta", .type = PCX_LEXER_TOKEN_TYPE_BURNING },
-        { .name = "bruligita", .type = PCX_LEXER_TOKEN_TYPE_BURNT_OUT },
-        { .name = "manĝebla", .type = PCX_LEXER_TOKEN_TYPE_EDIBLE },
-        { .name = "trinkebla", .type = PCX_LEXER_TOKEN_TYPE_DRINKABLE },
-        { .name = "venena", .type = PCX_LEXER_TOKEN_TYPE_POISONOUS },
-        { .name = "kunportata", .type = PCX_LEXER_TOKEN_TYPE_CARRYING },
-        { .name = "alinomo", .type = PCX_LEXER_TOKEN_TYPE_ALIAS },
-};
+_Static_assert(PCX_N_ELEMENTS(keywords) == PCX_LEXER_N_KEYWORDS,
+               "Keyword is a missing a name");
 
 static int
 get_character(struct pcx_lexer *lexer)
@@ -244,9 +242,10 @@ find_symbol(struct pcx_lexer *lexer, struct pcx_error **error)
                 return false;
         }
 
-        for (size_t i = 0; i < PCX_N_ELEMENTS(symbols); i++) {
-                if (!strcmp(symbols[i].name, str)) {
-                        lexer->token.type = symbols[i].type;
+        for (size_t i = 1; i < PCX_LEXER_N_KEYWORDS; i++) {
+                if (!strcmp(keywords[i], str)) {
+                        lexer->token.type = PCX_LEXER_TOKEN_TYPE_SYMBOL;
+                        lexer->token.symbol_value = i;
                         return true;
                 }
         }
@@ -257,7 +256,7 @@ find_symbol(struct pcx_lexer *lexer, struct pcx_error **error)
         for (size_t i = 0; i < n_symbols; i++) {
                 if (!strcmp(symbols[i], str)) {
                         lexer->token.type = PCX_LEXER_TOKEN_TYPE_SYMBOL;
-                        lexer->token.symbol_value = i + 1;
+                        lexer->token.symbol_value = i + PCX_LEXER_N_KEYWORDS;
                         return true;
                 }
         }
@@ -266,7 +265,7 @@ find_symbol(struct pcx_lexer *lexer, struct pcx_error **error)
         pcx_buffer_append(&lexer->symbols, &symbol, sizeof symbol);
 
         lexer->token.type = PCX_LEXER_TOKEN_TYPE_SYMBOL;
-        lexer->token.symbol_value = n_symbols + 1;
+        lexer->token.symbol_value = n_symbols + PCX_LEXER_N_KEYWORDS;
 
         return true;
 }
@@ -457,9 +456,13 @@ const char *
 pcx_lexer_get_symbol_name(struct pcx_lexer *lexer,
                           int symbol_num)
 {
-        char **symbols = (char **) lexer->symbols.data;
+        if (symbol_num < PCX_LEXER_N_KEYWORDS) {
+                return keywords[symbol_num];
+        } else {
+                char **symbols = (char **) lexer->symbols.data;
 
-        return symbols[symbol_num - 1];
+                return symbols[symbol_num - PCX_LEXER_N_KEYWORDS];
+        }
 }
 
 void

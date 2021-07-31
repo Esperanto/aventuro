@@ -161,7 +161,7 @@ enum pcx_parser_value_type {
 struct pcx_parser_property {
         size_t offset;
         enum pcx_parser_value_type value_type;
-        enum pcx_lexer_token_type prop_token;
+        enum pcx_lexer_keyword prop_keyword;
         const char *duplicate_msg;
         union {
                 uint32_t attribute_value;
@@ -177,14 +177,15 @@ typedef enum pcx_parser_return
                     unsigned parent_symbol,
                     struct pcx_error **error);
 
-#define check_item_token(parser, token_type, error)                     \
+#define check_item_keyword(parser, keyword, error)                      \
         do {                                                            \
                 token = pcx_lexer_get_token((parser)->lexer, (error));  \
                                                                         \
                 if (token == NULL)                                      \
                         return PCX_PARSER_RETURN_ERROR;                 \
                                                                         \
-                if (token->type != (token_type)) {                      \
+                if (token->type != PCX_LEXER_TOKEN_TYPE_SYMBOL ||       \
+                    token->symbol_value != (keyword)) {                 \
                         pcx_lexer_put_token(parser->lexer);             \
                         return PCX_PARSER_RETURN_NOT_MATCHED;           \
                 }                                                       \
@@ -276,7 +277,7 @@ parse_string_property(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, prop->prop_token, error);
+        check_item_keyword(parser, prop->prop_keyword, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_STRING,
                       "String expected",
@@ -307,7 +308,7 @@ parse_int_property(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, prop->prop_token, error);
+        check_item_keyword(parser, prop->prop_keyword, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_NUMBER,
                       "Number expected",
@@ -338,7 +339,7 @@ parse_bool_property(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, prop->prop_token, error);
+        check_item_keyword(parser, prop->prop_keyword, error);
 
         bool *field = (bool *) (((uint8_t *) object) + prop->offset);
 
@@ -355,7 +356,7 @@ parse_attribute_property(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, prop->prop_token, error);
+        check_item_keyword(parser, prop->prop_keyword, error);
 
         uint32_t *field = (uint32_t *) (((uint8_t *) object) + prop->offset);
 
@@ -372,7 +373,7 @@ parse_custom_attribute_property(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_ATTRIBUTE, error);
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_ATTRIBUTE, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
                       "Attribute name expected",
@@ -420,7 +421,7 @@ parse_reference_property(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, prop->prop_token, error);
+        check_item_keyword(parser, prop->prop_keyword, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
                       "Item name expected",
@@ -496,13 +497,15 @@ store_text_reference(struct pcx_parser *parser,
                 reference->text = add_text(parser, token->string_value);
                 break;
         case PCX_LEXER_TOKEN_TYPE_SYMBOL:
-                reference->resolved = false;
-                reference->id = token->symbol_value;
-                break;
-        case PCX_LEXER_TOKEN_TYPE_NENIO:
-                if (optional) {
+                if (token->symbol_value == PCX_LEXER_KEYWORD_NENIO) {
+                        if (optional) {
+                                reference->resolved = false;
+                                reference->id = 0;
+                                break;
+                        }
+                } else {
                         reference->resolved = false;
-                        reference->id = 0;
+                        reference->id = token->symbol_value;
                         break;
                 }
                 /* flow through */
@@ -527,7 +530,7 @@ parse_text_property(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, prop->prop_token, error);
+        check_item_keyword(parser, prop->prop_keyword, error);
 
         struct pcx_parser_text_reference *field =
                 (struct pcx_parser_text_reference *)
@@ -564,21 +567,26 @@ parse_pronoun_property(struct pcx_parser *parser,
         if (token == NULL)
                 return PCX_PARSER_RETURN_ERROR;
 
+        if (token->type != PCX_LEXER_TOKEN_TYPE_SYMBOL) {
+                pcx_lexer_put_token(parser->lexer);
+                return PCX_PARSER_RETURN_NOT_MATCHED;
+        }
+
         struct pcx_parser_pronoun *field =
                 (struct pcx_parser_pronoun *)
                 (((uint8_t *) object) + prop->offset);
 
-        switch (token->type) {
-        case PCX_LEXER_TOKEN_TYPE_MAN:
+        switch (token->symbol_value) {
+        case PCX_LEXER_KEYWORD_MAN:
                 field->value = PCX_AVT_PRONOUN_MAN;
                 break;
-        case PCX_LEXER_TOKEN_TYPE_WOMAN:
+        case PCX_LEXER_KEYWORD_WOMAN:
                 field->value = PCX_AVT_PRONOUN_WOMAN;
                 break;
-        case PCX_LEXER_TOKEN_TYPE_ANIMAL:
+        case PCX_LEXER_KEYWORD_ANIMAL:
                 field->value = PCX_AVT_PRONOUN_ANIMAL;
                 break;
-        case PCX_LEXER_TOKEN_TYPE_PLURAL:
+        case PCX_LEXER_KEYWORD_PLURAL:
                 field->value = PCX_AVT_PRONOUN_PLURAL;
                 break;
         default:
@@ -693,7 +701,7 @@ parse_alias(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_ALIAS, error);
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_ALIAS, error);
 
         struct pcx_parser_alias *alias = pcx_calloc(sizeof *alias);
         pcx_list_insert(parser->aliases.prev, &alias->link);
@@ -737,91 +745,91 @@ object_props[] = {
         {
                 offsetof(struct pcx_parser_object, name),
                 PCX_PARSER_VALUE_TYPE_STRING,
-                PCX_LEXER_TOKEN_TYPE_NAME,
+                PCX_LEXER_KEYWORD_NAME,
                 "Object already has a name",
         },
         {
                 offsetof(struct pcx_parser_object, description),
                 PCX_PARSER_VALUE_TYPE_TEXT,
-                PCX_LEXER_TOKEN_TYPE_DESCRIPTION,
+                PCX_LEXER_KEYWORD_DESCRIPTION,
                 "Object already has a description",
         },
         {
                 offsetof(struct pcx_parser_object, read_text),
                 PCX_PARSER_VALUE_TYPE_TEXT,
-                PCX_LEXER_TOKEN_TYPE_LEGIBLE,
+                PCX_LEXER_KEYWORD_LEGIBLE,
                 "Object already has read text",
         },
         {
                 offsetof(struct pcx_parser_object, points),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_POINTS,
+                PCX_LEXER_KEYWORD_POINTS,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, weight),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_WEIGHT,
+                PCX_LEXER_KEYWORD_WEIGHT,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, size),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_SIZE,
+                PCX_LEXER_KEYWORD_SIZE,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, container_size),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_CONTAINER_SIZE,
+                PCX_LEXER_KEYWORD_CONTAINER_SIZE,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, shot_damage),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_SHOT_DAMAGE,
+                PCX_LEXER_KEYWORD_SHOT_DAMAGE,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, shots),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_SHOTS,
+                PCX_LEXER_KEYWORD_SHOTS,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, hit_damage),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_HIT_DAMAGE,
+                PCX_LEXER_KEYWORD_HIT_DAMAGE,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, stab_damage),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_STAB_DAMAGE,
+                PCX_LEXER_KEYWORD_STAB_DAMAGE,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, food_points),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_FOOD_POINTS,
+                PCX_LEXER_KEYWORD_FOOD_POINTS,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, trink_points),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_TRINK_POINTS,
+                PCX_LEXER_KEYWORD_TRINK_POINTS,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, burn_time),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_BURN_TIME,
+                PCX_LEXER_KEYWORD_BURN_TIME,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
                 offsetof(struct pcx_parser_object, end),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_END,
+                PCX_LEXER_KEYWORD_END,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
@@ -833,91 +841,91 @@ object_props[] = {
         {
                 offsetof(struct pcx_parser_object, into),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_INTO,
+                PCX_LEXER_KEYWORD_INTO,
                 "Object already has an into direction",
         },
         {
                 offsetof(struct pcx_parser_object, location),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_LOCATION,
+                PCX_LEXER_KEYWORD_LOCATION,
                 "Object already has a location",
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_PORTABLE,
+                PCX_LEXER_KEYWORD_PORTABLE,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_CLOSABLE,
+                PCX_LEXER_KEYWORD_CLOSABLE,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_CLOSED,
+                PCX_LEXER_KEYWORD_CLOSED,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_CLOSED,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_LIGHTABLE,
+                PCX_LEXER_KEYWORD_LIGHTABLE,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_LIGHTABLE,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_OBJECT_LIT,
+                PCX_LEXER_KEYWORD_OBJECT_LIT,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_LIT,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_FLAMMABLE,
+                PCX_LEXER_KEYWORD_FLAMMABLE,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_FLAMMABLE,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_LIGHTER,
+                PCX_LEXER_KEYWORD_LIGHTER,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_LIGHTER,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_BURNING,
+                PCX_LEXER_KEYWORD_BURNING,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_BURNING,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_BURNT_OUT,
+                PCX_LEXER_KEYWORD_BURNT_OUT,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_EDIBLE,
+                PCX_LEXER_KEYWORD_EDIBLE,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_EDIBLE,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_DRINKABLE,
+                PCX_LEXER_KEYWORD_DRINKABLE,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_DRINKABLE,
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_POISONOUS,
+                PCX_LEXER_KEYWORD_POISONOUS,
                 .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_POISONOUS,
         },
         {
                 offsetof(struct pcx_parser_object, carrying),
                 PCX_PARSER_VALUE_TYPE_BOOL,
-                PCX_LEXER_TOKEN_TYPE_CARRYING,
+                PCX_LEXER_KEYWORD_CARRYING,
         },
         {
                 offsetof(struct pcx_parser_object, pronoun),
@@ -932,7 +940,7 @@ parse_object(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_OBJECT, error);
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_OBJECT, error);
 
         struct pcx_parser_object *object = pcx_calloc(sizeof *object);
         add_target(parser, &parser->objects, &object->base);
@@ -1021,81 +1029,81 @@ room_props[] = {
         {
                 offsetof(struct pcx_parser_room, name),
                 PCX_PARSER_VALUE_TYPE_STRING,
-                PCX_LEXER_TOKEN_TYPE_NAME,
+                PCX_LEXER_KEYWORD_NAME,
                 "Room already has a name",
         },
         {
                 offsetof(struct pcx_parser_room, description),
                 PCX_PARSER_VALUE_TYPE_TEXT,
-                PCX_LEXER_TOKEN_TYPE_DESCRIPTION,
+                PCX_LEXER_KEYWORD_DESCRIPTION,
                 "Room already has a description",
         },
         {
                 offsetof(struct pcx_parser_room, movements[0]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_NORTH,
+                PCX_LEXER_KEYWORD_NORTH,
                 "Room already has a north direction",
         },
         {
                 offsetof(struct pcx_parser_room, movements[1]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_EAST,
+                PCX_LEXER_KEYWORD_EAST,
                 "Room already has an east direction",
         },
         {
                 offsetof(struct pcx_parser_room, movements[2]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_SOUTH,
+                PCX_LEXER_KEYWORD_SOUTH,
                 "Room already has a south direction",
         },
         {
                 offsetof(struct pcx_parser_room, movements[3]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_WEST,
+                PCX_LEXER_KEYWORD_WEST,
                 "Room already has a west direction",
         },
         {
                 offsetof(struct pcx_parser_room, movements[4]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_UP,
+                PCX_LEXER_KEYWORD_UP,
                 "Room already has an up direction",
         },
         {
                 offsetof(struct pcx_parser_room, movements[5]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_DOWN,
+                PCX_LEXER_KEYWORD_DOWN,
                 "Room already has a down direction",
         },
         {
                 offsetof(struct pcx_parser_room, movements[6]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
-                PCX_LEXER_TOKEN_TYPE_EXIT,
+                PCX_LEXER_KEYWORD_EXIT,
                 "Room already has an exit direction",
         },
         {
                 offsetof(struct pcx_parser_room, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_LIT,
+                PCX_LEXER_KEYWORD_LIT,
                 .attribute_value = PCX_AVT_ROOM_ATTRIBUTE_LIT,
         },
         {
                 offsetof(struct pcx_parser_room, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_UNLIGHTABLE,
+                PCX_LEXER_KEYWORD_UNLIGHTABLE,
                 .attribute_value =
                 PCX_AVT_ROOM_ATTRIBUTE_UNLIGHTABLE,
         },
         {
                 offsetof(struct pcx_parser_room, attributes),
                 PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
-                PCX_LEXER_TOKEN_TYPE_GAME_OVER,
+                PCX_LEXER_KEYWORD_GAME_OVER,
                 .attribute_value =
                 PCX_AVT_ROOM_ATTRIBUTE_GAME_OVER,
         },
         {
                 offsetof(struct pcx_parser_room, points),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_TOKEN_TYPE_POINTS,
+                PCX_LEXER_KEYWORD_POINTS,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
@@ -1113,7 +1121,7 @@ parse_direction(struct pcx_parser *parser,
 {
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_DIRECTION, error);
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_DIRECTION, error);
 
         struct pcx_parser_direction *direction = pcx_calloc(sizeof *direction);
         pcx_list_insert(room->directions.prev, &direction->link);
@@ -1170,7 +1178,7 @@ parse_room(struct pcx_parser *parser,
 
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_ROOM, error);
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_ROOM, error);
 
         struct pcx_parser_room *room = pcx_calloc(sizeof *room);
         add_target(parser, &parser->rooms, &room->base);
@@ -1259,7 +1267,7 @@ parse_text(struct pcx_parser *parser,
 
         const struct pcx_lexer_token *token;
 
-        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_TEXT, error);
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_TEXT, error);
 
         struct pcx_parser_text *text = pcx_calloc(sizeof *text);
         add_target(parser, &parser->texts, &text->base);
@@ -1286,25 +1294,25 @@ file_props[] = {
         {
                 offsetof(struct pcx_parser, game_name),
                 PCX_PARSER_VALUE_TYPE_STRING,
-                PCX_LEXER_TOKEN_TYPE_NAME,
+                PCX_LEXER_KEYWORD_NAME,
                 "Room already has a name",
         },
         {
                 offsetof(struct pcx_parser, game_author),
                 PCX_PARSER_VALUE_TYPE_STRING,
-                PCX_LEXER_TOKEN_TYPE_AUTHOR,
+                PCX_LEXER_KEYWORD_AUTHOR,
                 "Room already has an author",
         },
         {
                 offsetof(struct pcx_parser, game_year),
                 PCX_PARSER_VALUE_TYPE_STRING,
-                PCX_LEXER_TOKEN_TYPE_YEAR,
+                PCX_LEXER_KEYWORD_YEAR,
                 "Room already has a year",
         },
         {
                 offsetof(struct pcx_parser, game_intro),
                 PCX_PARSER_VALUE_TYPE_STRING,
-                PCX_LEXER_TOKEN_TYPE_INTRODUCTION,
+                PCX_LEXER_KEYWORD_INTRODUCTION,
                 "Room already has an introduction",
         },
 };

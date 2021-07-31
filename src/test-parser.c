@@ -856,7 +856,7 @@ main(int argc, char **argv)
         pcx_avt_free(avt);
 
         avt = expect_success(BLURB
-                             "salono j {\n"
+                             "salono nenio {\n"
                              "   priskribo \"j\"\n"
                              "}\n"
                              "aĵo blua_skatolo {\n"
@@ -868,6 +868,7 @@ main(int argc, char **argv)
                              "}");
         assert(avt->n_aliases == 3);
 
+        assert(!strcmp(avt->rooms[0].name, "nenio"));
         assert(avt->aliases[0].type == PCX_AVT_ALIAS_TYPE_OBJECT);
         assert(!avt->aliases[0].plural);
         assert(avt->aliases[0].index == 0);
