@@ -58,6 +58,8 @@ enum pcx_lexer_token_type {
         PCX_LEXER_TOKEN_TYPE_POINTS,
         PCX_LEXER_TOKEN_TYPE_ATTRIBUTE,
         PCX_LEXER_TOKEN_TYPE_EOF,
+        PCX_LEXER_TOKEN_TYPE_NENIO,
+        PCX_LEXER_TOKEN_TYPE_DIRECTION,
 };
 
 struct pcx_lexer_token {

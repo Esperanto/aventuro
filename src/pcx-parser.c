@@ -25,6 +25,7 @@
 #include "pcx-lexer.h"
 #include "pcx-list.h"
 #include "pcx-buffer.h"
+#include "pcx-avt-hat.h"
 
 struct pcx_error_domain
 pcx_parser_error;
@@ -87,11 +88,19 @@ struct pcx_parser_text {
         char *text;
 };
 
+struct pcx_parser_direction {
+        struct pcx_list link;
+        struct pcx_parser_reference room;
+        char *name;
+        struct pcx_parser_text_reference description;
+};
+
 struct pcx_parser_room {
         struct pcx_parser_target base;
         char *name;
         struct pcx_parser_text_reference description;
         struct pcx_parser_reference movements[PCX_AVT_N_DIRECTIONS];
+        struct pcx_list directions;
         uint32_t attributes;
         long points;
 };
@@ -406,6 +415,48 @@ add_text(struct pcx_parser *parser,
         return text->text;
 }
 
+static bool
+store_text_reference(struct pcx_parser *parser,
+                     struct pcx_parser_text_reference *reference,
+                     bool optional,
+                     struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token =
+                pcx_lexer_get_token(parser->lexer, error);
+        if (token == NULL)
+                return false;
+
+        reference->line_num = pcx_lexer_get_line_num(parser->lexer);
+
+        switch (token->type) {
+        case PCX_LEXER_TOKEN_TYPE_STRING:
+                reference->resolved = true;
+                reference->text = add_text(parser, token->string_value);
+                break;
+        case PCX_LEXER_TOKEN_TYPE_SYMBOL:
+                reference->resolved = false;
+                reference->id = token->symbol_value;
+                break;
+        case PCX_LEXER_TOKEN_TYPE_NENIO:
+                if (optional) {
+                        reference->resolved = false;
+                        reference->id = 0;
+                        break;
+                }
+                /* flow through */
+        default:
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Expected text item%s at line %i",
+                              optional ? " or “nenio”" : "",
+                              pcx_lexer_get_line_num(parser->lexer));
+                return false;
+        }
+
+        return true;
+}
+
 static enum pcx_parser_return
 parse_text_property(struct pcx_parser *parser,
                     const struct pcx_parser_property *prop,
@@ -415,10 +466,6 @@ parse_text_property(struct pcx_parser *parser,
         const struct pcx_lexer_token *token;
 
         check_item_token(parser, prop->prop_token, error);
-
-        token = pcx_lexer_get_token(parser->lexer, error);
-        if (token == NULL)
-                return PCX_PARSER_RETURN_ERROR;
 
         struct pcx_parser_text_reference *field =
                 (struct pcx_parser_text_reference *)
@@ -434,25 +481,11 @@ parse_text_property(struct pcx_parser *parser,
                 return PCX_PARSER_RETURN_ERROR;
         }
 
-        field->line_num = pcx_lexer_get_line_num(parser->lexer);
-
-        switch (token->type) {
-        case PCX_LEXER_TOKEN_TYPE_STRING:
-                field->resolved = true;
-                field->text = add_text(parser, token->string_value);
-                break;
-        case PCX_LEXER_TOKEN_TYPE_SYMBOL:
-                field->resolved = false;
-                field->id = token->symbol_value;
-                break;
-        default:
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Expected text item at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+        if (!store_text_reference(parser,
+                                  field,
+                                  false, /* optional */
+                                  error))
                 return PCX_PARSER_RETURN_ERROR;
-        }
 
         return PCX_PARSER_RETURN_OK;
 }
@@ -604,6 +637,61 @@ room_props[] = {
 };
 
 static enum pcx_parser_return
+parse_direction(struct pcx_parser *parser,
+                struct pcx_parser_room *room,
+                struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_DIRECTION, error);
+
+        struct pcx_parser_direction *direction = pcx_calloc(sizeof *direction);
+        pcx_list_insert(room->directions.prev, &direction->link);
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_STRING,
+                      "Expected direction name",
+                      error);
+
+        direction->name = pcx_strdup(token->string_value);
+
+        int name_len = strlen(direction->name);
+
+        if (name_len > 0 && direction->name[name_len - 1] == 'j')
+                name_len--;
+        if (name_len < 2 ||
+            direction->name[name_len - 1] != 'o' ||
+            !pcx_avt_hat_is_alphabetic_string(direction->name)) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Direction name must be a noun at line %i",
+                              pcx_lexer_get_line_num(parser->lexer));
+                return PCX_PARSER_RETURN_ERROR;
+        }
+
+        name_len--;
+
+        direction->name[name_len] = '\0';
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Expected room name",
+                      error);
+
+        direction->room.symbol = token->symbol_value;
+        direction->room.line_num = pcx_lexer_get_line_num(parser->lexer);
+
+        if (!store_text_reference(parser,
+                                  &direction->description,
+                                  true, /* optional */
+                                  error))
+                return PCX_PARSER_RETURN_ERROR;
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
 parse_room(struct pcx_parser *parser,
            struct pcx_error **error)
 {
@@ -613,6 +701,7 @@ parse_room(struct pcx_parser *parser,
 
         struct pcx_parser_room *room = pcx_calloc(sizeof *room);
         add_target(parser, &parser->rooms, &room->base);
+        pcx_list_init(&room->directions);
 
         if (!assign_symbol(parser,
                            PCX_PARSER_TARGET_TYPE_ROOM,
@@ -643,6 +732,15 @@ parse_room(struct pcx_parser *parser,
                                          PCX_N_ELEMENTS(room_props),
                                          room,
                                          error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                switch (parse_direction(parser, room, error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
                 case PCX_PARSER_RETURN_NOT_MATCHED:
@@ -895,6 +993,61 @@ convert_symbol_to_name(struct pcx_parser *parser,
 }
 
 static bool
+compile_room_directions(struct pcx_parser *parser,
+                        struct pcx_parser_room *room,
+                        struct pcx_avt_room *avt_room,
+                        struct pcx_error **error)
+{
+        size_t n_directions = pcx_list_length(&room->directions);
+
+        if (n_directions == 0)
+                return true;
+
+        avt_room->n_directions = n_directions;
+        avt_room->directions = pcx_calloc(sizeof (struct pcx_avt_direction) *
+                                          n_directions);
+
+        struct pcx_parser_direction *dir;
+        int dir_num = 0;
+
+        pcx_list_for_each(dir, &room->directions, link) {
+                struct pcx_avt_direction *avt_dir =
+                        avt_room->directions + dir_num;
+
+                avt_dir->name = dir->name;
+                dir->name = NULL;
+
+                struct pcx_parser_target *target =
+                        get_symbol_reference(parser, dir->room.symbol);
+
+                if (target == NULL ||
+                    target->type != PCX_PARSER_TARGET_TYPE_ROOM) {
+                        pcx_set_error(error,
+                                      &pcx_parser_error,
+                                      PCX_PARSER_ERROR_INVALID,
+                                      "Invalid room reference on line %i",
+                                      dir->room.line_num);
+                        return false;
+                }
+
+                avt_dir->target = target->num;
+
+                if (text_reference_specified(&dir->description)) {
+                        if (!resolve_text_reference(parser,
+                                                    &dir->description,
+                                                    error))
+                                return false;
+
+                        avt_dir->description = dir->description.text;
+                }
+
+                dir_num++;
+        }
+
+        return true;
+}
+
+static bool
 compile_room_movements(struct pcx_parser *parser,
                         struct pcx_parser_room *room,
                         struct pcx_avt_room *avt_room,
@@ -956,6 +1109,8 @@ compile_room(struct pcx_parser *parser,
         avt_room->attributes = room->attributes;
 
         if (!compile_room_movements(parser, room, avt_room, error))
+                return false;
+        if (!compile_room_directions(parser, room, avt_room, error))
                 return false;
 
         return true;
@@ -1055,6 +1210,13 @@ destroy_rooms(struct pcx_parser *parser)
         struct pcx_parser_room *room, *tmp;
 
         pcx_list_for_each_safe(room, tmp, &parser->rooms, base.link) {
+                struct pcx_parser_direction *dir, *tdir;
+
+                pcx_list_for_each_safe(dir, tdir, &room->directions, link) {
+                        pcx_free(dir->name);
+                        pcx_free(dir);
+                }
+
                 pcx_free(room->name);
                 pcx_free(room);
         }

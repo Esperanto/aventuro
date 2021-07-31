@@ -117,6 +117,7 @@ test_parser_src = [
         'pcx-list.c',
         'pcx-lexer.c',
         'pcx-parser.c',
+        'pcx-avt-hat.c',
 ]
 test_parser = executable('test-parser', test_parser_src,
                          include_directories: configinc)

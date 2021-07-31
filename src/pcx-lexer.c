@@ -89,6 +89,8 @@ symbols[] = {
         { .name = "ludfino", .type = PCX_LEXER_TOKEN_TYPE_GAME_OVER, },
         { .name = "poentoj", .type = PCX_LEXER_TOKEN_TYPE_POINTS, },
         { .name = "eco", .type = PCX_LEXER_TOKEN_TYPE_ATTRIBUTE, },
+        { .name = "nenio", .type = PCX_LEXER_TOKEN_TYPE_NENIO, },
+        { .name = "direkto", .type = PCX_LEXER_TOKEN_TYPE_DIRECTION, },
 };
 
 static int

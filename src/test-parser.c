@@ -242,6 +242,57 @@ fail_checks[] = {
                 "}\n",
                 "Unterminated string sequence at line 3"
         },
+        {
+                BLURB
+                "salono s1 {\n"
+                " direkto potato potato \"potato\"\n"
+                "}\n",
+                "Expected direction name at line 3"
+        },
+        {
+                BLURB
+                "salono s1 {\n"
+                " direkto \"potat\" potato \"potato\"\n"
+                "}\n",
+                "Direction name must be a noun at line 3"
+        },
+        {
+                BLURB
+                "salono s1 {\n"
+                " direkto \"granda potato\" potato \"potato\"\n"
+                "}\n",
+                "Direction name must be a noun at line 3"
+        },
+        {
+                BLURB
+                "salono s1 {\n"
+                " direkto \"\" potato \"potato\"\n"
+                "}\n",
+                "Direction name must be a noun at line 3"
+        },
+        {
+                BLURB
+                "salono s1 {\n"
+                " direkto \"potato\" 3 \"potato\"\n"
+                "}\n",
+                "Expected room name at line 3"
+        },
+        {
+                BLURB
+                "salono s1 {\n"
+                " direkto \"potato\" s2 \"potato\"\n"
+                " priskribo \"j\"\n"
+                "}\n",
+                "Invalid room reference on line 3"
+        },
+        {
+                BLURB
+                "salono s1 {\n"
+                " direkto \"potato\" s1 s3\n"
+                " priskribo \"j\"\n"
+                "}\n",
+                "Invalid text reference at line 3"
+        },
 };
 
 static bool
@@ -453,6 +504,37 @@ main(int argc, char **argv)
         assert(avt->rooms[1].attributes == (1 << 5));
         assert(avt->rooms[1].points == 42);
         assert(avt->rooms[2].attributes == ((1 << 4) | (1 << 5)));
+        pcx_avt_free(avt);
+
+        avt = expect_success(BLURB
+                             "salono vendejaro {\n"
+                             " priskribo \"Multe da vendejoj\"\n"
+                             " direkto \"librejo\" librejo\n"
+                             "         \"Ĝi estas brokanta librejo.\"\n"
+                             " direkto \"gitaroj\" muzikejo nenio\n"
+                             "}\n"
+                             "salono librejo {\n"
+                             " priskribo \"Estas nur 3 libroj aĉeteblaj.\"\n"
+                             " direkto \"koridoro\" vendejaro vendejaro\n"
+                             "}\n"
+                             "salono muzikejo {\n"
+                             " priskribo \"Ĉi tie estas ĉefe gitaroj.\"\n"
+                             "}\n");
+        assert(avt->n_rooms == 3);
+        assert(avt->rooms[0].n_directions == 2);
+        assert(!strcmp(avt->rooms[0].directions[0].name, "librej"));
+        assert(!strcmp(avt->rooms[0].directions[0].description,
+                       "Ĝi estas brokanta librejo."));
+        assert(avt->rooms[0].directions[0].target == 1);
+        assert(!strcmp(avt->rooms[0].directions[1].name, "gitar"));
+        assert(avt->rooms[0].directions[1].description == NULL);
+        assert(avt->rooms[0].directions[1].target == 2);
+        assert(avt->rooms[1].n_directions == 1);
+        assert(!strcmp(avt->rooms[1].directions[0].name, "koridor"));
+        assert(!strcmp(avt->rooms[1].directions[0].description,
+                       "Multe da vendejoj"));
+        assert(avt->rooms[1].directions[0].target == 0);
+        assert(avt->rooms[2].n_directions == 0);
         pcx_avt_free(avt);
 
         return EXIT_SUCCESS;
