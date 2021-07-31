@@ -369,6 +369,39 @@ parse_bool_property(struct pcx_parser *parser,
         return PCX_PARSER_RETURN_OK;
 }
 
+static bool
+get_attribute_num(struct pcx_parser *parser,
+                  struct pcx_parser_attribute_set *set,
+                  unsigned symbol,
+                  int *pos_out,
+                  struct pcx_error **error)
+{
+        size_t n_symbols = set->symbols.length / sizeof (unsigned);
+        const unsigned *symbols = (const unsigned *) set->symbols.data;
+        int pos;
+
+        for (pos = 0; pos < n_symbols; pos++) {
+                if (symbols[pos] == symbol)
+                        goto found;
+        }
+
+        if (n_symbols + 2 > 32) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Too many unique attributes at line %i",
+                              pcx_lexer_get_line_num(parser->lexer));
+                return false;
+        }
+
+        pcx_buffer_append(&set->symbols, &symbol, sizeof symbol);
+
+found:
+        *pos_out = pos + 1;
+
+        return true;
+}
+
 static enum pcx_parser_return
 parse_attribute_property(struct pcx_parser *parser,
                          const struct pcx_parser_property *prop,
@@ -391,35 +424,19 @@ parse_attribute_property(struct pcx_parser *parser,
         struct pcx_parser_attribute_set *set =
                 (struct pcx_parser_attribute_set *)
                 (((uint8_t *) parser) + prop->attribute_set_offset);
-        int pos;
-        size_t n_symbols = set->symbols.length / sizeof (unsigned);
-        const unsigned *symbols = (const unsigned *) set->symbols.data;
 
-        for (pos = 0; pos < n_symbols; pos++) {
-                if (symbols[pos] == token->symbol_value)
-                        goto found;
-        }
+        size_t old_length = set->symbols.length;
+        int num;
 
-        if (n_symbols + 2 > 32) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Too many unique attributes at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+        if (!get_attribute_num(parser, set, token->symbol_value, &num, error))
                 return PCX_PARSER_RETURN_ERROR;
-        }
 
-        assert(prop->value_type == PCX_PARSER_VALUE_TYPE_CUSTOM_ATTRIBUTE);
-
-        pcx_buffer_append(&set->symbols,
-                          &token->symbol_value,
-                          sizeof token->symbol_value);
-
-found: (void) 0;
+        assert(old_length == set->symbols.length ||
+               prop->value_type == PCX_PARSER_VALUE_TYPE_CUSTOM_ATTRIBUTE);
 
         uint32_t *field = (uint32_t *) (((uint8_t *) object) + prop->offset);
 
-        *field |= 1 << ((uint32_t) pos + 1);
+        *field |= 1 << (uint32_t) num;
 
         return PCX_PARSER_RETURN_OK;
 }
