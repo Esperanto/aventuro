@@ -808,6 +808,7 @@ main(int argc, char **argv)
                              "aĵo verda_pilko {\n"
                              "   loko k\n"
                              "   legebla \"IKEA\"\n"
+                             "   eco fermita\n"
                              "   priskribo \"pilkeca\"\n"
                              "}\n");
         assert(avt->n_objects == 5);
@@ -852,6 +853,8 @@ main(int argc, char **argv)
         assert(avt->objects[4].base.description ==
                avt->objects[3].base.description);
         assert(!strcmp(avt->objects[4].read_text, "IKEA"));
+        assert(avt->objects[4].base.attributes ==
+               PCX_AVT_OBJECT_ATTRIBUTE_CLOSED);
 
         pcx_avt_free(avt);
 
