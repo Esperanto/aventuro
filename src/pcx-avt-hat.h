@@ -49,4 +49,10 @@ pcx_avt_hat_iter_next(struct pcx_avt_hat_iter *iter);
 uint32_t
 pcx_avt_hat_to_lower(uint32_t ch);
 
+bool
+pcx_avt_hat_is_alphabetic(uint32_t ch);
+
+bool
+pcx_avt_hat_is_alphabetic_string(const char *str);
+
 #endif /* PCX_AVT_HAT_H */

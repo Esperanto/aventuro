@@ -41,6 +41,43 @@ pcx_avt_hat_to_lower(uint32_t ch)
         return ch;
 }
 
+bool
+pcx_avt_hat_is_alphabetic(uint32_t ch)
+{
+        if ((ch >= 'A' && ch <= 'Z') ||
+            (ch >= 'a' && ch <= 'z'))
+                return true;
+
+        switch (ch) {
+        case 0x0124: /* Ĥ */
+        case 0x015c: /* Ŝ */
+        case 0x011c: /* Ĝ */
+        case 0x0108: /* Ĉ */
+        case 0x0134: /* Ĵ */
+        case 0x016c: /* Ŭ */
+        case 0x0125: /* ĥ */
+        case 0x015d: /* ŝ */
+        case 0x011d: /* ĝ */
+        case 0x0109: /* ĉ */
+        case 0x0135: /* ĵ */
+        case 0x016d: /* ŭ */
+                        return true;
+        }
+
+        return false;
+}
+
+bool
+pcx_avt_hat_is_alphabetic_string(const char *str)
+{
+        while (*str) {
+                if (!pcx_avt_hat_is_alphabetic(pcx_utf8_get_char(str)))
+                        return false;
+                str = pcx_utf8_next(str);
+        }
+
+        return true;
+}
 
 uint32_t
 pcx_avt_hat_iter_next(struct pcx_avt_hat_iter *iter)
