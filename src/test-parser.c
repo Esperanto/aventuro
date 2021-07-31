@@ -752,8 +752,7 @@ main(int argc, char **argv)
         assert(!strcmp(avt->objects[0].base.description, "Ĝi estas skribilo."));
         assert(avt->objects[0].base.pronoun == PCX_AVT_PRONOUN_ANIMAL);
         assert(avt->objects[0].base.attributes ==
-               (PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE |
-                PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE |
+               (PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE |
                 PCX_AVT_OBJECT_ATTRIBUTE_CLOSED |
                 PCX_AVT_OBJECT_ATTRIBUTE_LIGHTABLE |
                 PCX_AVT_OBJECT_ATTRIBUTE_LIT |
@@ -796,6 +795,7 @@ main(int argc, char **argv)
                              "aĵo blua_skatolo {\n"
                              "   kunportata\n"
                              "   ino\n"
+                             "   portebla\n"
                              "   aĵo akra_tranĉilo {\n"
                              "      viro\n"
                              "   }\n"
@@ -820,6 +820,8 @@ main(int argc, char **argv)
         assert(avt->objects[0].base.location_type ==
                PCX_AVT_LOCATION_TYPE_IN_ROOM);
         assert(avt->objects[0].base.location == 0);
+        assert(avt->objects[0].base.attributes ==
+               PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE);
 
         assert(!strcmp(avt->objects[1].base.adjective, "blu"));
         assert(!strcmp(avt->objects[1].base.name, "skatol"));
@@ -827,6 +829,8 @@ main(int argc, char **argv)
         assert(avt->objects[1].base.pronoun == PCX_AVT_PRONOUN_WOMAN);
         assert(avt->objects[1].base.location_type ==
                PCX_AVT_LOCATION_TYPE_CARRYING);
+        assert(avt->objects[1].base.attributes ==
+               PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE);
 
         assert(!strcmp(avt->objects[2].base.adjective, "akr"));
         assert(!strcmp(avt->objects[2].base.name, "tranĉil"));
@@ -854,7 +858,8 @@ main(int argc, char **argv)
                avt->objects[3].base.description);
         assert(!strcmp(avt->objects[4].read_text, "IKEA"));
         assert(avt->objects[4].base.attributes ==
-               PCX_AVT_OBJECT_ATTRIBUTE_CLOSED);
+               (PCX_AVT_OBJECT_ATTRIBUTE_CLOSED |
+                PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE));
 
         pcx_avt_free(avt);
 

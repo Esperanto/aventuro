@@ -952,6 +952,20 @@ object_props[] = {
 };
 
 static enum pcx_parser_return
+parse_unportable(struct pcx_parser *parser,
+                 struct pcx_parser_object *object,
+                 struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_UNPORTABLE, error);
+
+        object->attributes &= ~(uint32_t) PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE;
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
 parse_object(struct pcx_parser *parser,
              unsigned parent_symbol,
              struct pcx_error **error)
@@ -974,6 +988,9 @@ parse_object(struct pcx_parser *parser,
                 object->location.symbol = parent_symbol;
                 object->location.line_num = object->base.line_num;
         }
+
+        /* Objects are portable by default */
+        object->attributes = PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE;
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
@@ -1023,6 +1040,15 @@ parse_object(struct pcx_parser *parser,
                 }
 
                 switch (parse_alias(parser, &object->base, error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                switch (parse_unportable(parser, object, error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
                 case PCX_PARSER_RETURN_NOT_MATCHED:
