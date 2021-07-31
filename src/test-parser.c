@@ -293,6 +293,171 @@ fail_checks[] = {
                 "}\n",
                 "Invalid text reference at line 3"
         },
+        {
+                "aĵo skribilo {\n"
+                " viro\n"
+                " ino\n"
+                "}",
+                "Pronoun already specified at line 3"
+        },
+        {
+                "aĵo\n"
+                " {\n",
+                "Expected object name at line 2"
+        },
+        {
+                "aĵo skribilo\n"
+                " { (\n",
+                "Unexpected character ‘(’ on line 2"
+        },
+        {
+                "aĵo skribilo {\n"
+                " poentoj \"6\" \n"
+                "}\n",
+                "Number expected at line 2"
+        },
+        {
+                "aĵo skribilo {\n"
+                " salono { }\n"
+                "}\n",
+                "Expected object item or ‘}’ at line 2"
+        },
+        {
+                "salono s1 { aĵo skribilo {\n"
+                " salono { }\n"
+                "} }\n",
+                "Expected object item or ‘}’ at line 2"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo ruza_juvelo {\n"
+                "  loko t1\n"
+                "}\n"
+                "teksto t1 \"hi\"\n",
+                "Invalid location reference on line 4"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo ruza_juvelo {\n"
+                "  loko t1\n"
+                "}\n",
+                "Invalid location reference on line 4"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "}\n",
+                "The object name must be an adjective followed by a noun "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝo juvelo\"\n"
+                "}\n",
+                "The object name must be an adjective followed by a noun "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"a juvelo\"\n"
+                "}\n",
+                "The object name must be an adjective followed by a noun "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝa juvel\"\n"
+                "}\n",
+                "The object name must be an adjective followed by a noun "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝa \"\n"
+                "}\n",
+                "The object name must be an adjective followed by a noun "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝaj juvelo\"\n"
+                "}\n",
+                "Object’s adjective and noun don’t have the same plurality "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝaj &juveloj\"\n"
+                "}\n",
+                "The object name must be an adjective followed by a noun "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝaj juveloj\"\n"
+                "  besto\n"
+                "}\n",
+                "Object has a plural name but a non-plural pronoun "
+                "at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝaj juveloj\"\n"
+                "  priskribo t\n"
+                "}\n",
+                "Invalid text reference at line 5"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo juvelo {\n"
+                "  nomo \"ruĝaj juveloj\"\n"
+                "  legebla t\n"
+                "}\n",
+                "Invalid text reference at line 5"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo ruĝa_juvelo {\n"
+                "   enen t\n"
+                "}\n",
+                "Invalid room reference on line 4"
+        },
+        {
+                BLURB
+                "salono s1 {\n"
+                "  priskribo \"j\"\n"
+                "  aĵo ruĝa_juvelo {\n"
+                "    kunportata\n"
+                "  }\n"
+                "}\n",
+                "Object is marked as carried but it also has a location "
+                "at line 4"
+        },
+        {
+                "aĵo a { aĵo b{",
+                "Expected object item or ‘}’ at line 1"
+        },
 };
 
 static bool
@@ -535,6 +700,147 @@ main(int argc, char **argv)
                        "Multe da vendejoj"));
         assert(avt->rooms[1].directions[0].target == 0);
         assert(avt->rooms[2].n_directions == 0);
+        pcx_avt_free(avt);
+
+        avt = expect_success(BLURB
+                             "salono j { priskribo \"j\" }\n"
+                             "aĵo skribilo {\n"
+                             "   priskribo \"Ĝi estas skribilo.\"\n"
+                             "   nomo \"blua skribilo\"\n"
+                             "   besto\n"
+                             "   poentoj 1\n"
+                             "   pezo 2\n"
+                             "   grando 3\n"
+                             "   enhavo 4\n"
+                             "   perpafi 5\n"
+                             "   ŝargo 6\n"
+                             "   perbati 7\n"
+                             "   perpiki 8\n"
+                             "   manĝeblo 9\n"
+                             "   trinkeblo 10\n"
+                             "   fajrodaŭro 11\n"
+                             "   fino 12\n"
+                             "   neportebla\n"
+                             "   fermebla\n"
+                             "   fermita\n"
+                             "   lumigebla\n"
+                             "   lumigita\n"
+                             "   fajrebla\n"
+                             "   fajrilo\n"
+                             "   brulanta\n"
+                             "   bruligita\n"
+                             "   manĝebla\n"
+                             "   trinkebla\n"
+                             "   venena\n"
+                             "   eco bloba\n"
+                             "}\n");
+        assert(avt->n_objects == 1);
+        assert(!strcmp(avt->objects[0].base.adjective, "blu"));
+        assert(!strcmp(avt->objects[0].base.name, "skribil"));
+        assert(!strcmp(avt->objects[0].base.description, "Ĝi estas skribilo."));
+        assert(avt->objects[0].base.pronoun == PCX_AVT_PRONOUN_ANIMAL);
+        assert(avt->objects[0].base.attributes ==
+               (PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE |
+                PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE |
+                PCX_AVT_OBJECT_ATTRIBUTE_CLOSED |
+                PCX_AVT_OBJECT_ATTRIBUTE_LIGHTABLE |
+                PCX_AVT_OBJECT_ATTRIBUTE_LIT |
+                PCX_AVT_OBJECT_ATTRIBUTE_FLAMMABLE |
+                PCX_AVT_OBJECT_ATTRIBUTE_LIGHTER |
+                PCX_AVT_OBJECT_ATTRIBUTE_BURNING |
+                PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT |
+                PCX_AVT_OBJECT_ATTRIBUTE_EDIBLE |
+                PCX_AVT_OBJECT_ATTRIBUTE_DRINKABLE |
+                PCX_AVT_OBJECT_ATTRIBUTE_POISONOUS |
+                (1 << 13)));
+        assert(avt->objects[0].points == 1);
+        assert(avt->objects[0].weight == 2);
+        assert(avt->objects[0].size == 3);
+        assert(avt->objects[0].container_size == 4);
+        assert(avt->objects[0].shot_damage == 5);
+        assert(avt->objects[0].shots == 6);
+        assert(avt->objects[0].hit_damage == 7);
+        assert(avt->objects[0].stab_damage == 8);
+        assert(avt->objects[0].food_points == 9);
+        assert(avt->objects[0].trink_points == 10);
+        assert(avt->objects[0].burn_time == 11);
+        assert(avt->objects[0].end == 12);
+        assert(avt->objects[0].enter_room == PCX_AVT_DIRECTION_BLOCKED);
+        assert(avt->objects[0].base.location_type ==
+               PCX_AVT_LOCATION_TYPE_NOWHERE);
+        assert(avt->objects[0].read_text == NULL);
+        pcx_avt_free(avt);
+
+        avt = expect_success(BLURB
+                             "salono j {\n"
+                             "   priskribo \"j\"\n"
+                             "   aĵo zingebraj_rizeroj {\n"
+                             "      pluralo\n"
+                             "   }\n"
+                             "}\n"
+                             "salono k {\n"
+                             "   priskribo \"k\"\n"
+                             "}\n"
+                             "aĵo blua_skatolo {\n"
+                             "   kunportata\n"
+                             "   ino\n"
+                             "   aĵo akra_tranĉilo {\n"
+                             "      viro\n"
+                             "   }\n"
+                             "}\n"
+                             "aĵo ruĝa_pilko {\n"
+                             "   loko blua_skatolo\n"
+                             "   priskribo verda_pilko\n"
+                             "   enen k\n"
+                             "}\n"
+                             "aĵo verda_pilko {\n"
+                             "   loko k\n"
+                             "   legebla \"IKEA\"\n"
+                             "   priskribo \"pilkeca\"\n"
+                             "}\n");
+        assert(avt->n_objects == 5);
+
+        assert(!strcmp(avt->objects[0].base.adjective, "zingebr"));
+        assert(!strcmp(avt->objects[0].base.name, "rizer"));
+        assert(avt->objects[0].base.description == NULL);
+        assert(avt->objects[0].base.pronoun == PCX_AVT_PRONOUN_PLURAL);
+        assert(avt->objects[0].base.location_type ==
+               PCX_AVT_LOCATION_TYPE_IN_ROOM);
+        assert(avt->objects[0].base.location == 0);
+
+        assert(!strcmp(avt->objects[1].base.adjective, "blu"));
+        assert(!strcmp(avt->objects[1].base.name, "skatol"));
+        assert(avt->objects[1].base.description == NULL);
+        assert(avt->objects[1].base.pronoun == PCX_AVT_PRONOUN_WOMAN);
+        assert(avt->objects[1].base.location_type ==
+               PCX_AVT_LOCATION_TYPE_CARRYING);
+
+        assert(!strcmp(avt->objects[2].base.adjective, "akr"));
+        assert(!strcmp(avt->objects[2].base.name, "tranĉil"));
+        assert(avt->objects[2].base.description == NULL);
+        assert(avt->objects[2].base.pronoun == PCX_AVT_PRONOUN_MAN);
+        assert(avt->objects[2].base.location_type ==
+               PCX_AVT_LOCATION_TYPE_IN_OBJECT);
+        assert(avt->objects[2].base.location == 1);
+
+        assert(!strcmp(avt->objects[3].base.adjective, "ruĝ"));
+        assert(!strcmp(avt->objects[3].base.name, "pilk"));
+        assert(avt->objects[3].base.pronoun == PCX_AVT_PRONOUN_ANIMAL);
+        assert(avt->objects[3].base.location_type ==
+               PCX_AVT_LOCATION_TYPE_IN_OBJECT);
+        assert(avt->objects[3].base.location == 1);
+        assert(!strcmp(avt->objects[3].base.description, "pilkeca"));
+        assert(avt->objects[3].enter_room == 1);
+
+        assert(!strcmp(avt->objects[4].base.adjective, "verd"));
+        assert(!strcmp(avt->objects[4].base.name, "pilk"));
+        assert(avt->objects[4].base.location_type ==
+               PCX_AVT_LOCATION_TYPE_IN_ROOM);
+        assert(avt->objects[4].base.location == 1);
+        assert(avt->objects[4].base.description ==
+               avt->objects[3].base.description);
+        assert(!strcmp(avt->objects[4].read_text, "IKEA"));
+
         pcx_avt_free(avt);
 
         return EXIT_SUCCESS;

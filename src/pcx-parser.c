@@ -21,6 +21,7 @@
 #include "pcx-parser.h"
 
 #include <string.h>
+#include <assert.h>
 
 #include "pcx-lexer.h"
 #include "pcx-list.h"
@@ -46,8 +47,10 @@ struct pcx_parser {
         struct pcx_lexer *lexer;
         struct pcx_buffer symbols;
         struct pcx_list rooms;
+        struct pcx_list objects;
         struct pcx_list texts;
         struct pcx_parser_attribute_set room_attributes;
+        struct pcx_parser_attribute_set object_attributes;
         struct pcx_buffer tmp_buf;
 
         char *game_name;
@@ -64,6 +67,7 @@ struct pcx_parser_reference {
 enum pcx_parser_target_type {
         PCX_PARSER_TARGET_TYPE_ROOM,
         PCX_PARSER_TARGET_TYPE_TEXT,
+        PCX_PARSER_TARGET_TYPE_OBJECT,
 };
 
 struct pcx_parser_target {
@@ -105,6 +109,35 @@ struct pcx_parser_room {
         long points;
 };
 
+struct pcx_parser_pronoun {
+        bool specified;
+        enum pcx_avt_pronoun value;
+};
+
+struct pcx_parser_object {
+        struct pcx_parser_target base;
+        char *name;
+        struct pcx_parser_text_reference description;
+        struct pcx_parser_text_reference read_text;
+        struct pcx_parser_reference location;
+        bool carrying;
+        struct pcx_parser_reference into;
+        uint32_t attributes;
+        long points;
+        long weight;
+        long size;
+        long container_size;
+        long shot_damage;
+        long shots;
+        long hit_damage;
+        long stab_damage;
+        long food_points;
+        long trink_points;
+        long burn_time;
+        long end;
+        struct pcx_parser_pronoun pronoun;
+};
+
 enum pcx_parser_value_type {
         PCX_PARSER_VALUE_TYPE_STRING,
         PCX_PARSER_VALUE_TYPE_TEXT,
@@ -112,6 +145,8 @@ enum pcx_parser_value_type {
         PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
         PCX_PARSER_VALUE_TYPE_CUSTOM_ATTRIBUTE,
         PCX_PARSER_VALUE_TYPE_INT,
+        PCX_PARSER_VALUE_TYPE_BOOL,
+        PCX_PARSER_VALUE_TYPE_PRONOUN,
 };
 
 struct pcx_parser_property {
@@ -130,6 +165,7 @@ struct pcx_parser_property {
 
 typedef enum pcx_parser_return
 (* item_parse_func)(struct pcx_parser *parser,
+                    unsigned parent_symbol,
                     struct pcx_error **error);
 
 #define check_item_token(parser, token_type, error)                     \
@@ -281,6 +317,23 @@ parse_int_property(struct pcx_parser *parser,
         }
 
         *field = token->number_value;
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
+parse_bool_property(struct pcx_parser *parser,
+                    const struct pcx_parser_property *prop,
+                    void *object,
+                    struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_token(parser, prop->prop_token, error);
+
+        bool *field = (bool *) (((uint8_t *) object) + prop->offset);
+
+        *field = true;
 
         return PCX_PARSER_RETURN_OK;
 }
@@ -491,6 +544,54 @@ parse_text_property(struct pcx_parser *parser,
 }
 
 static enum pcx_parser_return
+parse_pronoun_property(struct pcx_parser *parser,
+                       const struct pcx_parser_property *prop,
+                       void *object,
+                       struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token =
+                pcx_lexer_get_token(parser->lexer, error);
+
+        if (token == NULL)
+                return PCX_PARSER_RETURN_ERROR;
+
+        struct pcx_parser_pronoun *field =
+                (struct pcx_parser_pronoun *)
+                (((uint8_t *) object) + prop->offset);
+
+        switch (token->type) {
+        case PCX_LEXER_TOKEN_TYPE_MAN:
+                field->value = PCX_AVT_PRONOUN_MAN;
+                break;
+        case PCX_LEXER_TOKEN_TYPE_WOMAN:
+                field->value = PCX_AVT_PRONOUN_WOMAN;
+                break;
+        case PCX_LEXER_TOKEN_TYPE_ANIMAL:
+                field->value = PCX_AVT_PRONOUN_ANIMAL;
+                break;
+        case PCX_LEXER_TOKEN_TYPE_PLURAL:
+                field->value = PCX_AVT_PRONOUN_PLURAL;
+                break;
+        default:
+                pcx_lexer_put_token(parser->lexer);
+                return PCX_PARSER_RETURN_NOT_MATCHED;
+        }
+
+        if (field->specified) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Pronoun already specified at line %i",
+                              pcx_lexer_get_line_num(parser->lexer));
+                return PCX_PARSER_RETURN_ERROR;
+        }
+
+        field->specified = true;
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
 parse_properties(struct pcx_parser *parser,
                  const struct pcx_parser_property *props,
                  size_t n_props,
@@ -537,6 +638,18 @@ parse_properties(struct pcx_parser *parser,
                                                  object,
                                                  error);
                         break;
+                case PCX_PARSER_VALUE_TYPE_BOOL:
+                        ret = parse_bool_property(parser,
+                                                  props + i,
+                                                  object,
+                                                  error);
+                        break;
+                case PCX_PARSER_VALUE_TYPE_PRONOUN:
+                        ret = parse_pronoun_property(parser,
+                                                     props + i,
+                                                     object,
+                                                     error);
+                        break;
                 }
 
                 if (ret != PCX_PARSER_RETURN_NOT_MATCHED)
@@ -544,6 +657,299 @@ parse_properties(struct pcx_parser *parser,
         }
 
         return PCX_PARSER_RETURN_NOT_MATCHED;
+}
+
+static enum pcx_parser_return
+parse_items(struct pcx_parser *parser,
+            const item_parse_func *funcs,
+            size_t n_funcs,
+            unsigned parent_symbol,
+            struct pcx_error **error)
+{
+        for (unsigned i = 0; i < n_funcs; i++) {
+                enum pcx_parser_return ret =
+                        funcs[i](parser, parent_symbol, error);
+
+                if (ret != PCX_PARSER_RETURN_NOT_MATCHED)
+                        return ret;
+        }
+
+        return PCX_PARSER_RETURN_NOT_MATCHED;
+}
+
+static const struct pcx_parser_property
+object_props[] = {
+        {
+                offsetof(struct pcx_parser_object, name),
+                PCX_PARSER_VALUE_TYPE_STRING,
+                PCX_LEXER_TOKEN_TYPE_NAME,
+                "Object already has a name",
+        },
+        {
+                offsetof(struct pcx_parser_object, description),
+                PCX_PARSER_VALUE_TYPE_TEXT,
+                PCX_LEXER_TOKEN_TYPE_DESCRIPTION,
+                "Object already has a description",
+        },
+        {
+                offsetof(struct pcx_parser_object, read_text),
+                PCX_PARSER_VALUE_TYPE_TEXT,
+                PCX_LEXER_TOKEN_TYPE_LEGIBLE,
+                "Object already has read text",
+        },
+        {
+                offsetof(struct pcx_parser_object, points),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_POINTS,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, weight),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_WEIGHT,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, size),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_SIZE,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, container_size),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_CONTAINER_SIZE,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, shot_damage),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_SHOT_DAMAGE,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, shots),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_SHOTS,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, hit_damage),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_HIT_DAMAGE,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, stab_damage),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_STAB_DAMAGE,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, food_points),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_FOOD_POINTS,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, trink_points),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_TRINK_POINTS,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, burn_time),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_BURN_TIME,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, end),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_TOKEN_TYPE_END,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_CUSTOM_ATTRIBUTE,
+                .attribute_set_offset =
+                offsetof(struct pcx_parser, object_attributes),
+        },
+        {
+                offsetof(struct pcx_parser_object, into),
+                PCX_PARSER_VALUE_TYPE_REFERENCE,
+                PCX_LEXER_TOKEN_TYPE_INTO,
+                "Object already has an into direction",
+        },
+        {
+                offsetof(struct pcx_parser_object, location),
+                PCX_PARSER_VALUE_TYPE_REFERENCE,
+                PCX_LEXER_TOKEN_TYPE_LOCATION,
+                "Object already has a location",
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_PORTABLE,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_CLOSABLE,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_CLOSABLE,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_CLOSED,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_CLOSED,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_LIGHTABLE,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_LIGHTABLE,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_OBJECT_LIT,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_LIT,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_FLAMMABLE,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_FLAMMABLE,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_LIGHTER,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_LIGHTER,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_BURNING,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_BURNING,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_BURNT_OUT,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_BURNT_OUT,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_EDIBLE,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_EDIBLE,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_DRINKABLE,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_DRINKABLE,
+        },
+        {
+                offsetof(struct pcx_parser_object, attributes),
+                PCX_PARSER_VALUE_TYPE_ATTRIBUTE,
+                PCX_LEXER_TOKEN_TYPE_POISONOUS,
+                .attribute_value = PCX_AVT_OBJECT_ATTRIBUTE_POISONOUS,
+        },
+        {
+                offsetof(struct pcx_parser_object, carrying),
+                PCX_PARSER_VALUE_TYPE_BOOL,
+                PCX_LEXER_TOKEN_TYPE_CARRYING,
+        },
+        {
+                offsetof(struct pcx_parser_object, pronoun),
+                PCX_PARSER_VALUE_TYPE_PRONOUN,
+        },
+};
+
+static enum pcx_parser_return
+parse_object(struct pcx_parser *parser,
+             unsigned parent_symbol,
+             struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_token(parser, PCX_LEXER_TOKEN_TYPE_OBJECT, error);
+
+        struct pcx_parser_object *object = pcx_calloc(sizeof *object);
+        add_target(parser, &parser->objects, &object->base);
+
+        if (!assign_symbol(parser,
+                           PCX_PARSER_TARGET_TYPE_OBJECT,
+                           &object->base,
+                           "Expected object name",
+                           error))
+                return PCX_PARSER_RETURN_ERROR;
+
+        if (parent_symbol) {
+                object->location.symbol = parent_symbol;
+                object->location.line_num = object->base.line_num;
+        }
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
+                      "Expected ‘{’",
+                      error);
+
+        while (true) {
+                const struct pcx_lexer_token *token =
+                        pcx_lexer_get_token(parser->lexer, error);
+
+                if (token == NULL)
+                        return PCX_PARSER_RETURN_ERROR;
+
+                if (token->type == PCX_LEXER_TOKEN_TYPE_CLOSE_BRACKET)
+                        break;
+
+                pcx_lexer_put_token(parser->lexer);
+
+                switch (parse_properties(parser,
+                                         object_props,
+                                         PCX_N_ELEMENTS(object_props),
+                                         object,
+                                         error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                static const item_parse_func funcs[] = {
+                        parse_object,
+                };
+
+                switch (parse_items(parser,
+                                    funcs,
+                                    PCX_N_ELEMENTS(funcs),
+                                    object->base.id, /* parent_symbol */
+                                    error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Expected object item or ‘}’ at line %i",
+                              pcx_lexer_get_line_num(parser->lexer));
+                return PCX_PARSER_RETURN_ERROR;
+        }
+
+        return PCX_PARSER_RETURN_OK;
 }
 
 static const struct pcx_parser_property
@@ -693,8 +1099,11 @@ parse_direction(struct pcx_parser *parser,
 
 static enum pcx_parser_return
 parse_room(struct pcx_parser *parser,
+           unsigned parent_symbol,
            struct pcx_error **error)
 {
+        assert(parent_symbol == 0);
+
         const struct pcx_lexer_token *token;
 
         check_item_token(parser, PCX_LEXER_TOKEN_TYPE_ROOM, error);
@@ -740,6 +1149,23 @@ parse_room(struct pcx_parser *parser,
                         return PCX_PARSER_RETURN_ERROR;
                 }
 
+                static const item_parse_func funcs[] = {
+                        parse_object,
+                };
+
+                switch (parse_items(parser,
+                                    funcs,
+                                    PCX_N_ELEMENTS(funcs),
+                                    room->base.id, /* parent_symbol */
+                                    error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
                 switch (parse_direction(parser, room, error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
@@ -762,8 +1188,11 @@ parse_room(struct pcx_parser *parser,
 
 static enum pcx_parser_return
 parse_text(struct pcx_parser *parser,
+           unsigned parent_symbol,
            struct pcx_error **error)
 {
+        assert(parent_symbol == 0);
+
         const struct pcx_lexer_token *token;
 
         check_item_token(parser, PCX_LEXER_TOKEN_TYPE_TEXT, error);
@@ -835,17 +1264,20 @@ parse_file(struct pcx_parser *parser,
                 static const item_parse_func funcs[] = {
                         parse_room,
                         parse_text,
+                        parse_object,
                 };
 
-                for (unsigned i = 0; i < PCX_N_ELEMENTS(funcs); i++) {
-                        switch (funcs[i](parser, error)) {
-                        case PCX_PARSER_RETURN_OK:
-                                goto found;
-                        case PCX_PARSER_RETURN_NOT_MATCHED:
-                                break;
-                        case PCX_PARSER_RETURN_ERROR:
-                                return false;
-                        }
+                switch (parse_items(parser,
+                                    funcs,
+                                    PCX_N_ELEMENTS(funcs),
+                                    0, /* parent_symbol */
+                                    error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return false;
                 }
 
                 switch (parse_properties(parser,
@@ -867,9 +1299,6 @@ parse_file(struct pcx_parser *parser,
                               "Expected toplevel item at line %i",
                               pcx_lexer_get_line_num(parser->lexer));
                 return false;
-
-        found:
-                continue;
         }
 
         return true;
@@ -941,6 +1370,11 @@ resolve_text_reference(struct pcx_parser *parser,
                 case PCX_PARSER_TARGET_TYPE_ROOM:
                         ref = &pcx_container_of(target,
                                                 struct pcx_parser_room,
+                                                base)->description;
+                        continue;
+                case PCX_PARSER_TARGET_TYPE_OBJECT:
+                        ref = &pcx_container_of(target,
+                                                struct pcx_parser_object,
                                                 base)->description;
                         continue;
                 case PCX_PARSER_TARGET_TYPE_TEXT:
@@ -1117,6 +1551,231 @@ compile_room(struct pcx_parser *parser,
 }
 
 static bool
+compile_movable_location(struct pcx_parser *parser,
+                         struct pcx_avt_movable *movable,
+                         struct pcx_parser_reference *ref,
+                         struct pcx_error **error)
+{
+        if (ref->symbol == 0) {
+                movable->location_type = PCX_AVT_LOCATION_TYPE_NOWHERE;
+                return true;
+        }
+
+        struct pcx_parser_target *target =
+                get_symbol_reference(parser, ref->symbol);
+
+        if (target == NULL)
+                goto error;
+
+        switch (target->type) {
+        case PCX_PARSER_TARGET_TYPE_ROOM:
+                movable->location_type = PCX_AVT_LOCATION_TYPE_IN_ROOM;
+                movable->location = target->num;
+                return true;
+        case PCX_PARSER_TARGET_TYPE_OBJECT:
+                movable->location_type = PCX_AVT_LOCATION_TYPE_IN_OBJECT;
+                movable->location = target->num;
+                return true;
+        case PCX_PARSER_TARGET_TYPE_TEXT:
+                break;
+        }
+
+error:
+        pcx_set_error(error,
+                      &pcx_parser_error,
+                      PCX_PARSER_ERROR_INVALID,
+                      "Invalid location reference on line %i",
+                      ref->line_num);
+        return false;
+}
+
+static bool
+compile_movable_name(struct pcx_parser *parser,
+                     struct pcx_avt_movable *movable,
+                     struct pcx_parser_pronoun *pronoun,
+                     int line_num,
+                     unsigned name_symbol,
+                     const char *name_str,
+                     struct pcx_error **error)
+{
+        char *name;
+
+        if (name_str == NULL)
+                name = convert_symbol_to_name(parser, name_symbol);
+        else
+                name = pcx_strdup(name_str);
+
+        char *space = strchr(name, ' ');
+
+        if (space == NULL)
+                goto error;
+
+        char *adjective = name;
+        char *noun = space + 1;
+
+        bool adjective_plural = false, noun_plural = false;
+
+        int adjective_len = space - name;
+
+        if (adjective_len >= 1 && adjective[adjective_len - 1] == 'j') {
+                adjective_len--;
+                adjective_plural = true;
+        }
+        if (adjective_len <= 2 || adjective[adjective_len - 1] != 'a')
+                goto error;
+        adjective[--adjective_len] = '\0';
+
+        int noun_len = strlen(noun);
+
+        if (noun_len >= 1 && noun[noun_len - 1] == 'j') {
+                noun_len--;
+                noun_plural = true;
+        }
+        if (noun_len <= 2 || noun[noun_len - 1] != 'o')
+                goto error;
+        noun[--noun_len] = '\0';
+
+        if (!pcx_avt_hat_is_alphabetic_string(noun) ||
+            !pcx_avt_hat_is_alphabetic_string(adjective))
+                goto error;
+
+        movable->name = pcx_strdup(noun);
+        movable->adjective = pcx_strdup(adjective);
+        pcx_free(name);
+
+        if (adjective_plural != noun_plural) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Object’s adjective and noun don’t have the "
+                              "same plurality at line %i",
+                              line_num);
+                return false;
+        }
+
+        if (noun_plural) {
+                if (pronoun->specified &&
+                    pronoun->value != PCX_AVT_PRONOUN_PLURAL) {
+                        pcx_set_error(error,
+                                      &pcx_parser_error,
+                                      PCX_PARSER_ERROR_INVALID,
+                                      "Object has a plural name but a "
+                                      "non-plural pronoun at line %i",
+                                      line_num);
+                        return false;
+                }
+
+                pronoun->specified = true;
+                pronoun->value = PCX_AVT_PRONOUN_PLURAL;
+        }
+
+        return true;
+
+error:
+        pcx_free(name);
+
+        pcx_set_error(error,
+                      &pcx_parser_error,
+                      PCX_PARSER_ERROR_INVALID,
+                      "The object name must be an adjective followed by a noun "
+                      "at line %i",
+                      line_num);
+        return false;
+}
+
+static bool
+compile_object(struct pcx_parser *parser,
+               struct pcx_parser_object *object,
+               struct pcx_avt_object *avt_object,
+               struct pcx_error **error)
+{
+        if (text_reference_specified(&object->description)) {
+                if (!resolve_text_reference(parser,
+                                            &object->description,
+                                            error))
+                        return false;
+
+                avt_object->base.description = object->description.text;
+        }
+
+        if (text_reference_specified(&object->read_text)) {
+                if (!resolve_text_reference(parser, &object->read_text, error))
+                        return false;
+
+                avt_object->read_text = object->read_text.text;
+        }
+
+        if (object->into.symbol == 0) {
+                avt_object->enter_room = PCX_AVT_DIRECTION_BLOCKED;
+        } else {
+                struct pcx_parser_target *target =
+                        get_symbol_reference(parser, object->into.symbol);
+
+                if (target == NULL ||
+                    target->type != PCX_PARSER_TARGET_TYPE_ROOM) {
+                        pcx_set_error(error,
+                                      &pcx_parser_error,
+                                      PCX_PARSER_ERROR_INVALID,
+                                      "Invalid room reference on line %i",
+                                      object->into.line_num);
+                        return false;
+                }
+
+                avt_object->enter_room = target->num;
+        }
+
+        if (object->carrying && object->location.symbol) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Object is marked as carried but it also has a "
+                              "location at line %i",
+                              object->base.line_num);
+                return false;
+        }
+
+        if (object->carrying) {
+                avt_object->base.location_type = PCX_AVT_LOCATION_TYPE_CARRYING;
+        } else if (!compile_movable_location(parser,
+                                             &avt_object->base,
+                                             &object->location,
+                                             error)) {
+                return false;
+        }
+
+        if (!compile_movable_name(parser,
+                                  &avt_object->base,
+                                  &object->pronoun,
+                                  object->base.line_num,
+                                  object->base.id,
+                                  object->name,
+                                  error))
+                return false;
+
+        avt_object->base.attributes = object->attributes;
+
+        avt_object->points = object->points;
+        avt_object->weight = object->weight;
+        avt_object->size = object->size;
+        avt_object->shot_damage = object->shot_damage;
+        avt_object->shots = object->shots;
+        avt_object->hit_damage = object->hit_damage;
+        avt_object->stab_damage = object->stab_damage;
+        avt_object->food_points = object->food_points;
+        avt_object->trink_points = object->trink_points;
+        avt_object->burn_time = object->burn_time;
+        avt_object->end = object->end;
+        avt_object->container_size = object->container_size;
+
+        if (object->pronoun.specified)
+                avt_object->base.pronoun = object->pronoun.value;
+        else
+                avt_object->base.pronoun = PCX_AVT_PRONOUN_ANIMAL;
+
+        return true;
+}
+
+static bool
 compile_info(struct pcx_parser *parser,
              struct pcx_avt *avt,
              struct pcx_error **error)
@@ -1192,6 +1851,22 @@ compile_file(struct pcx_parser *parser,
                 room_num++;
         }
 
+        avt->n_objects = pcx_list_length(&parser->objects);
+        avt->objects = pcx_calloc(sizeof (struct pcx_avt_object) *
+                                  avt->n_objects);
+
+        struct pcx_parser_object *object;
+        int object_num = 0;
+
+        pcx_list_for_each(object, &parser->objects, base.link) {
+                if (!compile_object(parser,
+                                    object,
+                                    avt->objects + object_num, error))
+                        return false;
+
+                object_num++;
+        }
+
         avt->n_strings = pcx_list_length(&parser->texts);
         avt->strings = pcx_alloc(sizeof (char *) * avt->n_strings);
 
@@ -1223,6 +1898,17 @@ destroy_rooms(struct pcx_parser *parser)
 }
 
 static void
+destroy_objects(struct pcx_parser *parser)
+{
+        struct pcx_parser_object *object, *tmp;
+
+        pcx_list_for_each_safe(object, tmp, &parser->objects, base.link) {
+                pcx_free(object->name);
+                pcx_free(object);
+        }
+}
+
+static void
 destroy_texts(struct pcx_parser *parser)
 {
         struct pcx_parser_text *text, *tmp;
@@ -1237,6 +1923,7 @@ static void
 destroy_parser(struct pcx_parser *parser)
 {
         destroy_rooms(parser);
+        destroy_objects(parser);
         destroy_texts(parser);
 
         pcx_free(parser->game_name);
@@ -1245,6 +1932,7 @@ destroy_parser(struct pcx_parser *parser)
         pcx_free(parser->game_intro);
 
         pcx_buffer_destroy(&parser->room_attributes.symbols);
+        pcx_buffer_destroy(&parser->object_attributes.symbols);
 
         pcx_buffer_destroy(&parser->symbols);
 
@@ -1260,10 +1948,13 @@ pcx_parser_parse(struct pcx_source *source,
         };
 
         pcx_list_init(&parser.rooms);
+        pcx_list_init(&parser.objects);
         pcx_list_init(&parser.texts);
         pcx_buffer_init(&parser.symbols);
         pcx_buffer_init(&parser.room_attributes.symbols);
         parser.room_attributes.base_value = 4;
+        pcx_buffer_init(&parser.object_attributes.symbols);
+        parser.object_attributes.base_value = 13;
         pcx_buffer_init(&parser.tmp_buf);
 
         bool ret = parse_file(&parser, error);
