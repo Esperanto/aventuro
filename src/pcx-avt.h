@@ -220,12 +220,21 @@ struct pcx_avt_room {
         uint32_t attributes;
 };
 
+enum pcx_avt_rule_subject {
+        PCX_AVT_RULE_SUBJECT_ROOM,
+        PCX_AVT_RULE_SUBJECT_OBJECT,
+        PCX_AVT_RULE_SUBJECT_TOOL,
+        PCX_AVT_RULE_SUBJECT_MONSTER,
+};
+
 struct pcx_avt_condition_data {
+        enum pcx_avt_rule_subject subject;
         enum pcx_avt_condition condition;
         uint8_t data;
 };
 
 struct pcx_avt_action_data {
+        enum pcx_avt_rule_subject subject;
         enum pcx_avt_action action;
         uint8_t data;
 };
@@ -238,14 +247,10 @@ struct pcx_avt_rule {
 
         uint8_t points;
 
-        struct pcx_avt_condition_data room_condition;
-        struct pcx_avt_condition_data object_condition;
-        struct pcx_avt_condition_data tool_condition;
-        struct pcx_avt_condition_data monster_condition;
-        struct pcx_avt_action_data room_action;
-        struct pcx_avt_action_data object_action;
-        struct pcx_avt_action_data tool_action;
-        struct pcx_avt_action_data monster_action;
+        unsigned n_conditions;
+        struct pcx_avt_condition_data *conditions;
+        unsigned n_actions;
+        struct pcx_avt_action_data *actions;
 };
 
 enum pcx_avt_alias_type {

@@ -1170,60 +1170,80 @@ run_rules(struct pcx_avt_state *state,
                 if (!pcx_avt_command_word_equal(verb, rule->verb))
                         continue;
 
-                if (check_condition(state,
-                                    &rule->room_condition,
-                                    command_object,
-                                    room) &&
-                    check_condition(state,
-                                    &rule->object_condition,
-                                    object,
-                                    room) &&
-                    check_condition(state,
-                                    &rule->tool_condition,
-                                    tool,
-                                    room) &&
-                    check_condition(state,
-                                    &rule->monster_condition,
-                                    monster,
-                                    room)) {
-                        state->rule_recursion_depth++;
+                for (unsigned c = 0; c < rule->n_conditions; c++) {
+                        const struct pcx_avt_condition_data *cond =
+                                rule->conditions + c;
+                        struct pcx_avt_state_movable *subject = NULL;
 
-                        if (rule->text) {
-                                send_rule_message(state,
-                                                  rule->text,
-                                                  object,
-                                                  monster,
-                                                  tool,
-                                                  state->current_room == room);
+                        switch (cond->subject) {
+                        case PCX_AVT_RULE_SUBJECT_ROOM:
+                                subject = command_object;
+                                break;
+                        case PCX_AVT_RULE_SUBJECT_OBJECT:
+                                subject = object;
+                                break;
+                        case PCX_AVT_RULE_SUBJECT_TOOL:
+                                subject = tool;
+                                break;
+                        case PCX_AVT_RULE_SUBJECT_MONSTER:
+                                subject = monster;
+                                break;
+                        }
+
+                        if (!check_condition(state,
+                                             cond,
+                                             subject,
+                                             room))
+                                goto skip;
+                }
+
+                state->rule_recursion_depth++;
+
+                if (rule->text) {
+                        send_rule_message(state,
+                                          rule->text,
+                                          object,
+                                          monster,
+                                          tool,
+                                          state->current_room == room);
+                }
+
+                for (unsigned a = 0; a < rule->n_actions; a++) {
+                        const struct pcx_avt_action_data *act =
+                                rule->actions + a;
+                        struct pcx_avt_state_movable *subject = NULL;
+
+                        switch (act->subject) {
+                        case PCX_AVT_RULE_SUBJECT_ROOM:
+                                subject = command_object;
+                                break;
+                        case PCX_AVT_RULE_SUBJECT_OBJECT:
+                                subject = object;
+                                break;
+                        case PCX_AVT_RULE_SUBJECT_TOOL:
+                                subject = tool;
+                                break;
+                        case PCX_AVT_RULE_SUBJECT_MONSTER:
+                                subject = monster;
+                                break;
                         }
 
                         execute_action(state,
-                                       &rule->room_action,
-                                       true, /* is_room */
-                                       command_object,
+                                       act,
+                                       act->subject ==
+                                       PCX_AVT_RULE_SUBJECT_ROOM,
+                                       subject,
                                        room);
-                        execute_action(state,
-                                       &rule->object_action,
-                                       false, /* is_room */
-                                       object,
-                                       room);
-                        execute_action(state,
-                                       &rule->tool_action,
-                                       false, /* is_room */
-                                       tool,
-                                       room);
-                        execute_action(state,
-                                       &rule->monster_action,
-                                       false, /* is_room */
-                                       monster,
-                                       room);
-
-                        add_points(state, rule->points);
-
-                        executed_rule = true;
-
-                        state->rule_recursion_depth--;
                 }
+
+                add_points(state, rule->points);
+
+                executed_rule = true;
+
+                state->rule_recursion_depth--;
+
+        skip:
+                continue;
         }
 
         return executed_rule;

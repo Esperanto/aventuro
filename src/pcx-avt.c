@@ -66,6 +66,13 @@ pcx_avt_free(struct pcx_avt *avt)
 
         pcx_free(avt->monsters);
 
+        for (size_t i = 0; i < avt->n_rules; i++) {
+                struct pcx_avt_rule *rule = avt->rules + i;
+
+                pcx_free(rule->conditions);
+                pcx_free(rule->actions);
+        }
+
         pcx_free(avt->rules);
 
         pcx_free(avt->introduction);

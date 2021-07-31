@@ -761,10 +761,12 @@ done:
 
 static bool
 extract_condition(struct load_data *data,
+                  enum pcx_avt_rule_subject subject,
                   struct pcx_avt_condition_data *condition,
                   const uint8_t *rule_data,
                   struct pcx_error **error)
 {
+        condition->subject = subject;
         condition->condition = rule_data[0];
         condition->data = rule_data[1];
 
@@ -847,10 +849,12 @@ extract_condition(struct load_data *data,
 
 static bool
 extract_action(struct load_data *data,
+               enum pcx_avt_rule_subject subject,
                struct pcx_avt_action_data *action,
                const uint8_t *rule_data,
                struct pcx_error **error)
 {
+        action->subject = subject;
         action->action = rule_data[0];
         action->data = rule_data[1];
 
@@ -975,20 +979,28 @@ load_rules(struct load_data *data,
 
                 rule_data++;
 
+                rule->n_conditions = 4;
+                rule->conditions =
+                        pcx_alloc(sizeof(struct pcx_avt_condition_data) *
+                                  rule->n_conditions);
                 if (!extract_condition(data,
-                                       &rule->room_condition,
+                                       PCX_AVT_RULE_SUBJECT_ROOM,
+                                       rule->conditions + 0,
                                        rule_data + 0,
                                        error) ||
                     !extract_condition(data,
-                                       &rule->object_condition,
+                                       PCX_AVT_RULE_SUBJECT_OBJECT,
+                                       rule->conditions + 1,
                                        rule_data + 2,
                                        error) ||
                     !extract_condition(data,
-                                       &rule->tool_condition,
+                                       PCX_AVT_RULE_SUBJECT_TOOL,
+                                       rule->conditions + 2,
                                        rule_data + 4,
                                        error) ||
                     !extract_condition(data,
-                                       &rule->monster_condition,
+                                       PCX_AVT_RULE_SUBJECT_MONSTER,
+                                       rule->conditions + 3,
                                        rule_data + 6,
                                        error)) {
                         ret = false;
@@ -1005,20 +1017,29 @@ load_rules(struct load_data *data,
 
                 rule_data += 2;
 
+                rule->n_actions = 4;
+                rule->actions =
+                        pcx_alloc(sizeof(struct pcx_avt_action_data) *
+                                  rule->n_actions);
+
                 if (!extract_action(data,
-                                    &rule->room_action,
+                                    PCX_AVT_RULE_SUBJECT_ROOM,
+                                    rule->actions + 0,
                                     rule_data + 0,
                                     error) ||
                     !extract_action(data,
-                                    &rule->object_action,
+                                    PCX_AVT_RULE_SUBJECT_OBJECT,
+                                    rule->actions + 1,
                                     rule_data + 2,
                                     error) ||
                     !extract_action(data,
-                                    &rule->tool_action,
+                                    PCX_AVT_RULE_SUBJECT_TOOL,
+                                    rule->actions + 2,
                                     rule_data + 4,
                                     error) ||
                     !extract_action(data,
-                                    &rule->monster_action,
+                                    PCX_AVT_RULE_SUBJECT_MONSTER,
+                                    rule->actions + 3,
                                     rule_data + 6,
                                     error)) {
                         ret = false;
