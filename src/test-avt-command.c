@@ -371,5 +371,31 @@ main(int argc, char **argv)
         assert(!pcx_avt_command_parse("iru  ! vorto ", &command));
         assert(!pcx_avt_command_parse("norden-iru", &command));
 
+        assert(pcx_avt_command_parse("mi manĝos mian lunĉon", &command));
+        assert(command.has == (PCX_AVT_COMMAND_HAS_VERB |
+                               PCX_AVT_COMMAND_HAS_SUBJECT |
+                               PCX_AVT_COMMAND_HAS_OBJECT));
+        assert(command.object.adjective.start == NULL);
+        assert(command.object.name.length == 5);
+        assert(command.object.article);
+        assert(!command.object.plural);
+        assert(command.object.accusative);
+        assert(!command.object.is_pronoun);
+        assert(!memcmp(command.object.name.start, "lunĉ", 5));
+
+        assert(pcx_avt_command_parse("mi manĝos lunĉon mian", &command));
+        assert(command.has == (PCX_AVT_COMMAND_HAS_VERB |
+                               PCX_AVT_COMMAND_HAS_SUBJECT |
+                               PCX_AVT_COMMAND_HAS_OBJECT));
+        assert(command.object.adjective.start == NULL);
+        assert(command.object.name.length == 5);
+        assert(command.object.article);
+        assert(!command.object.plural);
+        assert(command.object.accusative);
+        assert(!command.object.is_pronoun);
+        assert(!memcmp(command.object.name.start, "lunĉ", 5));
+
+        assert(!pcx_avt_command_parse("mi manĝos la mian lunĉon", &command));
+
         return EXIT_SUCCESS;
 }

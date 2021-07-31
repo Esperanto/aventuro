@@ -338,7 +338,18 @@ parse_noun(struct parse_pos *pos_in_out,
                 if (noun->is_pronoun)
                         return false;
 
-                noun->adjective = adjective->word;
+                /* Treat “mia” the same as the article */
+                if (is_word(adjective->word.start,
+                            adjective->word.length,
+                            "mi")) {
+                        if (noun->article)
+                                return false;
+                        noun->article = true;
+                        noun->adjective.start = NULL;
+                        noun->adjective.length = 0;
+                } else {
+                        noun->adjective = adjective->word;
+                }
         } else {
                 noun->adjective.start = NULL;
                 noun->adjective.length = 0;
