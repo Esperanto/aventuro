@@ -525,7 +525,7 @@ store_text_reference(struct pcx_parser *parser,
                 reference->text = add_text(parser, token->string_value);
                 break;
         case PCX_LEXER_TOKEN_TYPE_SYMBOL:
-                if (token->symbol_value == PCX_LEXER_KEYWORD_NENIO) {
+                if (token->symbol_value == PCX_LEXER_KEYWORD_NOTHING) {
                         if (optional) {
                                 reference->resolved = false;
                                 reference->id = 0;
