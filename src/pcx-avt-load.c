@@ -973,7 +973,7 @@ load_rules(struct load_data *data,
                         buf.data + i * PCX_AVT_LOAD_RULE_SIZE;
                 struct pcx_avt_rule *rule = data->avt->rules + i;
 
-                if (rule_data[0] < 1 || rule_data[1] > data->avt->n_verbs) {
+                if (rule_data[0] < 1 || rule_data[0] > data->avt->n_verbs) {
                         pcx_set_error(error,
                                       &pcx_avt_load_error,
                                       PCX_AVT_LOAD_ERROR_INVALID_VERB,
