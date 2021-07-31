@@ -1,0 +1,1046 @@
+# La Kongreso - Tekstaventuro en Esperanto
+# Copyright (C) 2021  Neil Roberts
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+nomo "La Kongreso"
+aŭtoro "Neil Roberts"
+jaro "2021"
+
+enkonduko "
+
+Vi vekiĝas konfuzite en la mallumo. Kie vi estas? Vi strebas funkciigi
+vian cerbon kaj viaj memoroj malrapide revenas. Ho jes, vi partoprenas
+la Internacian Junularan Kongreson. La lasta okazaĵo kiun vi memoras
+estas ke vi babiladis kun interesa homo pri la gramatiko de la franca.
+Vi volis klarigi interesan parton kaj vi diris ekzemplan frazon.
+Subite malantaŭ vi, vi aŭdis viran voĉon krii «NE KROKODILU!». Vi
+sentis fortan doloron sur la kapo, la mondo mallumiĝis kaj vi
+senkonsciiĝis. Nun vi ŝajne troviĝas en malluma loko. Aĥ, via kapo
+doloras.
+
+"
+
+ejo ŝranko {
+  priskribo "Vi estas en malgranda ŝranko kie oni stokas la purigilojn.
+             Ĉe la suda muro estas pordo por eliri."
+  suden koridoro
+
+  aĵo malnova_balailo {
+    priskribo "Ĝi aspektas tre malnova kaj malpura."
+    fenomeno {
+      verbo "preni"
+      mesaĝo "La balailo estas tro granda por facile porti kaj vi preferas
+              lasi ĝin kie ĝi estas."
+    }
+  }
+
+  aĵo ilara_kesto {
+    alinomo "ilaro"
+    priskribo "Ĝi estas nigra plasta kesto por iloj."
+    fermebla
+    fermita
+    enhavo 50
+    grando 50 pezo 5
+
+    aĵo blua_ŝraŭbilo {
+      priskribo "Ĝi estas blua ŝraŭbilo kun plata pinto."
+      pezo 1 grando 1
+    }
+  }
+
+  aĵo ligna_pordo {
+    priskribo "Ĝi estas normala ŝranka pordo kun anso por malfermi ĝin."
+    neportebla
+
+    fenomeno {
+      verbo "malfermi"
+      eco malvera ŝranko_malfermita
+      mesaĝo "Vi tiras la anson de la pordo por malfermi ĝin… $Dsed ĝi
+              estas ŝlosita. Ve!"
+    }
+
+    fenomeno {
+      verbo "malfermi"
+      eco ŝranko_malfermita
+      mesaĝo "La pordo jam estas malfermita."
+    }
+
+    fenomeno {
+      verbo "frapi"
+      mesaĝo "Vi frapas la pordon tiel laŭte kiel vi povas… $Dsed neniu
+              respondas."
+    }
+
+    fenomeno {
+      verbo "rigardi"
+      eco malvera ŝranko_malfermita
+      mesaĝo "La pordo estas fermita."
+    }
+
+    fenomeno {
+      verbo "rigardi"
+      eco ŝranko_malfermita
+      mesaĝo "La pordo estas malfermita."
+    }
+  }
+
+  aĵo porda_anso {
+    priskribo "La pordo havas normalan metalan anson. Ĝi estas fiksita
+               al la pordo per 4 ŝraŭboj."
+    alinomo "ŝraŭbo"
+    alinomo "ŝraŭboj"
+
+    neportebla
+
+    fenomeno {
+      verbo "malŝraŭbi"
+      verbo "ŝraŭbi"
+      mesaĝo "Vi ne povas malŝraŭbi la ŝraŭbojn per viaj manoj."
+    }
+
+    fenomeno {
+      verbo "malŝraŭbi"
+      verbo "ŝraŭbi"
+      verbo "turni"
+      pero blua_ŝraŭbilo
+      eco malvera ŝranko_malfermita
+      nova pero kunportata
+      mesaĝo "Vi malŝraŭbas la ŝraŭbojn de la anso de la pordo per la
+              $P.$D La anso falas planken kaj la pordo malfermiĝas."
+      nova eco ŝranko_malfermita
+      nova ejo eco luma
+      nova aĵo nenio
+      poentoj 1
+    }
+  }
+
+  fenomeno {
+    verbo "sudeniri"
+    eco malvera ŝranko_malfermita
+    mesaĝo "La pordo estas fermita kaj malhelpas vin iri suden."
+  }
+
+  fenomeno {
+    verbo "krii"
+    mesaĝo "Vi laŭte krias «HELPU MIN!»… $Dsed neniu respondas."
+  }
+
+  aĵo helpa_mesaĝo {
+    fino 5
+    neportebla
+
+    fenomeno {
+      verbo "fini"
+      eco malvera trovis_telefonon
+      mesaĝo "Eble vi havas ion en via poŝo kiu povus helpi vin lumigi la
+              lokon? Vi povas tajpi «kion mi havas?» por kontroli."
+    }
+  }
+}
+
+aĵo androjda_saĝtelefono {
+  priskribo "Vi aĉetis ĉi tiun telefonon antaŭ 3 jaroj. Kiel ĉiu
+             modernulo vi malŝparas multe da tempo per ĝi."
+  alinomo "androjda kompufono"
+  alinomo "androjda telefono"
+  alinomo "androjda poŝtelefono"
+  alinomo "ekrano"
+  kunportata
+
+  pezo 2 grando 4
+
+  fenomeno {
+    verbo "ŝalti"
+    verbo "tuŝi"
+    verbo "uzi"
+    mesaĝo "Vi tuŝas la ekranon de la telefono por veki ĝin. Ĝi eligas
+            sufiĉe da lumo por vidi. La telefono ne kaptas
+            retkonekton."
+
+    nova aĵo eco lumigita
+    nova aĵo fino 7
+    nova eco trovis_telefonon
+  }
+
+  fenomeno {
+    verbo "fini"
+    aĵo eco lumigita
+    nova aĵo eco malvera lumigita
+    mesaĝo "La ekrano de via telefono mallumiĝas pro malaktiveco."
+  }
+
+  fenomeno {
+    verbo "ĵeti"
+    ejo eco malvera luma
+    mesaĝo "Vi ne volas ĵeti vian telefonon en malluma loko ĉar vi
+            eble ne plu trovos ĝin."
+  }
+}
+
+fenomeno ne_reto {
+  verbo "telefoni"
+  ĉeestas androjda_saĝtelefono
+  mesaĝo "Via telefono ne havas retkonekton kaj ne eblas telefoni per ĝi."
+}
+
+fenomeno {
+  verbo "telefoni"
+  verbo "voki"
+  mesaĝo ne_reto
+  pero androjda_saĝtelefono
+}
+
+ejo koridoro {
+  priskribo "Vi estas en mallonga koridoro. Estas pordoj norde,
+             oriente, okcidente kaj sude."
+  luma
+
+  norden ŝranko
+  suden klasĉambro
+  orienten gufujo
+  okcidenten aŭskulta_servo
+  direkto "klasĉambro" klasĉambro nenio
+  direkto "ŝranko" ŝranko nenio
+  direkto "gufujo" gufujo nenio
+  direkto "servo" aŭskulta_servo nenio
+
+  aĵo pordo {
+    neportebla
+    priskribo "Kiun pordon vi volas rigardi? La nordan, la orientan,
+               la sudan aŭ la okcidentan?"
+    fenomeno jam_malfermitaj {
+      verbo "malfermi"
+      mesaĝo "Ĉiuj pordoj jam estas malfermitaj."
+    }
+  }
+
+  aĵo suda_pordo {
+    neportebla
+    priskribo "Sur la pordo estas skribita «Klasĉambro A»."
+    fenomeno { verbo "malfermi" mesaĝo jam_malfermitaj }
+  }
+
+  aĵo norda_pordo {
+    neportebla
+    priskribo "Sur la pordo estas skribita «Purigila ŝranko»."
+    fenomeno { verbo "malfermi" mesaĝo jam_malfermitaj }
+  }
+
+  aĵo orienta_pordo {
+    neportebla
+    priskribo "Sur la pordo estas skribita «Gufujo»."
+    fenomeno { verbo "malfermi" mesaĝo jam_malfermitaj }
+  }
+
+  aĵo okcidenta_pordo {
+    neportebla
+    priskribo "Sur la pordo estas skribita «Aŭskulta servo. Venu ĉi
+               tien se vi havas problemon dum la kongreso.»"
+    fenomeno { verbo "malfermi" mesaĝo jam_malfermitaj }
+  }
+
+  fenomeno {
+    verbo "priskribi"
+    eco malvera kesto_trovita
+    mesaĝo "Sur la orienta muro vi vidas multkoloran afiŝon."
+  }
+
+  fenomeno {
+    verbo "priskribi"
+    ĉeestas monŝranko
+    mesaĝo "En la orienta muro vi vidas grandan truon."
+  }
+
+  aĵo multkolora_afiŝo {
+    priskribo "Skribita sur la afiŝo estas «Renkontu esperantistojn
+               per la aplikaĵo Amikumu». Sub tio estas foto de feliĉaj
+               homoj kiuj portas siajn telefonojn."
+    neportebla
+    legebla multkolora_afiŝo
+
+    fenomeno {
+      verbo "preni"
+      aĵo eco malvera portebla
+      nova aĵo eco portebla
+      nova aĵo kunportata
+      nova eco kesto_trovita
+      nova apero monŝranko
+      mesaĝo "Vi prenas la $An. Malantaŭ ĝi vi rimarkas grandan
+              rektangulan truon en la muro."
+      poentoj 1
+    }
+  }
+}
+
+aĵo monŝranko {
+  alinomo "truo"
+  alinomo "kesto"
+  alinomo "ŝranko"
+  neportebla
+  enhavo 50
+  priskribo "Ĝi aspektas kiel la malantaŭo de sekura monŝranko. Ĝi
+             havas dikajn metalajn muretojn, sed mankas la mureto de ĉi tiu
+             flanko kaj estas facile aliri ĝin."
+
+  fenomeno {
+    verbo "preni"
+    mesaĝo "La $A estas bone fiksita en la muro kaj ne eblas preni ĝin."
+  }
+
+  aĵo stelo {
+    nomo "plasta stelo"
+    alinomo "monero"
+    priskribo "Ĝi estas eta plasta ruĝa monero kun stelo sur ĝi. Oni
+               uzas ilin dum kongresoj por aĉeti aferojn."
+    pezo 1
+    grando 2
+
+    fenomeno {
+      verbo "doni"
+      direkto gufuja_vendisto
+      eco malvera taso_enluda
+      mesaĝo "Vi donas la stelon al la $>. Li metas ĝin en la
+              monŝrankon sur la okcidenta muro. Sekve li petas ke vi
+              elektu kiun teon vi volas kaj prenu ĝin."
+      nova eco mono_donita
+      nova aĵo enen monŝranko
+    }
+
+    fenomeno {
+      verbo "doni"
+      direkto gufuja_vendisto
+      eco taso_enluda
+      mesaĝo ne_vendi_ĉar_jam_taso
+    }
+  }
+}
+
+ejo klasĉambro {
+  luma
+  norden koridoro
+  direkto "koridoro" koridoro nenio
+
+  priskribo "Vi estas en klasĉambro. Estas multaj skribotabloj kaj sur unu
+             muro estas granda skribtabulo. La koridoro troviĝas norde."
+
+  aĵo skribtabulo {
+    alinomo "tabulo"
+    alinomo "skribotabulo"
+
+    neportebla
+
+    priskribo "Estas skribita sur la tabulo per kreto: La Ĝusta
+               Esperanto: Leciono 1."
+
+    legebla skribtabulo # sama mesaĝo se legita.
+  }
+
+  aĵo manskribita_noto {
+    neportebla
+    priskribo "Sur la papero estas skribita permane per malfacile
+               legebla skribmaniero:
+
+               «per cHi tiu letEro malLonga mi Promesas Uzi nur la
+               fundaMentan lIngvoN Sen fUŝaj aBomenaĵoj kieL nAismo.
+               Por LA boNo de nia Kara lingvO. subskribite,».
+
+               Sub tio estas nelegebla nomo."
+    legebla manskribita_noto # sama mesaĝo se legita.
+
+    alinomo "letero"
+    alinomo "mesaĝo"
+
+    fenomeno {
+      verbo "preni"
+      mesaĝo "Vi prenis la $An."
+      aĵo eco malvera portebla
+      nova aĵo kunportata
+      nova aĵo eco portebla
+      nova eco prenis_noton
+    }
+  }
+
+  aĵo tabloj {
+    neportebla
+    alinomo "tablo"
+    alinomo "skribtablo"
+    alinomo "skribtabloj"
+    alinomo "skribotabloj"
+    alinomo "skribotabloj"
+
+    priskribo "Ili estas malgrandaj lignaj tabloj por lernejanoj."
+
+    fenomeno {
+      verbo "rigardi"
+      mesaĝo "Sur unu el la tabloj estas manskribita noto."
+      eco malvera prenis_noton
+    }
+  }
+
+  aĵo planko {
+    neportebla
+
+    priskribo "Vi detale rigardas la plankon de la klasĉambro kaj rimarkas ke
+               antaŭ la skribtabulo troviĝas klappordo en la planko."
+  }
+
+  fenomeno eniri_klappordon {
+    verbo "subeniri"
+    eco klappordo_malfermita
+    mesaĝo "Sub la klappordo estas eta ŝtuparo. Vi malsupreniras ĝin al la
+            spaco sub la klasĉambro."
+    nova ejo subklasĉambro
+  }
+
+  aĵo klappordo {
+    neportebla
+
+    alinomo "plankpordo"
+    alinomo "plankopordo"
+    alinomo "klapopordo"
+
+    priskribo "Ĝi estas klappordo en la planko. Ĝi havas etan anson por
+               malfermi ĝin."
+
+    fenomeno {
+      verbo "rigardi"
+      eco malvera klappordo_malfermita
+      mesaĝo "La klappordo estas fermita."
+    }
+
+    fenomeno {
+      verbo "rigardi"
+      eco klappordo_malfermita
+      mesaĝo "La klappordo estas malfermita."
+    }
+
+    fenomeno {
+      verbo "eniri"
+      eco klappordo_malfermita
+      fenomeno eniri_klappordon
+    }
+
+    fenomeno {
+      verbo "eniri"
+      eco malvera klappordo_malfermita
+      mesaĝo "Vi ne povas eniri la $An dum ĝi estas fermita."
+    }
+
+    fenomeno {
+      verbo "malfermi"
+      eco klappordo_malfermita
+      mesaĝo "La klappordo jam estas malfermita."
+    }
+
+    fenomeno {
+      verbo "malfermi"
+      eco malvera klappordo_malfermita
+      mesaĝo "Vi malfermas la klappordon. Vi rimarkas etan ŝtuparon sub ĝi."
+      nova eco klappordo_malfermita
+    }
+
+    fenomeno {
+      verbo "fermi"
+      eco klappordo_malfermita
+      mesaĝo "Ne indas fermi la $An."
+    }
+
+    fenomeno {
+      verbo "fermi"
+      eco malvera klappordo_malfermita
+      mesaĝo "La klappordo jam estas fermita."
+    }
+  }
+
+  aĵo klapporda_anso {
+    neportebla
+  }
+}
+
+fenomeno {
+  verbo "ŝraŭbi"
+  mesaĝo "Kion vi volas ŝraŭbi?"
+}
+
+fenomeno {
+  verbo "malŝraŭbi"
+  mesaĝo "Kion vi volas malŝraŭbi?"
+}
+
+ejo subklasĉambro {
+  nomo "sub la klasĉambro"
+  supren klasĉambro
+  luma
+
+  priskribo "Vi estas sub la klasĉambro. La planko kaj la muroj estas
+             el betono. La plafono estas apenaŭ sufiĉe alta por
+             stariĝi."
+
+  fenomeno {
+    verbo "priskribi"
+    ĉeestas dormanta_viro
+    mesaĝo "En fora flanko de la spaco vi vidas dormantan viron."
+  }
+
+  aĵo dormanta_viro {
+    neportebla
+    priskribo "La viro dormas profunde."
+    alinomo "homo"
+    alinomo "dormanto"
+    alinomo "ulo"
+    viro
+
+    fenomeno {
+      verbo "veki"
+      verbo "skui"
+      verbo "puŝi"
+      verbo "puŝeti"
+      verbo "bati"
+      verbo "frapi"
+      mesaĝo "Vi provas skui la viron por veki lin sed li ne
+              respondas. Ĉu li estas drogita?"
+    }
+  }
+
+  fenomeno kriveko {
+    verbo "krii"
+    ĉeestas dormanta_viro
+    mesaĝo "Vi krias tiel laŭte kiel vi povas por provi veki la viron
+            sed li ne respondas."
+  }
+
+  fenomeno {
+    verbo "krii"
+    direkto dormanta_viro
+    mesaĝo kriveko
+  }
+
+  fenomeno parolveko {
+    verbo "paroli"
+    ĉeestas dormanta_viro
+    mesaĝo "Vi parolas al la viro sed li dormas tre profunde kaj ne
+            respondas."
+  }
+
+  fenomeno {
+    verbo "paroli"
+    direkto dormanta_viro
+    mesaĝo parolveko
+  }
+
+  fenomeno malĝusta_teo {
+    verbo "doni"
+    verbo "trinkigi"
+    aĵo nigra_taso
+    direkto dormanta_viro
+    mesaĝo "Vi metas la $An apud la $> por ke li trinku ĝin. Li daŭre
+            dormas kaj entute ne respondas."
+    nova aĵo alien subklasĉambro
+  }
+
+  fenomeno {
+    verbo "doni"
+    verbo "trinkigi"
+    aĵo flava_taso
+    direkto dormanta_viro
+    mesaĝo malĝusta_teo
+    nova aĵo alien subklasĉambro
+  }
+
+  fenomeno {
+    verbo "doni"
+    verbo "trinkigi"
+    aĵo ruĝa_taso
+    direkto dormanta_viro
+
+    mesaĝo "Vi metas la $An apud la $> por ke li trinku ĝin. La spica
+            odoro atingas lian nazon kaj li malrapide malfermas la
+            okulojn. Sekve li leviĝas kaj komencas paroli kun
+            konfuzite mieno.
+
+            «Kie mi estas? Uf, mi estas laca. La lasta afero kiun mi
+            memoras estas ke mi partoprenis la kurson pri la “ĝusta
+            Esperanto”. Mi trovis la nomon tre stranga kaj mi aliĝis
+            pro scivolemo. Fine mi estis la sola partoprenanto en la
+            klasĉambro. La instruisto komencis paroli pri neologismoj
+            kaj reformoj kaj kiel ili estas ideoj de la diablo por
+            devojigi nin de la ĝusta vojo de la vera Esperanto. Mi
+            trovis lin iomete ridinda kaj mi demandis al li pri naismo
+            ĉefe por provoki lin. Li koleregiĝis kaj kuris al mia
+            seĝo. Li minacis malliberigi min sub la klasĉambro. Sekve
+            li tenis mian kolon per la brako kaj devigis min promesi
+            en letero ke mi neniam uzos naismon. Mi multe timis sed mi
+            havis la ideon kaŝi mesaĝon en la noto okaze ke mi ne
+            eskapos. Kia bonŝanco ke vi trovis mian mesaĝon! Ho ve, mi
+            sentas min stranga, mi devos iri al malsanulejo.»
+
+            Sekve li supreniris la ŝtuparon kaj malaperis. Vi rimarkas
+            ke li forgesis ion malantaŭ si."
+
+    nova aĵo alien subklasĉambro
+    nova apero nomŝildo
+    nova direkto nenio
+    poentoj 1
+  }
+
+  fenomeno {
+    verbo "doni"
+    verbo "trinkigi"
+    aĵo eco malvera tetaso
+    direkto dormanta_viro
+    mesaĝo "Vi ial metas la $An apud la $>. Li daŭre dormas kaj entute
+            ne respondas."
+    nova aĵo alien subklasĉambro
+  }
+}
+
+aĵo nomŝildo {
+  pezo 1 grando 1
+  priskribo "Estas skribita sur ĝi: IJK, nomo: Koralo Aleksandro.
+             Vegana manĝo. Ĝi ankaŭ surhavas multe da glumarkoj."
+
+  fenomeno {
+    verbo "doni"
+    verbo "montri"
+    direkto aŭskultisto
+    mesaĝo "Vi montras la $An al la $>. Ŝia mieno ekaspektas pli
+            afabla kaj ŝi diras «Saluton Koralo, mi aŭskultas vin»."
+    nova eco nomŝildo_montrita
+    poentoj 1
+  }
+}
+
+ejo gufujo {
+  priskribo "Vi estas en la gufujo. Ĉe la profundo de la ĉambro estas
+             tablo kun diversaj teoj sur ĝi. Homo malantaŭ la tablo
+             rigardas vin. La koridoro troviĝas okcidente. Sur la
+             okcidenta muro estas sekura monŝranko."
+  luma
+  okcidenten koridoro
+  direkto "koridoro" koridoro nenio
+
+  aĵo gufuja_monŝranko {
+    nomo "monŝranko"
+    alinomo "sekura monŝranko"
+    alinomo "metela monŝranko"
+    alinomo "ŝranko"
+    neportebla
+    priskribo "Ĝi estas metela monŝranko kun anso por malfermi ĝin. Ĝi
+               ŝajnas multe tro sekura por nur simpla gufujo."
+
+    fenomeno {
+      verbo "malfermi"
+      verbo "preni"
+      verbo "tuŝi"
+      mesaĝo "La vendisto minace ordonas vin foriri de la $An kaj ne tuŝi ĝin."
+    }
+  }
+
+  aĵo anso {
+    neportebla
+  }
+
+  aĵo gufuja_vendisto {
+    viro
+    neportebla
+    priskribo "La viro malantaŭ la tablo vendas teojn. Li aspektas
+               malkontenta kaj neparolema."
+
+    alinomo "homo"
+    alinomo "gufujestro"
+  }
+
+  aĵo tea_tablo {
+    neportebla
+    priskribo "Sur la tablo estas tri skatoloj de teo kun diversaj
+               koloroj: ruĝa, flava kaj nigra."
+  }
+
+  aĵo diversaj_teoj {
+    neportebla
+    priskribo tea_tablo
+    alinomo "teo"
+
+    fenomeno {
+      verbo "preni"
+      mesaĝo "Kiun teon vi volas preni? La ruĝan, la flavan aŭ la nigran?"
+    }
+
+    fenomeno aĉeti_kiun_teon {
+      verbo "aĉeti"
+      mesaĝo "Kiun teon vi volas aĉeti? La ruĝan, la flavan aŭ la nigran?"
+    }
+
+    fenomeno {
+      verbo "aĉeti"
+      pero io
+      mesaĝo aĉeti_kiun_teon
+    }
+  }
+
+  fenomeno per_kio_aĉeti {
+    verbo "aĉeti"
+    aĵo eco teskatolo
+    eco malvera mono_donita
+    mesaĝo "Per kio vi volas aĉeti la $An?"
+  }
+
+  fenomeno preni_teon {
+    verbo "preni"
+    aĵo eco teskatolo
+    eco malvera mono_donita
+    mesaĝo "Vi provas preni la $An sed la vendisto malhelpas
+            vin kaj diras ke vi devas pagi unu stelon."
+  }
+
+  fenomeno ne_vendi_ĉar_jam_taso {
+    verbo "aĉeti"
+    pero stelo
+    aĵo eco teskatolo
+    eco taso_enluda
+    mesaĝo "La vendisto diras ke li ne vendos al vi plian teon ĝis vi redonos
+            la antaŭan tason. Sekve li grumble akuzas vin esti malŝparema
+            kapitalisto kiu detruas la planedon."
+  }
+
+  aĵo nigra_teo {
+    alinomo "nigra skatolo"
+    neportebla
+    priskribo "Sur la skatolo de la nigra teo estas skribite ke la teo
+               estas bona por la gorĝo."
+    legebla nigra_teo
+    eco teskatolo
+
+    fenomeno prepari_nigran_teon {
+      verbo "aĉeti"
+      verbo "elekti"
+      verbo "preni"
+      eco mono_donita
+      mesaĝo "La vendisto preparas $An por vi. Post minuto li donas al
+              vi varman tason."
+      nova kunportata nigra_taso
+      nova eco malvera mono_donita
+      nova eco taso_enluda
+    }
+
+    fenomeno aĉeti_nigran_teon {
+      verbo "aĉeti"
+      pero stelo
+      eco malvera taso_enluda
+      mesaĝo "Vi donas la stelon al la vendisto. Li metas ĝin en la
+              monŝrankon sur la okcidenta muro. Sekve li komencas
+              prepari $An por vi. Post minuto li donas al vi varman
+              tason."
+      nova kunportata nigra_taso
+      nova pero enen monŝranko
+      nova eco taso_enluda
+    }
+  }
+
+  aĵo ruĝa_teo {
+    alinomo "ruĝa skatolo"
+    neportebla
+    priskribo "Sur la skatolo de la ruĝa teo estas skribite ke la teo
+               povas doni al vi energion kaj veki vin el eĉ la plej
+               profunda dormo."
+    legebla ruĝa_teo
+    eco teskatolo
+
+    fenomeno prepari_ruĝan_teon {
+      verbo "aĉeti"
+      verbo "elekti"
+      verbo "preni"
+      eco mono_donita
+      mesaĝo prepari_nigran_teon
+      nova kunportata ruĝa_taso
+      nova eco malvera mono_donita
+      nova eco taso_enluda
+    }
+
+    fenomeno {
+      verbo "aĉeti"
+      pero stelo
+      eco malvera taso_enluda
+      mesaĝo aĉeti_nigran_teon
+      nova kunportata ruĝa_taso
+      nova pero enen monŝranko
+      nova eco taso_enluda
+    }
+  }
+
+  aĵo flava_teo {
+    alinomo "flava skatolo"
+    neportebla
+    priskribo "Sur la skatolo de la flava teo estas skribite ke la teo
+               estas trankviliga kaj ĝi helpos vin bone dormi."
+    legebla flava_teo
+    eco teskatolo
+
+    fenomeno prepari_flavan_teon {
+      verbo "aĉeti"
+      verbo "elekti"
+      verbo "preni"
+      eco mono_donita
+      mesaĝo prepari_nigran_teon
+      nova kunportata flava_taso
+      nova eco malvera mono_donita
+      nova eco taso_enluda
+    }
+
+    fenomeno {
+      verbo "aĉeti"
+      pero stelo
+      eco malvera taso_enluda
+      mesaĝo aĉeti_nigran_teon
+      nova kunportata flava_taso
+      nova pero enen monŝranko
+      nova eco taso_enluda
+    }
+  }
+
+  fenomeno {
+    verbo "paroli"
+    direkto gufuja_vendisto
+    mesaĝo "Vi diras saluton al la vendisto sed li nur grumblas kaj ne
+            respondas."
+  }
+}
+
+fenomeno redoni_teon {
+  verbo "doni"
+  verbo "redoni"
+  aĵo eco tetaso
+  direkto gufuja_vendisto
+  mesaĝo "Vi redonas la $An al la $>. Li ne dankas vin."
+  nova aĵo nenio
+  nova eco malvera taso_enluda
+}
+
+fenomeno {
+  verbo "doni"
+  verbo "redoni"
+  aĵo malplena_taso
+  direkto gufuja_vendisto
+  mesaĝo redoni_teon
+  nova aĵo nenio
+  nova eco malvera taso_enluda
+}
+
+aĵo kvineŭra_monbileto {
+  pezo 1
+  grando 1
+  alinomo "mono"
+  alinomo "kvineŭra bileto"
+  kunportata
+  priskribo "Vi sentas vin riĉa kun viaj 5€."
+
+  fenomeno ne_pagi_eŭroj {
+    verbo "doni"
+    direkto gufuja_vendisto
+    mesaĝo "La vendisto diras ke li ne akceptas vian strangan monon kaj ke
+            en esperanta evento oni pagas nur per steloj."
+  }
+}
+
+fenomeno {
+  verbo "aĉeti"
+  pero kvineŭra_monbileto
+  aĵo eco teskatolo
+  mesaĝo ne_pagi_eŭroj
+}
+
+aĵo nigra_taso {
+  nomo "varma taso"
+  alinomo "varma teo"
+  alinomo "nigra teo"
+  priskribo "La teo ankoraŭ estas varma. Ĝi havas mielan odoron."
+  pezo 5 grando 3
+  eco tetaso
+
+  fenomeno {
+    verbo "flari"
+    mesaĝo "Ĝi havas mielan odoron."
+  }
+
+  fenomeno {
+    verbo "trinki"
+    mesaĝo "Vi fortrinkis la teon. Ĝi estis tro dolĉa kaj ne bongusta."
+    nova aĵo nenio
+    nova kunportata malplena_taso
+  }
+}
+
+aĵo ruĝa_taso {
+  nomo "varma taso"
+  alinomo "varma teo"
+  alinomo "ruĝa teo"
+  priskribo "La teo ankoraŭ estas varma. Ĝi havas spican odoron."
+  pezo 5 grando 3
+  eco tetaso
+
+  fenomeno {
+    verbo "flari"
+    mesaĝo "Ĝi havas spican odoron."
+  }
+
+  fenomeno {
+    verbo "trinki"
+    mesaĝo "Vi fortrinkis la teon. Nun vi sentas vin tre vigla."
+    nova aĵo nenio
+    nova kunportata malplena_taso
+  }
+}
+
+aĵo flava_taso {
+  nomo "varma taso"
+  alinomo "varma teo"
+  alinomo "flava teo"
+  priskribo "La teo ankoraŭ estas varma. Ĝi havas odoron de kamomilo."
+  pezo 5 grando 3
+  eco tetaso
+
+  fenomeno {
+    verbo "flari"
+    mesaĝo "Ĝi havas odoron de kamomilo."
+  }
+
+  fenomeno {
+    verbo "trinki"
+    mesaĝo "Vi fortrinkis la teon. Nun vi sentas vin iomete dormema."
+    nova aĵo nenio
+    nova kunportata malplena_taso
+  }
+}
+
+aĵo malplena_taso {
+  priskribo "Ĝi estas la taso kiun la vendisto de la gufujo donis al vi.
+             Nun ĝi estas malplena."
+  pezo 4 grando 3
+
+  fenomeno {
+    verbo "trinki"
+    mesaĝo "La taso estas malplena kaj restas nenio por trinki."
+  }
+}
+
+ejo aŭskulta_servo {
+  priskribo "Vi estas en eta ĉambro kun du seĝoj kaj skribotablo. Sur
+             la skribotablo estas skribita «aŭskulta servo». Malantaŭ
+             la skribotablo juna virino rigardas vin."
+  luma
+  orienten koridoro
+
+  aĵo seĝo {
+    neportebla
+    alinomo "seĝoj"
+    priskribo "Ili estas normalaj lernejaj seĝoj."
+  }
+
+  aĵo aŭskulta_skribotablo {
+    neportebla
+    nomo "skribotablo"
+    alinomo "tablo"
+    priskribo "Sur la tablo estas malinteresaj paperaĵoj."
+  }
+
+  aĵo malinteresaj_paperaĵoj {
+    neportebla
+    priskribo "Ili estas malinteresaj."
+  }
+
+  aĵo aŭskultisto {
+    alinomo "juna virino"
+    alinomo "aŭskultistino"
+    ino
+    neportebla
+
+    priskribo "Ŝi rigardas vin, atendante ke vi parolu."
+  }
+
+  fenomeno paroli_al_virino {
+    verbo "paroli"
+    direkto aŭskultisto
+    eco malvera nomŝildo_montrita
+    mesaĝo "Vi diras «saluton» al la virino sed ŝi seke respondas
+            «Hej, unue montru vian nomŝildon. Mi aŭskultas nur
+            kongresanojn.»"
+  }
+
+  fenomeno {
+    verbo "alparoli"
+    aĵo aŭskultisto
+    eco malvera nomŝildo_montrita
+    mesaĝo paroli_al_virino
+  }
+
+  fenomeno {
+    verbo "paroli"
+    eco malvera nomŝildo_montrita
+    mesaĝo paroli_al_virino
+  }
+
+  fenomeno {
+    verbo "paroli"
+    direkto aŭskultisto
+    eco nomŝildo_montrita
+    nova ejo finejo
+  }
+
+  fenomeno {
+    verbo "alparoli"
+    aĵo aŭskultisto
+    eco nomŝildo_montrita
+    nova ejo finejo
+  }
+
+  fenomeno {
+    verbo "paroli"
+    eco nomŝildo_montrita
+    nova ejo finejo
+  }
+}
+
+ejo finejo {
+  luma
+  ludfino
+  poentoj 1
+
+  priskribo "
+
+Vi rakontas al la aŭskultisto pri la freneza homo kiu batis vin kaj
+kaptis vin en la ŝranko kaj pri Koralo sub la klasĉambro. Ŝi aspektas
+ŝokita. Ŝi tuj foriras por paroli kun la aliaj organizantoj de la
+kongreso. Post unu horo vi legas artikolon en Libera Folio pri la
+skandalo de la IJK. La organizantoj forpelis la homon de la kongreso
+kaj telefonis la policon. Li neniam plu povos partopreni esperantujon.
+
+Vi savis la kongreson! Gratulon!
+"
+}
+
+fenomeno {
+  verbo "furzi"
+  mesaĝo "Uf. Espereble neniu rimarkos."
+}
+
+fenomeno {
+  verbo "salti"
+  mesaĝo "Vi saltas surloke. Nenio okazas."
+}
+
+fenomeno {
+  verbo "kanti"
+  mesaĝo "Vi kantas la rekantaĵon de 10 bovinoj. Nenio okazas."
+}
