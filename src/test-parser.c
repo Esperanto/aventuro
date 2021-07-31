@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <strings.h>
 
 #include "pcx-parser.h"
 #include "pcx-list.h"
@@ -470,6 +471,57 @@ fail_checks[] = {
                 "aĵo a { alinomo \"fluga aviadilo\" }",
                 "Alias name must be a noun at line 1"
         },
+        {
+                "fenomeno { aĵo ŝargo -3 }",
+                "Number out of range at line 1"
+        },
+        {
+                "fenomeno {\n"
+                "eco a1 eco a2 eco a3\n"
+                "eco a4 eco a5 eco a6 eco a7\n"
+                "eco a8 eco a9 eco a10 eco a11\n"
+                "eco a12 eco a13 eco a14 eco a15\n"
+                "eco a16 eco a17 eco a18 eco a19\n"
+                "eco a20 eco a21 eco a22 eco a23\n"
+                "eco a24 eco a25 eco a26 eco a27\n"
+                "eco a28 eco a29 eco a30 eco a31\n"
+                "eco a32\n"
+                "}\n",
+                "Too many unique attributes at line 10"
+        },
+        {
+                "fenomeno { verbo 3 }\n",
+                "String expected at line 1"
+        },
+        {
+                "fenomeno { nova eco 6 }\n",
+                "Expected attribute name or “malvera” at line 1"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "fenomeno { verbo \"talk\" }\n",
+                "Verb must end in ‘i’ at line 3"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "fenomeno {\n"
+                "   verbo \"paroli\"\n"
+                "   aĵo s1\n"
+                "}\n",
+                "Expected object name at line 5"
+        },
+        {
+                BLURB
+                "salono s1 { priskribo \"j\" }\n"
+                "aĵo ruĝa_beto { }\n"
+                "fenomeno {\n"
+                "   verbo \"paroli\"\n"
+                "   nova salono ruĝa_beto\n"
+                "}\n",
+                "Expected room name at line 6"
+        },
 };
 
 static bool
@@ -891,6 +943,295 @@ main(int argc, char **argv)
         assert(!avt->aliases[2].plural);
         assert(avt->aliases[2].index == 1);
         assert(!strcmp(avt->aliases[2].name, "pupet"));
+
+        pcx_avt_free(avt);
+
+        avt = expect_success(BLURB
+                             "salono kuirejo {\n"
+                             "   priskribo \"j\"\n"
+                             "}\n"
+                             "salono dormĉambro {\n"
+                             "   priskribo \"k\"\n"
+                             "   fenomeno {\n"
+                             "      verbo \"esti\"\n"
+                             "      mesaĝo \"Ne dormu!\"\n"
+                             "   }\n"
+                             "}\n"
+                             "aĵo bruna_terpomo { }\n"
+                             "aĵo blua_terpomo { }\n"
+                             "aĵo verda_terpomo { }\n"
+                             "aĵo ruĝa_terpomo {\n"
+                             "   fenomeno {\n"
+                             "      verbo \"rigardi\"\n"
+                             "      mesaĝo \"La terpomo ankaŭ rigardas vin!\"\n"
+                             "   }\n"
+                             "}\n"
+                             "aĵo purpura_terpomo { }\n"
+                             "teksto t12 \"Vi manĝis!\"\n"
+                             "fenomeno {\n"
+                             "   verbo \"manĝi\"\n"
+                             "   poentoj 128\n"
+                             "   mesaĝo t12\n"
+                             "\n"
+                             "   aĵo io\n"
+                             "   aĵo nenio\n"
+                             "   aĵo ŝargo 1\n"
+                             "   aĵo pezo 2\n"
+                             "   aĵo grando 3\n"
+                             "   aĵo enhavo 4\n"
+                             "   aĵo fajrodaŭro 5\n"
+                             "   aĵo bruna_terpomo\n"
+                             "   aĵo adjektivo blua_terpomo\n"
+                             "   aĵo nomo verda_terpomo\n"
+                             "   aĵo kopio ruĝa_terpomo\n"
+                             "   aĵo eco portebla\n"
+                             "   aĵo eco bluba\n"
+                             "   aĵo eco malvera brulanta\n"
+                             "   aĵo eco malvera bluba\n"
+                             "   pero enhavo 7\n"
+                             "   salono dormĉambro\n"
+                             "   salono eco luma\n"
+                             "   salono eco malvera ludfino\n"
+                             "   salono eco bluba\n"
+                             "   salono eco malvera bluba\n"
+                             "   eco bluba\n"
+                             "   eco malvera bluba\n"
+                             "   ŝanco 56\n"
+                             "   ĉeestas purpura_terpomo\n"
+                             "\n"
+                             "   nova aĵo nenio\n"
+                             "   nova aĵo alien dormĉambro\n"
+                             "   nova aĵo kunportata\n"
+                             "   nova aĵo bruna_terpomo\n"
+                             "   nova aĵo eco portebla\n"
+                             "   nova aĵo eco malvera portebla\n"
+                             "   nova aĵo adjektivo blua_terpomo\n"
+                             "   nova aĵo nomo verda_terpomo\n"
+                             "   nova aĵo kopio ruĝa_terpomo\n"
+                             "   nova aĵo fino 89\n"
+                             "   nova aĵo ŝargo 90\n"
+                             "   nova aĵo pezo 91\n"
+                             "   nova aĵo grando 92\n"
+                             "   nova aĵo enhavo 93\n"
+                             "   nova aĵo fajrodaŭro 94\n"
+                             "   nova pero nenio\n"
+                             "   nova salono dormĉambro\n"
+                             "   nova salono eco luma\n"
+                             "   nova salono eco malvera luma\n"
+                             "   nova eco bluba\n"
+                             "   nova eco malvera bluba\n"
+                             "}");
+
+        assert(avt->n_rules == 3);
+        const struct pcx_avt_rule *rule = avt->rules;
+
+        assert(!strcmp(rule->verb, "est"));
+        assert(!strcmp(rule->text, "Ne dormu!"));
+        assert(rule->points == 0);
+        /* Implicitly added condition because the rule is in a room */
+        assert(rule->n_conditions == 4);
+        assert(rule->conditions[0].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[0].condition == PCX_AVT_CONDITION_IN_ROOM);
+        assert(rule->conditions[0].data == 1);
+        /* Implicitly added conditions for the objects */
+        assert(rule->conditions[1].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[1].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[2].subject == PCX_AVT_RULE_SUBJECT_TOOL);
+        assert(rule->conditions[2].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[3].subject == PCX_AVT_RULE_SUBJECT_MONSTER);
+        assert(rule->conditions[3].condition == PCX_AVT_CONDITION_NOTHING);
+
+        rule++;
+
+        assert(!strcmp(rule->verb, "rigard"));
+        assert(!strcmp(rule->text, "La terpomo ankaŭ rigardas vin!"));
+        assert(rule->points == 0);
+        /* Implicitly added condition because the rule is in an object */
+        assert(rule->n_conditions == 3);
+        assert(rule->conditions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[0].condition == PCX_AVT_CONDITION_OBJECT_IS);
+        assert(rule->conditions[0].data == 3);
+        /* Implicitly added conditions for the objects */
+        assert(rule->conditions[1].subject == PCX_AVT_RULE_SUBJECT_TOOL);
+        assert(rule->conditions[1].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[2].subject == PCX_AVT_RULE_SUBJECT_MONSTER);
+        assert(rule->conditions[2].condition == PCX_AVT_CONDITION_NOTHING);
+
+        rule++;
+
+        assert(!strcmp(rule->verb, "manĝ"));
+        assert(!strcmp(rule->text, "Vi manĝis!"));
+        assert(rule->points == 128);
+
+        assert(rule->n_conditions == 26);
+        assert(rule->conditions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[0].condition == PCX_AVT_CONDITION_SOMETHING);
+        assert(rule->conditions[1].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[1].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[2].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[2].condition == PCX_AVT_CONDITION_SHOTS);
+        assert(rule->conditions[2].data == 1);
+        assert(rule->conditions[3].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[3].condition == PCX_AVT_CONDITION_WEIGHT);
+        assert(rule->conditions[3].data == 2);
+        assert(rule->conditions[4].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[4].condition == PCX_AVT_CONDITION_SIZE);
+        assert(rule->conditions[4].data == 3);
+        assert(rule->conditions[5].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[5].condition ==
+               PCX_AVT_CONDITION_CONTAINER_SIZE);
+        assert(rule->conditions[5].data == 4);
+        assert(rule->conditions[6].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[6].condition == PCX_AVT_CONDITION_BURN_TIME);
+        assert(rule->conditions[6].data == 5);
+        assert(rule->conditions[7].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[7].condition == PCX_AVT_CONDITION_OBJECT_IS);
+        assert(rule->conditions[7].data == 0);
+        assert(rule->conditions[8].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[8].condition ==
+               PCX_AVT_CONDITION_OBJECT_SAME_ADJECTIVE);
+        assert(rule->conditions[8].data == 1);
+        assert(rule->conditions[9].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[9].condition ==
+               PCX_AVT_CONDITION_OBJECT_SAME_NAME);
+        assert(rule->conditions[9].data == 2);
+        assert(rule->conditions[10].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[10].condition ==
+               PCX_AVT_CONDITION_OBJECT_SAME_NOUN);
+        assert(rule->conditions[10].data == 3);
+        assert(rule->conditions[11].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[11].condition ==
+               PCX_AVT_CONDITION_OBJECT_ATTRIBUTE);
+        assert(rule->conditions[11].data ==
+               ffs(PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) - 1);
+        assert(rule->conditions[12].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[12].condition ==
+               PCX_AVT_CONDITION_OBJECT_ATTRIBUTE);
+        assert(rule->conditions[12].data == 13);
+        assert(rule->conditions[13].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[13].condition ==
+               PCX_AVT_CONDITION_NOT_OBJECT_ATTRIBUTE);
+        assert(rule->conditions[13].data ==
+               ffs(PCX_AVT_OBJECT_ATTRIBUTE_BURNING) - 1);
+        assert(rule->conditions[14].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->conditions[14].condition ==
+               PCX_AVT_CONDITION_NOT_OBJECT_ATTRIBUTE);
+        assert(rule->conditions[14].data == 13);
+        assert(rule->conditions[15].subject == PCX_AVT_RULE_SUBJECT_TOOL);
+        assert(rule->conditions[15].condition ==
+               PCX_AVT_CONDITION_CONTAINER_SIZE);
+        assert(rule->conditions[15].data == 7);
+        assert(rule->conditions[16].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[16].condition == PCX_AVT_CONDITION_IN_ROOM);
+        assert(rule->conditions[16].data == 1);
+        assert(rule->conditions[17].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[17].condition ==
+               PCX_AVT_CONDITION_ROOM_ATTRIBUTE);
+        assert(rule->conditions[17].data ==
+               ffs(PCX_AVT_ROOM_ATTRIBUTE_LIT) - 1);
+        assert(rule->conditions[18].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[18].condition ==
+               PCX_AVT_CONDITION_NOT_ROOM_ATTRIBUTE);
+        assert(rule->conditions[18].data ==
+               ffs(PCX_AVT_ROOM_ATTRIBUTE_GAME_OVER) - 1);
+        assert(rule->conditions[19].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[19].condition ==
+               PCX_AVT_CONDITION_ROOM_ATTRIBUTE);
+        assert(rule->conditions[19].data == 4);
+        assert(rule->conditions[20].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[20].condition ==
+               PCX_AVT_CONDITION_NOT_ROOM_ATTRIBUTE);
+        assert(rule->conditions[20].data == 4);
+        assert(rule->conditions[21].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[21].condition ==
+               PCX_AVT_CONDITION_PLAYER_ATTRIBUTE);
+        assert(rule->conditions[21].data == 1);
+        assert(rule->conditions[22].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[22].condition ==
+               PCX_AVT_CONDITION_NOT_PLAYER_ATTRIBUTE);
+        assert(rule->conditions[22].data == 1);
+        assert(rule->conditions[23].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[23].condition == PCX_AVT_CONDITION_CHANCE);
+        assert(rule->conditions[23].data == 56);
+        assert(rule->conditions[24].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->conditions[24].condition ==
+               PCX_AVT_CONDITION_ANOTHER_OBJECT_PRESENT);
+        assert(rule->conditions[24].data == 4);
+        /* Implicitly added condition */
+        assert(rule->conditions[25].subject == PCX_AVT_RULE_SUBJECT_MONSTER);
+        assert(rule->conditions[25].condition == PCX_AVT_CONDITION_NOTHING);
+
+        assert(rule->n_actions == 21);
+        assert(rule->actions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[0].action == PCX_AVT_ACTION_NOTHING);
+        assert(rule->actions[1].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[1].action == PCX_AVT_ACTION_MOVE_TO);
+        assert(rule->actions[1].data == 1);
+        assert(rule->actions[2].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[2].action == PCX_AVT_ACTION_CARRY);
+        assert(rule->actions[3].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[3].action == PCX_AVT_ACTION_REPLACE_OBJECT);
+        assert(rule->actions[3].data == 0);
+        assert(rule->actions[4].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[4].action == PCX_AVT_ACTION_SET_OBJECT_ATTRIBUTE);
+        assert(rule->actions[4].data ==
+               ffs(PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) - 1);
+        assert(rule->actions[5].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[5].action ==
+               PCX_AVT_ACTION_UNSET_OBJECT_ATTRIBUTE);
+        assert(rule->actions[5].data ==
+               ffs(PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) - 1);
+        assert(rule->actions[6].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[6].action ==
+               PCX_AVT_ACTION_CHANGE_OBJECT_ADJECTIVE);
+        assert(rule->actions[6].data == 1);
+        assert(rule->actions[7].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[7].action ==
+               PCX_AVT_ACTION_CHANGE_OBJECT_NAME);
+        assert(rule->actions[7].data == 2);
+        assert(rule->actions[8].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[8].action == PCX_AVT_ACTION_COPY_OBJECT);
+        assert(rule->actions[8].data == 3);
+        assert(rule->actions[9].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[9].action == PCX_AVT_ACTION_CHANGE_END);
+        assert(rule->actions[9].data == 89);
+        assert(rule->actions[10].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[10].action == PCX_AVT_ACTION_CHANGE_SHOTS);
+        assert(rule->actions[10].data == 90);
+        assert(rule->actions[11].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[11].action == PCX_AVT_ACTION_CHANGE_WEIGHT);
+        assert(rule->actions[11].data == 91);
+        assert(rule->actions[12].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[12].action == PCX_AVT_ACTION_CHANGE_SIZE);
+        assert(rule->actions[12].data == 92);
+        assert(rule->actions[13].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[13].action ==
+               PCX_AVT_ACTION_CHANGE_CONTAINER_SIZE);
+        assert(rule->actions[13].data == 93);
+        assert(rule->actions[14].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
+        assert(rule->actions[14].action == PCX_AVT_ACTION_CHANGE_BURN_TIME);
+        assert(rule->actions[14].data == 94);
+        assert(rule->actions[15].subject == PCX_AVT_RULE_SUBJECT_TOOL);
+        assert(rule->actions[15].action == PCX_AVT_ACTION_NOTHING);
+        assert(rule->actions[16].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[16].action == PCX_AVT_ACTION_MOVE_TO);
+        assert(rule->actions[16].data == 1);
+        assert(rule->actions[17].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[17].action == PCX_AVT_ACTION_SET_ROOM_ATTRIBUTE);
+        assert(rule->actions[17].data ==
+               ffs(PCX_AVT_ROOM_ATTRIBUTE_LIT) - 1);
+        assert(rule->actions[18].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[18].action == PCX_AVT_ACTION_UNSET_ROOM_ATTRIBUTE);
+        assert(rule->actions[18].data ==
+               ffs(PCX_AVT_ROOM_ATTRIBUTE_LIT) - 1);
+        assert(rule->actions[19].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[19].action ==
+               PCX_AVT_ACTION_SET_PLAYER_ATTRIBUTE);
+        assert(rule->actions[19].data == 1);
+        assert(rule->actions[20].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[20].action ==
+               PCX_AVT_ACTION_UNSET_PLAYER_ATTRIBUTE);
+        assert(rule->actions[20].data == 1);
 
         pcx_avt_free(avt);
 

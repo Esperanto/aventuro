@@ -48,8 +48,10 @@ struct pcx_parser {
         struct pcx_list rooms;
         struct pcx_list objects;
         struct pcx_list texts;
+        struct pcx_list rules;
         struct pcx_parser_attribute_set room_attributes;
         struct pcx_parser_attribute_set object_attributes;
+        struct pcx_parser_attribute_set player_attributes;
         struct pcx_buffer tmp_buf;
         struct pcx_list aliases;
 
@@ -108,6 +110,43 @@ struct pcx_parser_text_reference {
                 unsigned id;
                 const char *text;
         };
+};
+
+enum pcx_parser_rule_parameter_type {
+        PCX_PARSER_RULE_PARAMETER_TYPE_NONE,
+        PCX_PARSER_RULE_PARAMETER_TYPE_INT,
+        PCX_PARSER_RULE_PARAMETER_TYPE_OBJECT,
+        PCX_PARSER_RULE_PARAMETER_TYPE_ROOM,
+};
+
+struct pcx_parser_rule_parameter {
+        enum pcx_parser_rule_parameter_type type;
+        union {
+                struct pcx_parser_reference reference;
+                long data;
+        };
+};
+
+struct pcx_parser_rule_condition {
+        enum pcx_avt_rule_subject subject;
+        enum pcx_avt_condition condition;
+        struct pcx_parser_rule_parameter param;
+};
+
+struct pcx_parser_rule_action {
+        enum pcx_avt_rule_subject subject;
+        enum pcx_avt_action action;
+        struct pcx_parser_rule_parameter param;
+};
+
+struct pcx_parser_rule {
+        struct pcx_list link;
+        char *verb;
+        struct pcx_parser_text_reference message;
+        long points;
+        struct pcx_buffer conditions;
+        struct pcx_buffer actions;
+        int line_num;
 };
 
 struct pcx_parser_text {
@@ -717,6 +756,594 @@ parse_items(struct pcx_parser *parser,
         return PCX_PARSER_RETURN_NOT_MATCHED;
 }
 
+static const struct pcx_parser_property
+rule_props[] = {
+        {
+                offsetof(struct pcx_parser_rule, verb),
+                PCX_PARSER_VALUE_TYPE_STRING,
+                PCX_LEXER_KEYWORD_VERB,
+                "Rule already has a verb",
+        },
+        {
+                offsetof(struct pcx_parser_rule, message),
+                PCX_PARSER_VALUE_TYPE_TEXT,
+                PCX_LEXER_KEYWORD_MESSAGE,
+                "Rule already has a message",
+        },
+        {
+                offsetof(struct pcx_parser_rule, points),
+                PCX_PARSER_VALUE_TYPE_INT,
+                PCX_LEXER_KEYWORD_POINTS,
+                .min_value = 0, .max_value = UINT8_MAX,
+        },
+};
+
+static struct pcx_parser_rule_condition *
+add_rule_condition(struct pcx_parser_rule *rule,
+                   enum pcx_avt_rule_subject subject)
+{
+        pcx_buffer_set_length(&rule->conditions,
+                              rule->conditions.length +
+                              sizeof (struct pcx_parser_rule_condition));
+        struct pcx_parser_rule_condition *condition =
+                ((struct pcx_parser_rule_condition *)
+                 (rule->conditions.data + rule->conditions.length)) - 1;
+
+        condition->subject = subject;
+
+        return condition;
+}
+
+static enum pcx_parser_return
+parse_rule_int_param(struct pcx_parser *parser,
+                     struct pcx_parser_rule_parameter *param,
+                     struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_NUMBER,
+                      "Number expected",
+                      error);
+
+        if (token->number_value < 0 ||
+            token->number_value > 255) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Number out of range at line %i",
+                              pcx_lexer_get_line_num(parser->lexer));
+                return PCX_PARSER_RETURN_ERROR;
+        }
+
+        param->type = PCX_PARSER_RULE_PARAMETER_TYPE_INT;
+        param->data = token->number_value;
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
+parse_rule_object_param(struct pcx_parser *parser,
+                        struct pcx_parser_rule_parameter *param,
+                        struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Object name expected",
+                      error);
+
+        param->type = PCX_PARSER_RULE_PARAMETER_TYPE_OBJECT;
+        param->reference.symbol = token->symbol_value;
+        param->reference.line_num = pcx_lexer_get_line_num(parser->lexer);
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
+parse_rule_attribute_param(struct pcx_parser *parser,
+                           struct pcx_parser_rule_parameter *param,
+                           bool *is_set,
+                           struct pcx_parser_attribute_set *attribute_set,
+                           struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Expected attribute name or “malvera”",
+                      error);
+
+        if (token->symbol_value == PCX_LEXER_KEYWORD_UNSET) {
+                *is_set = false;
+
+                require_token(parser,
+                              PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                              "Expected attribute name",
+                              error);
+        } else {
+                *is_set = true;
+        }
+
+        int num;
+
+        if (!get_attribute_num(parser,
+                               attribute_set,
+                               token->symbol_value,
+                               &num,
+                               error))
+                return PCX_PARSER_RETURN_ERROR;
+
+        param->type = PCX_PARSER_RULE_PARAMETER_TYPE_INT;
+        param->data = num;
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
+parse_condition_attribute_param(struct pcx_parser *parser,
+                                struct pcx_parser_rule_condition *cond,
+                                enum pcx_avt_condition set_condition,
+                                enum pcx_avt_condition unset_condition,
+                                struct pcx_parser_attribute_set *attribute_set,
+                                struct pcx_error **error)
+{
+        bool is_set = false;
+
+        enum pcx_parser_return ret =
+                parse_rule_attribute_param(parser,
+                                           &cond->param,
+                                           &is_set,
+                                           attribute_set,
+                                           error);
+
+        cond->condition = is_set ? set_condition : unset_condition;
+
+        return ret;
+}
+
+static enum pcx_parser_return
+parse_object_condition(struct pcx_parser *parser,
+                       struct pcx_parser_rule_condition *cond,
+                       struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Expected rule condition",
+                      error);
+
+        switch (token->symbol_value) {
+        case PCX_LEXER_KEYWORD_SOMETHING:
+                cond->condition = PCX_AVT_CONDITION_SOMETHING;
+                cond->param.type = PCX_PARSER_RULE_PARAMETER_TYPE_NONE;
+                return PCX_PARSER_RETURN_OK;
+        case PCX_LEXER_KEYWORD_NOTHING:
+                cond->condition = PCX_AVT_CONDITION_NOTHING;
+                cond->param.type = PCX_PARSER_RULE_PARAMETER_TYPE_NONE;
+                return PCX_PARSER_RETURN_OK;
+        case PCX_LEXER_KEYWORD_SHOTS:
+                cond->condition = PCX_AVT_CONDITION_SHOTS;
+                return parse_rule_int_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_WEIGHT:
+                cond->condition = PCX_AVT_CONDITION_WEIGHT;
+                return parse_rule_int_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_SIZE:
+                cond->condition = PCX_AVT_CONDITION_SIZE;
+                return parse_rule_int_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_CONTAINER_SIZE:
+                cond->condition = PCX_AVT_CONDITION_CONTAINER_SIZE;
+                return parse_rule_int_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_BURN_TIME:
+                cond->condition = PCX_AVT_CONDITION_BURN_TIME;
+                return parse_rule_int_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_ADJECTIVE:
+                cond->condition = PCX_AVT_CONDITION_OBJECT_SAME_ADJECTIVE;
+                return parse_rule_object_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_NAME:
+                cond->condition = PCX_AVT_CONDITION_OBJECT_SAME_NAME;
+                return parse_rule_object_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_COPY:
+                cond->condition = PCX_AVT_CONDITION_OBJECT_SAME_NOUN;
+                return parse_rule_object_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_ATTRIBUTE:
+                return parse_condition_attribute_param
+                        (parser,
+                         cond,
+                         PCX_AVT_CONDITION_OBJECT_ATTRIBUTE,
+                         PCX_AVT_CONDITION_NOT_OBJECT_ATTRIBUTE,
+                         &parser->object_attributes,
+                         error);
+        }
+
+        /* Anything else should directly be an object name */
+        pcx_lexer_put_token(parser->lexer);
+        cond->condition = PCX_AVT_CONDITION_OBJECT_IS;
+        return parse_rule_object_param(parser, &cond->param, error);
+}
+
+static enum pcx_parser_return
+parse_rule_room_param(struct pcx_parser *parser,
+                      struct pcx_parser_rule_parameter *param,
+                      struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Room name expected",
+                      error);
+
+        param->type = PCX_PARSER_RULE_PARAMETER_TYPE_ROOM;
+        param->reference.symbol = token->symbol_value;
+        param->reference.line_num = pcx_lexer_get_line_num(parser->lexer);
+
+        return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
+parse_room_condition(struct pcx_parser *parser,
+                     struct pcx_parser_rule_condition *cond,
+                     struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Expected rule condition",
+                      error);
+
+        if (token->symbol_value == PCX_LEXER_KEYWORD_ATTRIBUTE) {
+                return parse_condition_attribute_param
+                        (parser,
+                         cond,
+                         PCX_AVT_CONDITION_ROOM_ATTRIBUTE,
+                         PCX_AVT_CONDITION_NOT_ROOM_ATTRIBUTE,
+                         &parser->room_attributes,
+                         error);
+        }
+
+        /* Anything else should directly be a room name */
+        pcx_lexer_put_token(parser->lexer);
+        cond->condition = PCX_AVT_CONDITION_IN_ROOM;
+        return parse_rule_room_param(parser, &cond->param, error);
+}
+
+static enum pcx_parser_return
+parse_condition(struct pcx_parser *parser,
+                struct pcx_parser_rule *rule,
+                struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        token = pcx_lexer_get_token(parser->lexer, error);
+
+        if (token == NULL)
+                return PCX_PARSER_RETURN_ERROR;
+
+        if (token->type != PCX_LEXER_TOKEN_TYPE_SYMBOL) {
+                pcx_lexer_put_token(parser->lexer);
+                return PCX_PARSER_RETURN_NOT_MATCHED;
+        }
+
+        struct pcx_parser_rule_condition *cond;
+
+        switch (token->symbol_value) {
+        case PCX_LEXER_KEYWORD_OBJECT:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_OBJECT);
+                return parse_object_condition(parser, cond, error);
+        case PCX_LEXER_KEYWORD_TOOL:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_TOOL);
+                return parse_object_condition(parser, cond, error);
+        case PCX_LEXER_KEYWORD_ROOM:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                return parse_room_condition(parser, cond, error);
+        case PCX_LEXER_KEYWORD_ATTRIBUTE:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                return parse_condition_attribute_param
+                        (parser,
+                         cond,
+                         PCX_AVT_CONDITION_PLAYER_ATTRIBUTE,
+                         PCX_AVT_CONDITION_NOT_PLAYER_ATTRIBUTE,
+                         &parser->player_attributes,
+                         error);
+        case PCX_LEXER_KEYWORD_PRESENT:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                cond->condition = PCX_AVT_CONDITION_ANOTHER_OBJECT_PRESENT;
+                return parse_rule_object_param(parser, &cond->param, error);
+        case PCX_LEXER_KEYWORD_CHANCE:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                cond->condition = PCX_AVT_CONDITION_CHANCE;
+                return parse_rule_int_param(parser, &cond->param, error);
+        default:
+                pcx_lexer_put_token(parser->lexer);
+                return PCX_PARSER_RETURN_NOT_MATCHED;
+        }
+}
+
+static struct pcx_parser_rule_action *
+add_rule_action(struct pcx_parser_rule *rule,
+                enum pcx_avt_rule_subject subject)
+{
+        pcx_buffer_set_length(&rule->actions,
+                              rule->actions.length +
+                              sizeof (struct pcx_parser_rule_action));
+        struct pcx_parser_rule_action *action =
+                ((struct pcx_parser_rule_action *)
+                 (rule->actions.data + rule->actions.length)) - 1;
+
+        action->subject = subject;
+
+        return action;
+}
+
+static enum pcx_parser_return
+parse_action_attribute_param(struct pcx_parser *parser,
+                             struct pcx_parser_rule_action *action,
+                             enum pcx_avt_action set_action,
+                             enum pcx_avt_action unset_action,
+                             struct pcx_parser_attribute_set *attribute_set,
+                             struct pcx_error **error)
+{
+        bool is_set = false;
+
+        enum pcx_parser_return ret =
+                parse_rule_attribute_param(parser,
+                                           &action->param,
+                                           &is_set,
+                                           attribute_set,
+                                           error);
+
+        action->action = is_set ? set_action : unset_action;
+
+        return ret;
+}
+
+static enum pcx_parser_return
+parse_object_action(struct pcx_parser *parser,
+                    struct pcx_parser_rule_action *action,
+                    struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Expected rule action",
+                      error);
+
+        switch (token->symbol_value) {
+        case PCX_LEXER_KEYWORD_NOTHING:
+                action->action = PCX_AVT_ACTION_NOTHING;
+                action->param.type = PCX_PARSER_RULE_PARAMETER_TYPE_NONE;
+                return PCX_PARSER_RETURN_OK;
+        case PCX_LEXER_KEYWORD_ELSEWHERE:
+                action->action = PCX_AVT_ACTION_MOVE_TO;
+                return parse_rule_room_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_END:
+                action->action = PCX_AVT_ACTION_CHANGE_END;
+                return parse_rule_int_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_SHOTS:
+                action->action = PCX_AVT_ACTION_CHANGE_SHOTS;
+                return parse_rule_int_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_WEIGHT:
+                action->action = PCX_AVT_ACTION_CHANGE_WEIGHT;
+                return parse_rule_int_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_SIZE:
+                action->action = PCX_AVT_ACTION_CHANGE_SIZE;
+                return parse_rule_int_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_CONTAINER_SIZE:
+                action->action = PCX_AVT_ACTION_CHANGE_CONTAINER_SIZE;
+                return parse_rule_int_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_BURN_TIME:
+                action->action = PCX_AVT_ACTION_CHANGE_BURN_TIME;
+                return parse_rule_int_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_ADJECTIVE:
+                action->action = PCX_AVT_ACTION_CHANGE_OBJECT_ADJECTIVE;
+                return parse_rule_object_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_NAME:
+                action->action = PCX_AVT_ACTION_CHANGE_OBJECT_NAME;
+                return parse_rule_object_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_COPY:
+                action->action = PCX_AVT_ACTION_COPY_OBJECT;
+                return parse_rule_object_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_ATTRIBUTE:
+                return parse_action_attribute_param
+                        (parser,
+                         action,
+                         PCX_AVT_ACTION_SET_OBJECT_ATTRIBUTE,
+                         PCX_AVT_ACTION_UNSET_OBJECT_ATTRIBUTE,
+                         &parser->object_attributes,
+                         error);
+        case PCX_LEXER_KEYWORD_CARRYING:
+                action->action = PCX_AVT_ACTION_CARRY;
+                action->param.type = PCX_PARSER_RULE_PARAMETER_TYPE_NONE;
+                return PCX_PARSER_RETURN_OK;
+        }
+
+        /* Anything else should directly be an object name */
+        pcx_lexer_put_token(parser->lexer);
+        action->action = PCX_AVT_ACTION_REPLACE_OBJECT;
+        return parse_rule_object_param(parser, &action->param, error);
+}
+
+static enum pcx_parser_return
+parse_room_action(struct pcx_parser *parser,
+                  struct pcx_parser_rule_action *action,
+                  struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Expected rule action",
+                      error);
+
+        if (token->symbol_value == PCX_LEXER_KEYWORD_ATTRIBUTE) {
+                return parse_action_attribute_param
+                        (parser,
+                         action,
+                         PCX_AVT_ACTION_SET_ROOM_ATTRIBUTE,
+                         PCX_AVT_ACTION_UNSET_ROOM_ATTRIBUTE,
+                         &parser->room_attributes,
+                         error);
+        }
+
+        /* Anything else should directly be a room name */
+        pcx_lexer_put_token(parser->lexer);
+        action->action = PCX_AVT_ACTION_MOVE_TO;
+        return parse_rule_room_param(parser, &action->param, error);
+}
+
+static enum pcx_parser_return
+parse_action(struct pcx_parser *parser,
+             struct pcx_parser_rule *rule,
+             struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_NEW, error);
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_SYMBOL,
+                      "Expected action",
+                      error);
+
+        struct pcx_parser_rule_action *action;
+
+        switch (token->symbol_value) {
+        case PCX_LEXER_KEYWORD_OBJECT:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_OBJECT);
+                return parse_object_action(parser, action, error);
+        case PCX_LEXER_KEYWORD_TOOL:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_TOOL);
+                return parse_object_action(parser, action, error);
+        case PCX_LEXER_KEYWORD_ROOM:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                return parse_room_action(parser, action, error);
+        case PCX_LEXER_KEYWORD_ATTRIBUTE:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                return parse_action_attribute_param
+                        (parser,
+                         action,
+                         PCX_AVT_ACTION_SET_PLAYER_ATTRIBUTE,
+                         PCX_AVT_ACTION_UNSET_PLAYER_ATTRIBUTE,
+                         &parser->player_attributes,
+                         error);
+        default:
+                pcx_lexer_put_token(parser->lexer);
+                return PCX_PARSER_RETURN_NOT_MATCHED;
+        }
+}
+
+static void
+process_parent_condition(struct pcx_parser *parser,
+                         struct pcx_parser_rule *rule,
+                         struct pcx_parser_target *parent)
+{
+        if (parent == NULL)
+                return;
+
+        struct pcx_parser_rule_condition *cond;
+
+        switch (parent->type) {
+        case PCX_PARSER_TARGET_TYPE_OBJECT:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_OBJECT);
+                cond->condition = PCX_AVT_CONDITION_OBJECT_IS;
+                cond->param.type = PCX_PARSER_RULE_PARAMETER_TYPE_INT;
+                cond->param.data = parent->num;
+                return;
+        case PCX_PARSER_TARGET_TYPE_ROOM:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                cond->condition = PCX_AVT_CONDITION_IN_ROOM;
+                cond->param.type = PCX_PARSER_RULE_PARAMETER_TYPE_INT;
+                cond->param.data = parent->num;
+                return;
+        case PCX_PARSER_TARGET_TYPE_TEXT:
+                assert(false);
+        }
+
+        assert(false);
+}
+
+static enum pcx_parser_return
+parse_rule(struct pcx_parser *parser,
+           struct pcx_parser_target *parent_target,
+           struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_RULE, error);
+        require_token(parser,
+                      PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
+                      "Expected ‘{’",
+                      error);
+
+        struct pcx_parser_rule *rule = pcx_calloc(sizeof *rule);
+        pcx_list_insert(parser->rules.prev, &rule->link);
+
+        rule->line_num = pcx_lexer_get_line_num(parser->lexer);
+
+        pcx_buffer_init(&rule->conditions);
+        pcx_buffer_init(&rule->actions);
+
+        process_parent_condition(parser, rule, parent_target);
+
+        while (true) {
+                const struct pcx_lexer_token *token =
+                        pcx_lexer_get_token(parser->lexer, error);
+
+                if (token == NULL)
+                        return PCX_PARSER_RETURN_ERROR;
+
+                if (token->type == PCX_LEXER_TOKEN_TYPE_CLOSE_BRACKET)
+                        break;
+
+                pcx_lexer_put_token(parser->lexer);
+
+                switch (parse_properties(parser,
+                                         rule_props,
+                                         PCX_N_ELEMENTS(rule_props),
+                                         rule,
+                                         error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                switch (parse_condition(parser, rule, error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                switch (parse_action(parser, rule, error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Expected rule item or ‘}’ at line %i",
+                              pcx_lexer_get_line_num(parser->lexer));
+
+                return PCX_PARSER_RETURN_ERROR;
+        }
+
+        return PCX_PARSER_RETURN_OK;
+}
+
 static enum pcx_parser_return
 parse_alias(struct pcx_parser *parser,
             struct pcx_parser_target *target,
@@ -1041,6 +1668,7 @@ parse_object(struct pcx_parser *parser,
 
                 static const item_parse_func funcs[] = {
                         parse_object,
+                        parse_rule,
                 };
 
                 switch (parse_items(parser,
@@ -1285,6 +1913,7 @@ parse_room(struct pcx_parser *parser,
 
                 static const item_parse_func funcs[] = {
                         parse_object,
+                        parse_rule,
                 };
 
                 switch (parse_items(parser,
@@ -1399,6 +2028,7 @@ parse_file(struct pcx_parser *parser,
                         parse_room,
                         parse_text,
                         parse_object,
+                        parse_rule,
                 };
 
                 switch (parse_items(parser,
@@ -1933,6 +2563,225 @@ compile_alias(struct pcx_parser *parser,
 }
 
 static bool
+compile_verbs(struct pcx_parser *parser,
+              struct pcx_avt *avt,
+              struct pcx_error **error)
+{
+        /* FIXME: Maybe this could do something to sort the verbs and
+         * remove duplicates. Not sure if it’s really worth it.
+         */
+        avt->n_verbs = avt->n_rules;
+        avt->verbs = pcx_calloc(avt->n_verbs * sizeof (char *));
+
+        struct pcx_parser_rule *rule;
+        int i = 0;
+
+        pcx_list_for_each(rule, &parser->rules, link) {
+                int len = strlen(rule->verb);
+
+                if (len < 2 || rule->verb[len - 1] != 'i') {
+                        pcx_set_error(error,
+                                      &pcx_parser_error,
+                                      PCX_PARSER_ERROR_INVALID,
+                                      "Verb must end in ‘i’ at line %i",
+                                      rule->line_num);
+                        return false;
+                }
+
+                rule->verb[len - 1] = '\0';
+
+                avt->verbs[i] = rule->verb;
+                avt->rules[i].verb = rule->verb;
+                rule->verb = NULL;
+                i++;
+        }
+
+        return true;
+}
+
+static bool
+compile_rule_param(struct pcx_parser *parser,
+                   const struct pcx_parser_rule_parameter *param,
+                   uint8_t *data,
+                   struct pcx_error **error)
+{
+        struct pcx_parser_target *target;
+
+        switch (param->type) {
+        case PCX_PARSER_RULE_PARAMETER_TYPE_NONE:
+                break;
+        case PCX_PARSER_RULE_PARAMETER_TYPE_INT:
+                *data = param->data;
+                break;
+        case PCX_PARSER_RULE_PARAMETER_TYPE_OBJECT:
+                target = get_symbol_reference(parser,
+                                              param->reference.symbol);
+                if (target == NULL ||
+                    target->type != PCX_PARSER_TARGET_TYPE_OBJECT) {
+                        pcx_set_error(error,
+                                      &pcx_parser_error,
+                                      PCX_PARSER_ERROR_INVALID,
+                                      "Expected object name at line %i",
+                                      param->reference.line_num);
+                        return false;
+                }
+                *data = target->num;
+                break;
+        case PCX_PARSER_RULE_PARAMETER_TYPE_ROOM:
+                target = get_symbol_reference(parser,
+                                              param->reference.symbol);
+                if (target == NULL ||
+                    target->type != PCX_PARSER_TARGET_TYPE_ROOM) {
+                        pcx_set_error(error,
+                                      &pcx_parser_error,
+                                      PCX_PARSER_ERROR_INVALID,
+                                      "Expected room name at line %i",
+                                      param->reference.line_num);
+                        return false;
+                }
+                *data = target->num;
+                break;
+        }
+
+        return true;
+}
+
+static bool
+compile_conditions(struct pcx_parser *parser,
+                   size_t n_conditions,
+                   const struct pcx_parser_rule_condition *conditions,
+                   struct pcx_avt_condition_data *avt_conditions,
+                   struct pcx_error **error)
+{
+        for (size_t i = 0; i < n_conditions; i++) {
+                avt_conditions[i].subject = conditions[i].subject;
+                avt_conditions[i].condition = conditions[i].condition;
+
+                if (!compile_rule_param(parser,
+                                        &conditions[i].param,
+                                        &avt_conditions[i].data,
+                                        error))
+                        return false;
+        }
+
+        return true;
+}
+
+static bool
+compile_actions(struct pcx_parser *parser,
+                size_t n_actions,
+                const struct pcx_parser_rule_action *actions,
+                struct pcx_avt_action_data *avt_actions,
+                struct pcx_error **error)
+{
+        for (size_t i = 0; i < n_actions; i++) {
+                avt_actions[i].subject = actions[i].subject;
+                avt_actions[i].action = actions[i].action;
+
+                if (!compile_rule_param(parser,
+                                        &actions[i].param,
+                                        &avt_actions[i].data,
+                                        error))
+                        return false;
+        }
+
+        return true;
+}
+
+static bool
+rule_has_condition_subject(const struct pcx_parser_rule *rule,
+                           enum pcx_avt_rule_subject subject)
+{
+        size_t n_conditions = (rule->conditions.length /
+                               sizeof (struct pcx_parser_rule_condition));
+        const struct pcx_parser_rule_condition *conditions =
+                (const struct pcx_parser_rule_condition *)
+                rule->conditions.data;
+
+        for (size_t i = 0; i < n_conditions; i++) {
+                if (conditions[i].subject == subject)
+                        return true;
+        }
+
+        return false;
+}
+
+static void
+add_default_conditions(struct pcx_parser_rule *rule)
+{
+        static const enum pcx_avt_rule_subject default_rule_subjects[] = {
+                PCX_AVT_RULE_SUBJECT_OBJECT,
+                PCX_AVT_RULE_SUBJECT_TOOL,
+                PCX_AVT_RULE_SUBJECT_MONSTER,
+        };
+
+        for (size_t i = 0; i < PCX_N_ELEMENTS(default_rule_subjects); i++) {
+                if (!rule_has_condition_subject(rule,
+                                                default_rule_subjects[i])) {
+                        struct pcx_parser_rule_condition *cond =
+                                add_rule_condition(rule,
+                                                   default_rule_subjects[i]);
+                        cond->condition = PCX_AVT_CONDITION_NOTHING;
+                        cond->param.type = PCX_PARSER_RULE_PARAMETER_TYPE_NONE;
+                }
+        }
+}
+
+static bool
+compile_rule(struct pcx_parser *parser,
+             struct pcx_parser_rule *rule,
+             struct pcx_avt_rule *avt_rule,
+             struct pcx_error **error)
+{
+        if (text_reference_specified(&rule->message)) {
+                if (!resolve_text_reference(parser,
+                                            &rule->message,
+                                            error))
+                        return false;
+
+                avt_rule->text = rule->message.text;
+        }
+
+        avt_rule->points = rule->points;
+
+        add_default_conditions(rule);
+
+        avt_rule->n_conditions = (rule->conditions.length /
+                                  sizeof (struct pcx_parser_rule_condition));
+
+        if (avt_rule->n_conditions > 0) {
+                avt_rule->conditions =
+                        pcx_alloc(avt_rule->n_conditions *
+                                  sizeof (struct pcx_avt_condition_data));
+                if (!compile_conditions(parser,
+                                        avt_rule->n_conditions,
+                                        (struct pcx_parser_rule_condition *)
+                                        rule->conditions.data,
+                                        avt_rule->conditions,
+                                        error))
+                        return false;
+        }
+
+        avt_rule->n_actions = (rule->actions.length /
+                               sizeof (struct pcx_parser_rule_action));
+
+        if (avt_rule->n_actions > 0) {
+                avt_rule->actions =
+                        pcx_alloc(avt_rule->n_actions *
+                                  sizeof (struct pcx_avt_action_data));
+                if (!compile_actions(parser,
+                                     avt_rule->n_actions,
+                                     (struct pcx_parser_rule_action *)
+                                     rule->actions.data,
+                                     avt_rule->actions,
+                                     error))
+                        return false;
+        }
+
+        return true;
+}
+
+static bool
 compile_info(struct pcx_parser *parser,
              struct pcx_avt *avt,
              struct pcx_error **error)
@@ -2043,6 +2892,28 @@ compile_file(struct pcx_parser *parser,
                 }
         }
 
+        avt->n_rules = pcx_list_length(&parser->rules);
+
+        if (avt->n_rules > 0) {
+                avt->rules = pcx_calloc(sizeof (struct pcx_avt_rule) *
+                                        avt->n_rules);
+
+                if (!compile_verbs(parser, avt, error))
+                        return false;
+
+                struct pcx_parser_rule *rule;
+                int rule_num = 0;
+
+                pcx_list_for_each(rule, &parser->rules, link) {
+                        if (!compile_rule(parser,
+                                          rule,
+                                          avt->rules + rule_num, error))
+                                return false;
+
+                        rule_num++;
+                }
+        }
+
         avt->n_strings = pcx_list_length(&parser->texts);
         avt->strings = pcx_alloc(sizeof (char *) * avt->n_strings);
 
@@ -2053,6 +2924,19 @@ compile_file(struct pcx_parser *parser,
         }
 
         return true;
+}
+
+static void
+destroy_rules(struct pcx_parser *parser)
+{
+        struct pcx_parser_rule *rule, *tmp;
+
+        pcx_list_for_each_safe(rule, tmp, &parser->rules, link) {
+                pcx_buffer_destroy(&rule->conditions);
+                pcx_buffer_destroy(&rule->actions);
+                pcx_free(rule->verb);
+                pcx_free(rule);
+        }
 }
 
 static void
@@ -2113,6 +2997,7 @@ destroy_parser(struct pcx_parser *parser)
         destroy_objects(parser);
         destroy_texts(parser);
         destroy_aliases(parser);
+        destroy_rules(parser);
 
         pcx_free(parser->game_name);
         pcx_free(parser->game_author);
@@ -2121,6 +3006,7 @@ destroy_parser(struct pcx_parser *parser)
 
         pcx_buffer_destroy(&parser->room_attributes.symbols);
         pcx_buffer_destroy(&parser->object_attributes.symbols);
+        pcx_buffer_destroy(&parser->player_attributes.symbols);
 
         pcx_buffer_destroy(&parser->symbols);
 
@@ -2137,6 +3023,7 @@ pcx_parser_parse(struct pcx_source *source,
 
         pcx_list_init(&parser.rooms);
         pcx_list_init(&parser.objects);
+        pcx_list_init(&parser.rules);
         pcx_list_init(&parser.texts);
         pcx_list_init(&parser.aliases);
         pcx_buffer_init(&parser.symbols);
@@ -2148,6 +3035,7 @@ pcx_parser_parse(struct pcx_source *source,
         pcx_buffer_append(&parser.object_attributes.symbols,
                           object_base_attributes,
                           sizeof object_base_attributes);
+        pcx_buffer_init(&parser.player_attributes.symbols);
         pcx_buffer_init(&parser.tmp_buf);
 
         bool ret = parse_file(&parser, error);

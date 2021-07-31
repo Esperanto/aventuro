@@ -120,6 +120,18 @@ keywords[] = {
         [PCX_LEXER_KEYWORD_POISONOUS] = "venena",
         [PCX_LEXER_KEYWORD_CARRYING] = "kunportata",
         [PCX_LEXER_KEYWORD_ALIAS] = "alinomo",
+        [PCX_LEXER_KEYWORD_VERB] = "verbo",
+        [PCX_LEXER_KEYWORD_MESSAGE] = "mesaĝo",
+        [PCX_LEXER_KEYWORD_RULE] = "fenomeno",
+        [PCX_LEXER_KEYWORD_TOOL] = "pero",
+        [PCX_LEXER_KEYWORD_CHANCE] = "ŝanco",
+        [PCX_LEXER_KEYWORD_PRESENT] = "ĉeestas",
+        [PCX_LEXER_KEYWORD_ADJECTIVE] = "adjektivo",
+        [PCX_LEXER_KEYWORD_COPY] = "kopio",
+        [PCX_LEXER_KEYWORD_SOMETHING] = "io",
+        [PCX_LEXER_KEYWORD_UNSET] = "malvera",
+        [PCX_LEXER_KEYWORD_NEW] = "nova",
+        [PCX_LEXER_KEYWORD_ELSEWHERE] = "alien",
 };
 
 _Static_assert(PCX_N_ELEMENTS(keywords) == PCX_LEXER_N_KEYWORDS,
