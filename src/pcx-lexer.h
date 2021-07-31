@@ -92,6 +92,7 @@ enum pcx_lexer_token_type {
         PCX_LEXER_TOKEN_TYPE_DRINKABLE,
         PCX_LEXER_TOKEN_TYPE_POISONOUS,
         PCX_LEXER_TOKEN_TYPE_CARRYING,
+        PCX_LEXER_TOKEN_TYPE_ALIAS,
 };
 
 struct pcx_lexer_token {

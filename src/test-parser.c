@@ -458,6 +458,18 @@ fail_checks[] = {
                 "aĵo a { aĵo b{",
                 "Expected object item or ‘}’ at line 1"
         },
+        {
+                "aĵo a { alinomo \"a\" }",
+                "Alias name must be a noun at line 1"
+        },
+        {
+                "aĵo a { alinomo \"fluga\" }",
+                "Alias name must be a noun at line 1"
+        },
+        {
+                "aĵo a { alinomo \"fluga aviadilo\" }",
+                "Alias name must be a noun at line 1"
+        },
 };
 
 static bool
@@ -840,6 +852,36 @@ main(int argc, char **argv)
         assert(avt->objects[4].base.description ==
                avt->objects[3].base.description);
         assert(!strcmp(avt->objects[4].read_text, "IKEA"));
+
+        pcx_avt_free(avt);
+
+        avt = expect_success(BLURB
+                             "salono j {\n"
+                             "   priskribo \"j\"\n"
+                             "}\n"
+                             "aĵo blua_skatolo {\n"
+                             "   alinomo \"kartono\"\n"
+                             "   alinomo \"randoj\"\n"
+                             "}"
+                             "aĵo timiga_pupo {\n"
+                             "   alinomo \"pupeto\"\n"
+                             "}");
+        assert(avt->n_aliases == 3);
+
+        assert(avt->aliases[0].type == PCX_AVT_ALIAS_TYPE_OBJECT);
+        assert(!avt->aliases[0].plural);
+        assert(avt->aliases[0].index == 0);
+        assert(!strcmp(avt->aliases[0].name, "karton"));
+
+        assert(avt->aliases[1].type == PCX_AVT_ALIAS_TYPE_OBJECT);
+        assert(avt->aliases[1].plural);
+        assert(avt->aliases[1].index == 0);
+        assert(!strcmp(avt->aliases[1].name, "rand"));
+
+        assert(avt->aliases[2].type == PCX_AVT_ALIAS_TYPE_OBJECT);
+        assert(!avt->aliases[2].plural);
+        assert(avt->aliases[2].index == 1);
+        assert(!strcmp(avt->aliases[2].name, "pupet"));
 
         pcx_avt_free(avt);
 

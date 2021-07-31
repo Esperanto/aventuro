@@ -123,6 +123,7 @@ symbols[] = {
         { .name = "trinkebla", .type = PCX_LEXER_TOKEN_TYPE_DRINKABLE },
         { .name = "venena", .type = PCX_LEXER_TOKEN_TYPE_POISONOUS },
         { .name = "kunportata", .type = PCX_LEXER_TOKEN_TYPE_CARRYING },
+        { .name = "alinomo", .type = PCX_LEXER_TOKEN_TYPE_ALIAS },
 };
 
 static int
