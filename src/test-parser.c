@@ -196,6 +196,15 @@ fail_checks[] = {
         },
         {
                 BLURB
+                /* The description of the kitchen is taken from an
+                 * object which doesn’t have a description.
+                 */
+                "ejo kuirejo { priskribo anonima_objekto }\n"
+                "aĵo anonima_objekto { }\n",
+                "Invalid text reference at line 2"
+        },
+        {
+                BLURB
                 "ejo ejo1 {\n"
                 " priskribo \"j\"\n"
                 " norden wibble\n"

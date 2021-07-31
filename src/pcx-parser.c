@@ -2175,6 +2175,8 @@ resolve_text_reference(struct pcx_parser *parser,
                        struct pcx_parser_text_reference *ref,
                        struct pcx_error **error)
 {
+        int line_num = ref->line_num;
+
         pcx_buffer_set_length(&parser->tmp_buf, 0);
 
         const char *text = NULL;
@@ -2190,7 +2192,7 @@ resolve_text_reference(struct pcx_parser *parser,
                                       &pcx_parser_error,
                                       PCX_PARSER_ERROR_INVALID,
                                       "Cyclic reference detected at line %i",
-                                      ref->line_num);
+                                      line_num);
                         return false;
                 }
 
@@ -2242,7 +2244,7 @@ error:
                       &pcx_parser_error,
                       PCX_PARSER_ERROR_INVALID,
                       "Invalid text reference at line %i",
-                      ref->line_num);
+                      line_num);
         return false;
 }
 
