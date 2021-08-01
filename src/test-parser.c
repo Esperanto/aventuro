@@ -565,6 +565,34 @@ fail_checks[] = {
                 "}\n",
                 "Invalid text reference at line 4"
         },
+        {
+                "fenomeno \"potato\" {\n"
+                "  verbo \"kuri\"\n"
+                "}",
+                "Expected rule name or ‘{’ at line 1"
+        },
+        {
+                "fenomeno mia_regulo\n"
+                "         \"potato\" {\n"
+                "  verbo \"kuri\"\n"
+                "}",
+                "Expected ‘{’ at line 2"
+        },
+        {
+                "teksto mia_regulo \"strange\"\n"
+                "fenomeno mia_regulo\n"
+                "         \"potato\" {\n"
+                "  verbo \"kuri\"\n"
+                "}",
+                "Same name used for multiple objects at line 2"
+        },
+        {
+                "fenomeno {\n"
+                "  verbo \"kuri\"\n"
+                "  &amp;\n"
+                "}",
+                "Unexpected character ‘&’ on line 3"
+        },
 };
 
 static bool
@@ -995,7 +1023,7 @@ main(int argc, char **argv)
                              "}\n"
                              "ejo dormĉambro {\n"
                              "   priskribo \"k\"\n"
-                             "   fenomeno {\n"
+                             "   fenomeno dormaverto {\n"
                              "      verbo \"esti\"\n"
                              "      mesaĝo \"Ne dormu!\"\n"
                              "   }\n"
@@ -1006,7 +1034,7 @@ main(int argc, char **argv)
                              "aĵo ruĝa_terpomo {\n"
                              "   fenomeno {\n"
                              "      verbo \"rigardi\"\n"
-                             "      mesaĝo \"La terpomo ankaŭ rigardas vin!\"\n"
+                             "      mesaĝo dormaverto\n"
                              "   }\n"
                              "}\n"
                              "aĵo purpura_terpomo { }\n"
@@ -1096,7 +1124,7 @@ main(int argc, char **argv)
         assert(avt->verbs[1].n_rules == 2);
         assert(avt->verbs[1].rules[0] == 1);
         assert(avt->verbs[1].rules[1] == 2);
-        assert(!strcmp(rule->text, "La terpomo ankaŭ rigardas vin!"));
+        assert(rule->text == avt->rules[0].text);
         assert(rule->points == 0);
         /* Implicitly added condition because the rule is in an object */
         assert(rule->n_conditions == 3);

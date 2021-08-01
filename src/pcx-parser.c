@@ -71,6 +71,7 @@ enum pcx_parser_target_type {
         PCX_PARSER_TARGET_TYPE_ROOM,
         PCX_PARSER_TARGET_TYPE_TEXT,
         PCX_PARSER_TARGET_TYPE_OBJECT,
+        PCX_PARSER_TARGET_TYPE_RULE,
 };
 
 static const unsigned
@@ -1312,6 +1313,7 @@ process_parent_condition(struct pcx_parser *parser,
                 cond->param.data = parent->num;
                 return;
         case PCX_PARSER_TARGET_TYPE_TEXT:
+        case PCX_PARSER_TARGET_TYPE_RULE:
                 assert(false);
         }
 
@@ -1326,16 +1328,38 @@ parse_rule(struct pcx_parser *parser,
         const struct pcx_lexer_token *token;
 
         check_item_keyword(parser, PCX_LEXER_KEYWORD_RULE, error);
-        require_token(parser,
-                      PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
-                      "Expected ‘{’",
-                      error);
 
         struct pcx_parser_rule *rule = pcx_calloc(sizeof *rule);
         add_target(parser, &parser->rules, &rule->base);
 
         pcx_buffer_init(&rule->conditions);
         pcx_buffer_init(&rule->actions);
+
+        /* Optional name symbol */
+        token = pcx_lexer_get_token(parser->lexer, error);
+        if (token == NULL)
+                return PCX_PARSER_RETURN_ERROR;
+        enum pcx_lexer_token_type head_token_type = token->type;
+        pcx_lexer_put_token(parser->lexer);
+
+        if (head_token_type == PCX_LEXER_TOKEN_TYPE_SYMBOL) {
+                if (!assign_symbol(parser,
+                                   PCX_PARSER_TARGET_TYPE_RULE,
+                                   &rule->base,
+                                   "Expected rule name or ‘{’",
+                                   error))
+                        return PCX_PARSER_RETURN_ERROR;
+
+                require_token(parser,
+                              PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
+                              "Expected ‘{’",
+                              error);
+        } else {
+                require_token(parser,
+                              PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
+                              "Expected rule name or ‘{’",
+                              error);
+        }
 
         process_parent_condition(parser, rule, parent_target);
 
@@ -2215,6 +2239,11 @@ resolve_text_reference(struct pcx_parser *parser,
                                                 struct pcx_parser_object,
                                                 base)->description;
                         continue;
+                case PCX_PARSER_TARGET_TYPE_RULE:
+                        ref = &pcx_container_of(target,
+                                                struct pcx_parser_rule,
+                                                base)->message;
+                        continue;
                 case PCX_PARSER_TARGET_TYPE_TEXT:
                         text = pcx_container_of(target,
                                                 struct pcx_parser_text,
@@ -2415,6 +2444,7 @@ compile_movable_location(struct pcx_parser *parser,
                 movable->location = target->num;
                 return true;
         case PCX_PARSER_TARGET_TYPE_TEXT:
+        case PCX_PARSER_TARGET_TYPE_RULE:
                 break;
         }
 
@@ -2623,6 +2653,7 @@ compile_alias(struct pcx_parser *parser,
         case PCX_PARSER_TARGET_TYPE_OBJECT:
                 avt_alias->type = PCX_AVT_ALIAS_TYPE_OBJECT;
                 break;
+        case PCX_PARSER_TARGET_TYPE_RULE:
         case PCX_PARSER_TARGET_TYPE_TEXT:
         case PCX_PARSER_TARGET_TYPE_ROOM:
                 assert(false);
