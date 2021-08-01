@@ -1299,8 +1299,14 @@ parse_action(struct pcx_parser *parser,
                          &parser->player_attributes,
                          error);
         default:
-                pcx_lexer_put_token(parser->lexer);
-                return PCX_PARSER_RETURN_NOT_MATCHED;
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Unknown action “%s” at line %i",
+                              pcx_lexer_get_symbol_name(parser->lexer,
+                                                        token->symbol_value),
+                              pcx_lexer_get_line_num(parser->lexer));
+                return PCX_PARSER_RETURN_ERROR;
         }
 }
 

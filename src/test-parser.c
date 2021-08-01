@@ -609,6 +609,14 @@ fail_checks[] = {
                 "teksto t1 \"hi\"\n",
                 "Expected rule name at line 4"
         },
+        {
+                BLURB
+                "ejo salono { priskribo \"salono\" }\n"
+                "fenomeno {\n"
+                "  nova verbo \"kuri\"\n"
+                "}\n",
+                "Unknown action “verbo” at line 4"
+        },
 };
 
 static bool
