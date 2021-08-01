@@ -54,10 +54,6 @@
 
    function addMessage(klass, text)
    {
-     var isScrolledToBottom = (messagesDiv.scrollHeight -
-                               messagesDiv.scrollTop <=
-                               messagesDiv.clientHeight * 1.75);
-
      var messageDiv = document.createElement("div");
      messageDiv.className = "message " + klass;
      messagesDiv.appendChild(messageDiv);
@@ -73,11 +69,9 @@
      var textNode = document.createTextNode(text);
      textDiv.appendChild(textNode);
 
-     if (isScrolledToBottom) {
-       messagesDiv.scrollTo(0,
-                            messagesDiv.scrollHeight -
-                            messagesDiv.clientHeight);
-     }
+     messagesDiv.scrollTo(0,
+                          messagesDiv.scrollHeight -
+                          messagesDiv.clientHeight);
 
      return textDiv;
    }
