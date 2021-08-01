@@ -126,6 +126,9 @@ enum pcx_avt_action {
         PCX_AVT_ACTION_CHANGE_MONSTER_NAME = 0x1e,
         PCX_AVT_ACTION_COPY_OBJECT = 0x1f,
         PCX_AVT_ACTION_COPY_MONSTER = 0x20,
+
+        /* Additonally run the actions of the given rule */
+        PCX_AVT_ACTION_RUN_RULE = 0x80,
 };
 
 struct pcx_avt_movable {

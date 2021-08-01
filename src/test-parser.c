@@ -593,6 +593,22 @@ fail_checks[] = {
                 "}",
                 "Unexpected character ‘&’ on line 3"
         },
+        {
+                "fenomeno {\n"
+                "  fenomeno 3\n"
+                "}\n",
+                "Rule name expected at line 2"
+        },
+        {
+                BLURB
+                "ejo salojo { priskribo \"salono\" }\n"
+                "fenomeno {\n"
+                "  fenomeno t1\n"
+                "  verbo \"kuri\"\n"
+                "}\n"
+                "teksto t1 \"hi\"\n",
+                "Expected rule name at line 4"
+        },
 };
 
 static bool
@@ -1093,6 +1109,7 @@ main(int argc, char **argv)
                              "   nova ejo eco malvera luma\n"
                              "   nova eco bluba\n"
                              "   nova eco malvera bluba\n"
+                             "   fenomeno dormaverto\n"
                              "}");
 
         assert(avt->n_verbs == 4);
@@ -1246,7 +1263,7 @@ main(int argc, char **argv)
         assert(rule->conditions[25].subject == PCX_AVT_RULE_SUBJECT_MONSTER);
         assert(rule->conditions[25].condition == PCX_AVT_CONDITION_NOTHING);
 
-        assert(rule->n_actions == 21);
+        assert(rule->n_actions == 22);
         assert(rule->actions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
         assert(rule->actions[0].action == PCX_AVT_ACTION_NOTHING);
         assert(rule->actions[1].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
@@ -1317,6 +1334,9 @@ main(int argc, char **argv)
         assert(rule->actions[20].action ==
                PCX_AVT_ACTION_UNSET_PLAYER_ATTRIBUTE);
         assert(rule->actions[20].data == 1);
+        assert(rule->actions[21].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[21].action == PCX_AVT_ACTION_RUN_RULE);
+        assert(rule->actions[21].data == 0);
 
         pcx_avt_free(avt);
 

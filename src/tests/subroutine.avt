@@ -1,0 +1,33 @@
+nomo "Test"
+aŭtoro "Test"
+jaro "2021"
+
+ejo salono {
+  luma
+  priskribo "Vi estas en via salono."
+}
+
+aĵo ruĝa_birdo {
+}
+
+aĵo blua_birdo {
+}
+
+fenomeno parola_fenomeno {
+  verbo "paroli"
+  mesaĝo "Ruĝa birdo aperas en la salono."
+  nova aĵo ruĝa_birdo
+}
+
+fenomeno {
+  verbo "kanti"
+  mesaĝo "Blua birdo aperas en la salono."
+  nova aĵo blua_birdo
+  fenomeno parola_fenomeno
+}
+
+fenomeno rekursia_fenomeno {
+  verbo "rekursii"
+  mesaĝo "Vi rekursias."
+  fenomeno rekursia_fenomeno
+}

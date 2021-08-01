@@ -1,0 +1,38 @@
+Vi estas en via salono.
+
+> paroli
+
+Ruĝa birdo aperas en la salono.
+
+> rigardi
+
+Vi estas en via salono. Vi vidas ruĝan birdon.
+
+@restart
+
+Vi estas en via salono.
+
+> kanti
+
+Blua birdo aperas en la salono.
+
+Ruĝa birdo aperas en la salono.
+
+> rigardi
+
+Vi estas en via salono. Vi vidas bluan birdon kaj ruĝan birdon.
+
+> rekursiu
+
+# The interpreter limits the recursion to a depth of 10
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+Vi rekursias.
+

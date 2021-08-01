@@ -119,6 +119,7 @@ enum pcx_parser_rule_parameter_type {
         PCX_PARSER_RULE_PARAMETER_TYPE_INT,
         PCX_PARSER_RULE_PARAMETER_TYPE_OBJECT,
         PCX_PARSER_RULE_PARAMETER_TYPE_ROOM,
+        PCX_PARSER_RULE_PARAMETER_TYPE_RULE,
 };
 
 struct pcx_parser_rule_parameter {
@@ -270,8 +271,8 @@ typedef enum pcx_parser_return
                         pcx_set_error(error,                            \
                                       &pcx_parser_error,                \
                                       PCX_PARSER_ERROR_INVALID,         \
-                                      msg                               \
-                                      " at line %i",                    \
+                                      "%s at line %i",                  \
+                                      (msg),                            \
                                       pcx_lexer_get_line_num(parser->lexer)); \
                         return PCX_PARSER_RETURN_ERROR;                 \
                 }                                                       \
@@ -876,22 +877,36 @@ parse_rule_int_param(struct pcx_parser *parser,
 }
 
 static enum pcx_parser_return
-parse_rule_object_param(struct pcx_parser *parser,
-                        struct pcx_parser_rule_parameter *param,
-                        struct pcx_error **error)
+parse_rule_reference_param(struct pcx_parser *parser,
+                           struct pcx_parser_rule_parameter *param,
+                           enum pcx_parser_rule_parameter_type type,
+                           const char *msg,
+                           struct pcx_error **error)
 {
         const struct pcx_lexer_token *token;
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Object name expected",
+                      msg,
                       error);
 
-        param->type = PCX_PARSER_RULE_PARAMETER_TYPE_OBJECT;
+        param->type = type;
         param->reference.symbol = token->symbol_value;
         param->reference.line_num = pcx_lexer_get_line_num(parser->lexer);
 
         return PCX_PARSER_RETURN_OK;
+}
+
+static enum pcx_parser_return
+parse_rule_object_param(struct pcx_parser *parser,
+                        struct pcx_parser_rule_parameter *param,
+                        struct pcx_error **error)
+{
+        return parse_rule_reference_param(parser,
+                                          param,
+                                          PCX_PARSER_RULE_PARAMETER_TYPE_OBJECT,
+                                          "Object name expected",
+                                          error);
 }
 
 static enum pcx_parser_return
@@ -1289,6 +1304,26 @@ parse_action(struct pcx_parser *parser,
         }
 }
 
+static enum pcx_parser_return
+parse_run_rule_action(struct pcx_parser *parser,
+                      struct pcx_parser_rule *rule,
+                      struct pcx_error **error)
+{
+        const struct pcx_lexer_token *token;
+
+        check_item_keyword(parser, PCX_LEXER_KEYWORD_RULE, error);
+
+        struct pcx_parser_rule_action *action =
+                add_rule_action(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+        action->action = PCX_AVT_ACTION_RUN_RULE;
+
+        return parse_rule_reference_param(parser,
+                                          &action->param,
+                                          PCX_PARSER_RULE_PARAMETER_TYPE_RULE,
+                                          "Rule name expected",
+                                          error);
+}
+
 static void
 process_parent_condition(struct pcx_parser *parser,
                          struct pcx_parser_rule *rule,
@@ -1400,6 +1435,15 @@ parse_rule(struct pcx_parser *parser,
                 }
 
                 switch (parse_action(parser, rule, error)) {
+                case PCX_PARSER_RETURN_OK:
+                        continue;
+                case PCX_PARSER_RETURN_NOT_MATCHED:
+                        break;
+                case PCX_PARSER_RETURN_ERROR:
+                        return PCX_PARSER_RETURN_ERROR;
+                }
+
+                switch (parse_run_rule_action(parser, rule, error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
                 case PCX_PARSER_RETURN_NOT_MATCHED:
@@ -2705,6 +2749,20 @@ compile_rule_param(struct pcx_parser *parser,
                                       &pcx_parser_error,
                                       PCX_PARSER_ERROR_INVALID,
                                       "Expected object name at line %i",
+                                      param->reference.line_num);
+                        return false;
+                }
+                *data = target->num;
+                break;
+        case PCX_PARSER_RULE_PARAMETER_TYPE_RULE:
+                target = get_symbol_reference(parser,
+                                              param->reference.symbol);
+                if (target == NULL ||
+                    target->type != PCX_PARSER_TARGET_TYPE_RULE) {
+                        pcx_set_error(error,
+                                      &pcx_parser_error,
+                                      PCX_PARSER_ERROR_INVALID,
+                                      "Expected rule name at line %i",
                                       param->reference.line_num);
                         return false;
                 }

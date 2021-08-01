@@ -108,6 +108,8 @@ test('contain', test_avt,
      args : files('tests/contain.avt', 'tests/contain.txt'))
 test('multi-verb', test_avt,
      args : files('tests/multi-verb.avt', 'tests/multi-verb.txt'))
+test('subroutine', test_avt,
+     args : files('tests/subroutine.avt', 'tests/subroutine.txt'))
 
 test_parser_src = [
         'pcx-util.c',

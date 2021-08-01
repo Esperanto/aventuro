@@ -932,6 +932,10 @@ extract_action(struct load_data *data,
         case PCX_AVT_ACTION_SET_PLAYER_ATTRIBUTE:
         case PCX_AVT_ACTION_UNSET_PLAYER_ATTRIBUTE:
                 return true;
+
+                /* New actions not in the original file format */
+        case PCX_AVT_ACTION_RUN_RULE:
+                break;
         }
 
         pcx_set_error(error,
