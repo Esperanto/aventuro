@@ -1927,16 +1927,17 @@ handle_compass_direction(struct pcx_avt_state *state,
 
         static const struct {
                 const char *word;
+                const char *verb;
                 int direction;
         } direction_map[] = {
-                { "nord", PCX_AVT_DIRECTION_NORTH },
-                { "orient", PCX_AVT_DIRECTION_EAST },
-                { "sud", PCX_AVT_DIRECTION_SOUTH },
-                { "okcident", PCX_AVT_DIRECTION_WEST },
-                { "supr", PCX_AVT_DIRECTION_UP },
-                { "malsupr", PCX_AVT_DIRECTION_DOWN },
-                { "sub", PCX_AVT_DIRECTION_DOWN },
-                { "el", PCX_AVT_DIRECTION_EXIT },
+                { "nord", "nordenir", PCX_AVT_DIRECTION_NORTH },
+                { "orient", "orientenir", PCX_AVT_DIRECTION_EAST },
+                { "sud", "sudenir", PCX_AVT_DIRECTION_SOUTH },
+                { "okcident", "okcidentenir", PCX_AVT_DIRECTION_WEST },
+                { "supr", "suprenir", PCX_AVT_DIRECTION_UP },
+                { "malsupr", "subenir", PCX_AVT_DIRECTION_DOWN },
+                { "sub", "subenir", PCX_AVT_DIRECTION_DOWN },
+                { "el", "elir", PCX_AVT_DIRECTION_EXIT },
         };
 
         const struct pcx_avt_room *room =
@@ -1945,6 +1946,13 @@ handle_compass_direction(struct pcx_avt_state *state,
         for (int i = 0; i < PCX_N_ELEMENTS(direction_map); i++) {
                 if (pcx_avt_command_word_equal(&noun->name,
                                                direction_map[i].word)) {
+                        if (run_special_rules(state,
+                                              direction_map[i].verb,
+                                              NULL, /* object */
+                                              NULL, /* tool */
+                                              state->current_room))
+                                return true;
+
                         int dir = direction_map[i].direction;
                         int new_room = room->movements[dir];
 
@@ -2579,6 +2587,13 @@ handle_exit(struct pcx_avt_state *state,
         if (!is_verb_command_and_has(command, 0) ||
             !pcx_avt_command_word_equal(&command->verb, "elir"))
                 return false;
+
+        if (run_special_rules(state,
+                              "elir",
+                              NULL, /* object */
+                              NULL, /* tool */
+                              state->current_room))
+                return true;
 
         const struct pcx_avt_room *room =
                 state->avt->rooms + state->current_room;

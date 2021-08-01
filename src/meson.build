@@ -110,6 +110,8 @@ test('multi-verb', test_avt,
      args : files('tests/multi-verb.avt', 'tests/multi-verb.txt'))
 test('subroutine', test_avt,
      args : files('tests/subroutine.avt', 'tests/subroutine.txt'))
+test('direction-rules', test_avt,
+     args : files('tests/direction-rules.avt', 'tests/direction-rules.txt'))
 
 test_parser_src = [
         'pcx-util.c',

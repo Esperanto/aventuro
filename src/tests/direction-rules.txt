@@ -1,0 +1,119 @@
+Vi estas en via salono. Vi vidas timigan pupon kaj sekuran keston.
+
+> norden
+
+Vi ne povas nordeniri dum la pupo rigardas vin.
+
+> mi iros orienten
+
+Vi ne povas orienteniri dum la pupo rigardas vin.
+
+> mi iros al la sudo
+
+Vi ne povas sudeniri dum la pupo rigardas vin.
+
+> iros okcidenten mi
+
+Vi ne povas okcidenteniri dum la pupo rigardas vin.
+
+> supren iros mi
+
+Vi ne povas supreniri dum la pupo rigardas vin.
+
+> suben mi iros
+
+Vi ne povas malsupreniri dum la pupo rigardas vin.
+
+> malsupren mi iros
+
+Vi ne povas malsupreniri dum la pupo rigardas vin.
+
+> eliri
+
+Vi ne povas eliri dum la pupo rigardas vin.
+
+> mi iros elen
+
+Vi ne povas eliri dum la pupo rigardas vin.
+
+> meti la pupon en la keston
+
+Vi prenis la timigan pupon.
+
+Vi metis la timigan pupon en la sekuran keston.
+
+> fermi la keston
+
+Vi fermis la sekuran keston.
+
+> norden
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi iros orienten
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi iros al la sudo
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> iros okcidenten mi
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> supren iros mi
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> suben mi iros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> malsupren mi iros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> eliri
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi iros elen
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.

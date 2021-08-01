@@ -1,0 +1,74 @@
+nomo "Test"
+aŭtoro "Test"
+jaro "2021"
+
+ ejo salono {
+  priskribo "Vi estas en via salono."
+
+  luma
+  norden aliloko
+  orienten aliloko
+  suden aliloko
+  okcidenten aliloko
+  supren aliloko
+  suben aliloko
+  elen aliloko
+
+  fenomeno {
+    verbo "nordeniri"
+    ĉeestas pupo
+    mesaĝo "Vi ne povas nordeniri dum la pupo rigardas vin."
+   }
+
+  fenomeno {
+    verbo "orienteniri"
+    ĉeestas pupo
+    mesaĝo "Vi ne povas orienteniri dum la pupo rigardas vin."
+   }
+
+  fenomeno {
+    verbo "sudeniri"
+    ĉeestas pupo
+    mesaĝo "Vi ne povas sudeniri dum la pupo rigardas vin."
+   }
+
+  fenomeno {
+    verbo "okcidenteniri"
+    ĉeestas pupo
+    mesaĝo "Vi ne povas okcidenteniri dum la pupo rigardas vin."
+   }
+
+  fenomeno {
+    verbo "supreniri"
+    ĉeestas pupo
+    mesaĝo "Vi ne povas supreniri dum la pupo rigardas vin."
+   }
+
+  fenomeno {
+    verbo "subeniri"
+    ĉeestas pupo
+    mesaĝo "Vi ne povas malsupreniri dum la pupo rigardas vin."
+   }
+
+  fenomeno {
+    verbo "eliri"
+    ĉeestas pupo
+    mesaĝo "Vi ne povas eliri dum la pupo rigardas vin."
+   }
+
+   aĵo pupo {
+     nomo "timiga pupo"
+     priskribo "Mankas al ĝi unu okulo."
+   }
+
+   aĵo sekura_kesto {
+     fermebla
+     enhavo 50
+   }
+}
+
+ejo aliloko {
+  priskribo "Vi estas en alia loko."
+  norden salono
+  luma
+}
