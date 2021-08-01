@@ -69,10 +69,6 @@
      var textNode = document.createTextNode(text);
      textDiv.appendChild(textNode);
 
-     messagesDiv.scrollTo(0,
-                          messagesDiv.scrollHeight -
-                          messagesDiv.clientHeight);
-
      return textDiv;
    }
 
@@ -118,6 +114,10 @@
          showAtTime(span, ++messageDelay);
        }
      }
+
+     messagesDiv.scrollTo(0,
+                          messagesDiv.scrollHeight -
+                          messagesDiv.clientHeight);
    }
 
    function setRoomName()
