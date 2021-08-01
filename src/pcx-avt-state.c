@@ -2263,8 +2263,8 @@ find_aggressive_holder(struct pcx_avt_state_movable *movable)
 }
 
 static bool
-validate_take(struct pcx_avt_state *state,
-              struct pcx_avt_state_movable *movable)
+try_take(struct pcx_avt_state *state,
+         struct pcx_avt_state_movable *movable)
 {
         if (movable->base.location_type == PCX_AVT_LOCATION_TYPE_CARRYING) {
                 add_message_string(state, "Vi jam portas la ");
@@ -2274,10 +2274,7 @@ validate_take(struct pcx_avt_state *state,
                 return false;
         }
 
-        if (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER ||
-            (movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT &&
-             (movable->base.attributes &
-              PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) == 0)) {
+        if (movable->type != PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
                 add_message_string(state, "Vi ne povas porti la ");
                 add_movable_to_message(state, &movable->base, "n");
                 add_message_c(state, '.');
@@ -2325,6 +2322,34 @@ validate_take(struct pcx_avt_state *state,
                 return false;
         }
 
+        if (run_special_rules(state,
+                              "pren",
+                              movable,
+                              NULL, /* tool */
+                              state->current_room)) {
+                /* The rule replaces the default action, but it might
+                 * end up causing the object to be carried anyway.
+                 */
+                return (movable->base.location_type ==
+                        PCX_AVT_LOCATION_TYPE_CARRYING);
+        }
+
+        if ((movable->base.attributes &
+             PCX_AVT_OBJECT_ATTRIBUTE_PORTABLE) == 0) {
+                add_message_string(state, "Vi ne povas porti la ");
+                add_movable_to_message(state, &movable->base, "n");
+                add_message_c(state, '.');
+                end_message(state);
+                return false;
+        }
+
+        carry_movable(state, movable);
+
+        add_message_string(state, "Vi prenis la ");
+        add_movable_to_message(state, &movable->base, "n");
+        add_message_c(state, '.');
+        end_message(state);
+
         return true;
 }
 
@@ -2345,50 +2370,7 @@ handle_take(struct pcx_avt_state *state,
         if (movable == NULL)
                 return true;
 
-        if (!validate_take(state, movable))
-                return true;
-
-        if (!run_special_rules(state,
-                               "pren",
-                               movable,
-                               NULL, /* tool */
-                               state->current_room)) {
-                carry_movable(state, movable);
-
-                add_message_string(state, "Vi prenis la ");
-                add_movable_to_message(state, &movable->base, "n");
-                add_message_c(state, '.');
-                end_message(state);
-        }
-
-        return true;
-}
-
-static bool
-try_take(struct pcx_avt_state *state,
-         struct pcx_avt_state_movable *movable)
-{
-        if (!validate_take(state, movable))
-                return false;
-
-        if (run_special_rules(state,
-                              "pren",
-                              movable,
-                              NULL, /* tool */
-                              state->current_room)) {
-                /* The rule replaces the default action, but it might
-                 * end up causing the object to be carried anyway.
-                 */
-                return (movable->base.location_type ==
-                        PCX_AVT_LOCATION_TYPE_CARRYING);
-        }
-
-        carry_movable(state, movable);
-
-        add_message_string(state, "Vi prenis la ");
-        add_movable_to_message(state, &movable->base, "n");
-        add_message_c(state, '.');
-        end_message(state);
+        try_take(state, movable);
 
         return true;
 }
