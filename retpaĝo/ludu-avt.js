@@ -66,8 +66,25 @@
      textDiv.className = "messageText";
      innerDiv.appendChild(textDiv);
 
-     var textNode = document.createTextNode(text);
-     textDiv.appendChild(textNode);
+     var lastPos = 0;
+     var nextPos;
+
+     while ((nextPos = text.indexOf("\n", lastPos)) != -1) {
+       if (nextPos > lastPos) {
+         var sub = text.substring(lastPos, nextPos);
+         var textNode = document.createTextNode(sub);
+         textDiv.appendChild(textNode);
+       }
+
+       textDiv.appendChild(document.createElement("br"));
+
+       lastPos = nextPos + 1;
+     }
+
+     if (lastPos < text.length) {
+       var textNode = document.createTextNode(text.substring(lastPos));
+       textDiv.appendChild(textNode);
+     }
 
      return textDiv;
    }

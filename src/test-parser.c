@@ -26,6 +26,7 @@
 
 #include "pcx-parser.h"
 #include "pcx-list.h"
+#include "pcx-buffer.h"
 
 struct load_data {
         struct pcx_source source;
@@ -36,6 +37,11 @@ struct load_data {
 struct fail_check {
         const char *source;
         const char *error_message;
+};
+
+struct string_check {
+        const char *source;
+        const char *expected;
 };
 
 #define BLURB "nomo \"testnomo\" aŭtoro \"testaŭtoro\" jaro \"2021\"\n"
@@ -619,6 +625,58 @@ fail_checks[] = {
         },
 };
 
+static const struct string_check
+string_checks[] = {
+        {
+                "hello",
+                "hello"
+        },
+        {
+                "  hello  ",
+                "hello"
+        },
+        {
+                "  hello  there  ",
+                "hello there"
+        },
+        {
+                "  hello\nthere  ",
+                "hello there"
+        },
+        {
+                "  hello \n there \n ",
+                "hello there"
+        },
+        {
+                "  hello \r\n there \n ",
+                "hello there"
+        },
+        {
+                "\nhello\n",
+                "hello"
+        },
+        {
+                "\n\n\nhello\n\n\n",
+                "hello"
+        },
+        {
+                "hello\n\nthere",
+                "hello\n\nthere"
+        },
+        {
+                "hello\r\n\r\nthere",
+                "hello\n\nthere"
+        },
+        {
+                "hello  \n    \n  there  \n",
+                "hello\n\nthere"
+        },
+        {
+                "hello\n\n\n\n\nthere",
+                "hello\n\n\n\n\nthere"
+        },
+};
+
 static bool
 seek_source_cb(struct pcx_source *source,
                long pos,
@@ -723,6 +781,49 @@ check_error_message(const char *source,
         }
 
         pcx_error_free(error);
+
+        return ret;
+}
+
+static bool
+check_strings(void)
+{
+        bool ret = true;
+
+        for (unsigned i = 0; i < PCX_N_ELEMENTS(string_checks); i++) {
+                struct pcx_buffer buf = PCX_BUFFER_STATIC_INIT;
+
+                pcx_buffer_append_printf(&buf,
+                                         "%s\n"
+                                         "ejo s1 {\n"
+                                         "  priskribo \"%s\"\n"
+                                         "}",
+                                         BLURB,
+                                         string_checks[i].source);
+
+                struct pcx_avt *avt = expect_success((const char *) buf.data);
+
+                if (avt == NULL) {
+                        ret = false;
+                } else {
+                        if (strcmp(string_checks[i].expected,
+                                   avt->rooms[0].description)) {
+                                fprintf(stderr,
+                                        "String parsing failed:\n"
+                                        "  Expected: \"%s\"\n"
+                                        "  Received: \"%s\"\n"
+                                        "  Source:   \"%s\"\n"
+                                        "\n",
+                                        string_checks[i].expected,
+                                        avt->rooms[0].description,
+                                        string_checks[i].source);
+                                ret = false;
+                        }
+                        pcx_avt_free(avt);
+                }
+
+                pcx_buffer_destroy(&buf);
+        }
 
         return ret;
 }
@@ -1347,6 +1448,9 @@ main(int argc, char **argv)
         assert(rule->actions[21].data == 0);
 
         pcx_avt_free(avt);
+
+        if (!check_strings())
+                return EXIT_FAILURE;
 
         return EXIT_SUCCESS;
 }

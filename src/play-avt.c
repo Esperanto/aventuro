@@ -40,6 +40,15 @@ struct data {
         int col;
 };
 
+static const char *
+get_word_end(const char *word)
+{
+        while (*word && *word != ' ' && *word != '\n')
+                word++;
+
+        return word;
+}
+
 static void
 print_message(struct data *data,
               const char *message)
@@ -51,10 +60,14 @@ print_message(struct data *data,
                 if (*message == '\0')
                         break;
 
-                const char *word_end = strchr(message, ' ');
+                if (*message == '\n') {
+                        fputc('\n', stdout);
+                        data->col = 0;
+                        message++;
+                        continue;
+                }
 
-                if (word_end == NULL)
-                        word_end = message + strlen(message);
+                const char *word_end = get_word_end(message);
 
                 const char *p = message;
                 size_t word_length = 0;

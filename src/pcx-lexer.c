@@ -204,28 +204,61 @@ normalize_string(struct pcx_lexer *lexer, struct pcx_error **error)
         char *str = (char *) lexer->buffer.data;
         char *src = str, *dst = str;
 
-        /* Skip leading spaces */
-        while (is_space(*src))
-                src++;
+        enum {
+                start,
+                had_space,
+                had_newline,
+                had_other,
+        } state = start;
 
-        bool had_space = false;
+        int newline_count = 0;
 
         while (*src) {
-                if (is_space(*src)) {
-                        if (!had_space) {
-                                *(dst++) = ' ';
-                                had_space = true;
+                switch (state) {
+                case start:
+                        if (!is_space(*src)) {
+                                *(dst++) = *src;
+                                state = had_other;
                         }
-                } else {
-                        had_space = false;
-                        *(dst++) = *src;
+                        break;
+                case had_space:
+                        if (*src == '\n') {
+                                state = had_newline;
+                                newline_count = 1;
+                        } else if (!is_space(*src)) {
+                                *(dst++) = ' ';
+                                *(dst++) = *src;
+                                state = had_other;
+                        }
+                        break;
+                case had_newline:
+                        if (*src == '\n') {
+                                newline_count++;
+                        } else if (!is_space(*src)) {
+                                if (newline_count == 1) {
+                                        *(dst++) = ' ';
+                                } else {
+                                        for (int i = 0; i < newline_count; i++)
+                                                *(dst++) = '\n';
+                                }
+                                *(dst++) = *src;
+                                state = had_other;
+                        }
+                        break;
+                case had_other:
+                        if (*src == '\n') {
+                                state = had_newline;
+                                newline_count = 1;
+                        } else if (is_space(*src)) {
+                                state = had_space;
+                        } else {
+                                *(dst++) = *src;
+                        }
+                        break;
                 }
 
                 src++;
         }
-
-        if (dst > str && dst[-1] == ' ')
-                dst--;
 
         *dst = '\0';
 
