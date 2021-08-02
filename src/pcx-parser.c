@@ -1613,7 +1613,7 @@ object_props[] = {
         {
                 offsetof(struct pcx_parser_object, trink_points),
                 PCX_PARSER_VALUE_TYPE_INT,
-                PCX_LEXER_KEYWORD_TRINK_POINTS,
+                PCX_LEXER_KEYWORD_DRINK_POINTS,
                 .min_value = 0, .max_value = UINT8_MAX,
         },
         {
