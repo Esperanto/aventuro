@@ -2133,6 +2133,20 @@ show_movable_with_monster(struct pcx_avt_state *state,
         add_message_c(state, '.');
 }
 
+static void
+show_object_contents(struct pcx_avt_state *state,
+                     struct pcx_avt_state_movable *movable)
+{
+        if (pcx_list_empty(&movable->contents))
+                return;
+
+        const char *pronoun =
+                get_pronoun_name(movable->base.pronoun);
+        add_message_printf(state, " En %s vi vidas ", pronoun);
+        add_movables_to_message(state, &movable->contents, "n");
+        add_message_c(state, '.');
+}
+
 static bool
 handle_look(struct pcx_avt_state *state,
             const struct pcx_avt_command *command,
@@ -2205,13 +2219,8 @@ handle_look(struct pcx_avt_state *state,
                                 }
                                 add_message_c(state, '.');
                         }
-                }
-                else if (!pcx_list_empty(&movable->contents)) {
-                        const char *pronoun =
-                                get_pronoun_name(movable->base.pronoun);
-                        add_message_printf(state, " En %s vi vidas ", pronoun);
-                        add_movables_to_message(state, &movable->contents, "n");
-                        add_message_c(state, '.');
+                } else {
+                        show_object_contents(state, movable);
                 }
                 break;
         case PCX_AVT_STATE_MOVABLE_TYPE_MONSTER:
@@ -2675,6 +2684,10 @@ handle_open_close(struct pcx_avt_state *state,
         add_message_string(state, "is la ");
         add_movable_to_message(state, &movable->base, "n");
         add_message_c(state, '.');
+
+        if (new_state == 0)
+                show_object_contents(state, movable);
+
         end_message(state);
 
         return true;

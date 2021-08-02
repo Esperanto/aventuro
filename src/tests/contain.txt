@@ -40,7 +40,7 @@ Vi ne povas meti ion en la kartonan skatolon ĉar ĝi estas fermita.
 
 > malfermu la skatolon
 
-Vi malfermis la kartonan skatolon.
+Vi malfermis la kartonan skatolon. En ĝi vi vidas etajn rizerojn.
 
 > metu la skatolon en la skatolon.
 
@@ -66,7 +66,7 @@ Vi ne vidas rizerojn.
 
 > malfermi la skatolon
 
-Vi malfermis la kartonan skatolon.
+Vi malfermis la kartonan skatolon. En ĝi vi vidas etajn rizerojn.
 
 > rigardi la rizerojn
 

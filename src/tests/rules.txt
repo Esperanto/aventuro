@@ -396,7 +396,7 @@ Mi ne komprenas vin.
 
 > malfermu la keston
 
-Vi malfermis la lignan keston.
+Vi malfermis la lignan keston. En ĝi vi vidas kripan pupon.
 
 > rideti
 
@@ -686,7 +686,7 @@ Vi ne vidas putraĵon.
 
 > malfermu tupervaron.
 
-Vi malfermis la plastan ujon.
+Vi malfermis la plastan ujon. En ĝi vi vidas putrintan sandviĉon.
 
 > rigardi putrajxon
 
@@ -740,7 +740,7 @@ Vi fermis la malpuran trogon.
 
 > malfermu la trogon
 
-Vi malfermis la malpuran trogon.
+Vi malfermis la malpuran trogon. En ĝi vi vidas plastan ĉevalon.
 
 La plasta ĉevalo rigardas vin.
 
