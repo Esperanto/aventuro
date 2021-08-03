@@ -675,6 +675,10 @@ string_checks[] = {
                 "hello\n\n\n\n\nthere",
                 "hello\n\n\n\n\nthere"
         },
+        {
+                "\\\\o//",
+                "\\o//"
+        },
 };
 
 static bool

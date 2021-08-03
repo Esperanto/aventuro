@@ -469,8 +469,8 @@ pcx_lexer_get_token(struct pcx_lexer *lexer,
                         return &lexer->token;
 
                 case PCX_LEXER_STATE_READING_STRING_ESCAPE:
-                        if (ch == '"') {
-                                pcx_buffer_append_c(&lexer->buffer, '"');
+                        if (ch == '"' || ch == '\\') {
+                                pcx_buffer_append_c(&lexer->buffer, ch);
                                 lexer->state = PCX_LEXER_STATE_READING_STRING;
                                 break;
                         }
