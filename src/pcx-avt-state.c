@@ -729,6 +729,20 @@ reparent_movable(struct pcx_avt_state *state,
 }
 
 static void
+replace_movable(struct pcx_avt_state *state,
+                struct pcx_avt_state_movable *old,
+                struct pcx_avt_state_movable *new)
+{
+        pcx_list_remove(&new->location_node);
+        /* Put the new object in whatever list the old one is */
+        pcx_list_insert(&old->location_node, &new->location_node);
+        new->base.location_type = old->base.location_type;
+        new->base.location = old->base.location;
+        new->container = old->container;
+        disappear_movable(state, old);
+}
+
+static void
 copy_movable(struct pcx_avt_state_movable *dst,
              const struct pcx_avt_state_movable *src)
 {
@@ -901,6 +915,14 @@ execute_action(struct pcx_avt_state *state,
                                     data->room,
                                     state->object_index[action->data]);
 
+                break;
+
+        case PCX_AVT_ACTION_REPLACE_OBJECT:
+                if (movable) {
+                        struct pcx_avt_state_movable *o =
+                                state->object_index[action->data];
+                        replace_movable(state, movable, o);
+                }
                 break;
 
         case PCX_AVT_ACTION_REPLACE_MONSTER_IN_ROOM:

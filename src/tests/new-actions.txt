@@ -63,3 +63,61 @@ Vi kunportas etan birdon.
 > rigardi
 
 Vi estas en via manĝejo.
+
+@restart
+
+Vi estas en via salono. Vi vidas magian monerilon.
+
+> norden
+
+Vi estas en kampo. Vi vidas belan arbon, varman kafon kaj bluan sakon.
+
+> kontroli
+
+Mi ne komprenas vin.
+
+> haki la arbon
+
+Vi hakis la belan arbon kaj nun restas nur stumpo.
+
+> rigardi
+
+Vi estas en kampo. Vi vidas malfeliĉan stumpon, varman kafon kaj bluan sakon.
+
+> kontroli
+
+La stumpo ĉeestas.
+
+> preni la kafon.
+
+Vi prenis la varman kafon.
+
+> Kion mi Havas?
+
+Vi kunportas varman kafon.
+
+> trinki la kafon
+
+Vi trinkis la varman kafon kaj nun restas nur la malplena taso.
+
+> kion mi havas?
+
+Vi kunportas malplenan tason.
+
+> rigardi la bluan sakon
+
+Ĝi estas blua plasta sako. En ĝi vi vidas bluan skribilon.
+
+> rompi la skribilon
+
+Vi rompis la bluan skribilon. Vi estas monstro.
+
+> rigardi la bluan sakon
+
+Ĝi estas blua plasta sako. En ĝi vi vidas rompitan skribilon.
+
+> kontroli
+
+La stumpo ĉeestas.
+
+La rompita skribilo ĉeestas.

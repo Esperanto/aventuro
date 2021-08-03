@@ -7,6 +7,7 @@ ejo salono {
 
   orienten kuirejo
   okcidenten manĝejo
+  norden kampo
 
   luma
 
@@ -47,4 +48,59 @@ ejo manĝejo {
 }
 
 aĵo eta_birdo {
+}
+
+ejo kampo {
+  priskribo "Vi estas en kampo."
+  luma
+
+  aĵo bela_arbo {
+    fenomeno {
+      verbo "haki"
+      mesaĝo "Vi hakis la $An kaj nun restas nur stumpo."
+      nova aĵo malfeliĉa_stumpo
+    }
+  }
+
+  aĵo varma_kafo {
+    fenomeno {
+      verbo "trinki"
+      mesaĝo "Vi trinkis la $An kaj nun restas nur la malplena taso."
+      nova aĵo malplena_taso
+    }
+  }
+
+  aĵo blua_sako {
+    priskribo "Ĝi estas blua plasta sako."
+    enhavo 50
+
+    aĵo blua_skribilo {
+      fenomeno {
+        verbo "rompi"
+        mesaĝo "Vi rompis la $An. Vi estas monstro."
+        nova aĵo rompita_skribilo
+      }
+    }
+  }
+}
+
+aĵo malfeliĉa_stumpo {
+}
+
+aĵo malplena_taso {
+}
+
+aĵo rompita_skribilo {
+}
+
+fenomeno {
+  verbo "kontroli"
+  ĉeestas malfeliĉa_stumpo
+  mesaĝo "La stumpo ĉeestas."
+}
+
+fenomeno {
+  verbo "kontroli"
+  ĉeestas rompita_skribilo
+  mesaĝo "La rompita skribilo ĉeestas."
 }

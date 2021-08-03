@@ -16,13 +16,13 @@ aĵo blua_birdo {
 fenomeno parola_fenomeno {
   verbo "paroli"
   mesaĝo "Ruĝa birdo aperas en la salono."
-  nova aĵo ruĝa_birdo
+  nova apero ruĝa_birdo
 }
 
 fenomeno {
   verbo "kanti"
   mesaĝo "Blua birdo aperas en la salono."
-  nova aĵo blua_birdo
+  nova apero blua_birdo
   fenomeno parola_fenomeno
 }
 

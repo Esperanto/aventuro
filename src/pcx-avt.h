@@ -133,6 +133,10 @@ enum pcx_avt_action {
         PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR = 0x81,
         /* Make a named object be carried by the player */
         PCX_AVT_ACTION_CARRY_ANOTHER_OBJECT = 0x82,
+        /* Make the named object be in the same place as the subject
+         * and then make the subject disappear.
+         */
+        PCX_AVT_ACTION_REPLACE_OBJECT = 0x83,
 };
 
 struct pcx_avt_movable {
