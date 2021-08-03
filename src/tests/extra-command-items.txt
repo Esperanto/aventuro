@@ -1,0 +1,81 @@
+Vi estas en kampo. Vi vidas piroteknikan raketon, plenan lunon kaj malgrandan keston.
+
+> rigardi la raketon
+
+Vi vidas nenion specialan pri la piroteknika raketo.
+
+> rigardi la lunon
+
+Vi vidas nenion specialan pri la plena luno.
+
+> mi lanĉos la raketon al la PLENA LUNO!
+
+Vi lanĉis la piroteknikan raketon al la plena luno. La piroteknika raketo detruis la plenan lunon.
+
+> rigardi
+
+Vi estas en kampo. Vi vidas malgrandan keston.
+
+> rigardi la raketon
+
+Vi ne vidas raketon.
+
+> rigardi la lunon
+
+Vi ne vidas lunon.
+
+@restart
+
+Vi estas en kampo. Vi vidas piroteknikan raketon, plenan lunon kaj malgrandan keston.
+
+# Check that the implicit conditions are added
+
+> manĝi la lunon al la luno
+
+Mi ne komprenas vin.
+
+> manĝi la lunon en la luno
+
+Mi ne komprenas vin.
+
+> manĝi la lunon
+
+Vi manĝis la plenan lunon. Ĝi havis fromaĝan guston.
+
+> rigardi la lunon
+
+Vi ne vidas lunon.
+
+@restart
+
+Vi estas en kampo. Vi vidas piroteknikan raketon, plenan lunon kaj malgrandan keston.
+
+> rigardi la keston
+
+Vi vidas nenion specialan pri la malgranda kesto.
+
+> Meti la Lunon en la keston
+
+Vi prenis la plenan lunon.
+
+Vi provas meti la plenan lunon en la malgrandan keston, sed la plena luno estas tro granda kaj la malgranda kesto detruiĝas.
+
+> rigardi la keston
+
+Vi ne vidas keston.
+
+@restart
+
+Vi estas en kampo. Vi vidas piroteknikan raketon, plenan lunon kaj malgrandan keston.
+
+> kion?
+
+Vi kunportas nenion.
+
+> Mi ĵetos la piroteknikan raketon en la keston
+
+Vi provas ĵeti la piroteknikan raketon en la malgrandan keston sed ial vi malsukcesis kaj la malgranda kesto aperas en via poŝo.
+
+> Kion mi havas?
+
+Vi kunportas malgrandan keston.

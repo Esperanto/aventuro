@@ -228,6 +228,8 @@ enum pcx_avt_rule_subject {
         PCX_AVT_RULE_SUBJECT_OBJECT,
         PCX_AVT_RULE_SUBJECT_TOOL,
         PCX_AVT_RULE_SUBJECT_MONSTER,
+        PCX_AVT_RULE_SUBJECT_DIRECTION,
+        PCX_AVT_RULE_SUBJECT_IN,
 };
 
 struct pcx_avt_condition_data {

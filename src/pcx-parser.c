@@ -1105,6 +1105,12 @@ parse_condition(struct pcx_parser *parser,
         case PCX_LEXER_KEYWORD_TOOL:
                 cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_TOOL);
                 return parse_object_condition(parser, cond, error);
+        case PCX_LEXER_KEYWORD_DIRECTION:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_DIRECTION);
+                return parse_object_condition(parser, cond, error);
+        case PCX_LEXER_KEYWORD_CONTAINER:
+                cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_IN);
+                return parse_object_condition(parser, cond, error);
         case PCX_LEXER_KEYWORD_ROOM:
                 cond = add_rule_condition(rule, PCX_AVT_RULE_SUBJECT_ROOM);
                 return parse_room_condition(parser, cond, error);
@@ -1285,6 +1291,12 @@ parse_action(struct pcx_parser *parser,
                 return parse_object_action(parser, action, error);
         case PCX_LEXER_KEYWORD_TOOL:
                 action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_TOOL);
+                return parse_object_action(parser, action, error);
+        case PCX_LEXER_KEYWORD_DIRECTION:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_DIRECTION);
+                return parse_object_action(parser, action, error);
+        case PCX_LEXER_KEYWORD_CONTAINER:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_IN);
                 return parse_object_action(parser, action, error);
         case PCX_LEXER_KEYWORD_ROOM:
                 action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_ROOM);
@@ -2860,6 +2872,8 @@ add_default_conditions(struct pcx_parser_rule *rule)
                 PCX_AVT_RULE_SUBJECT_OBJECT,
                 PCX_AVT_RULE_SUBJECT_TOOL,
                 PCX_AVT_RULE_SUBJECT_MONSTER,
+                PCX_AVT_RULE_SUBJECT_DIRECTION,
+                PCX_AVT_RULE_SUBJECT_IN,
         };
 
         for (size_t i = 0; i < PCX_N_ELEMENTS(default_rule_subjects); i++) {

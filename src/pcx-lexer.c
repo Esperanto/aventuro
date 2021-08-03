@@ -86,6 +86,7 @@ keywords[] = {
         [PCX_LEXER_KEYWORD_ATTRIBUTE] = "eco",
         [PCX_LEXER_KEYWORD_NOTHING] = "nenio",
         [PCX_LEXER_KEYWORD_DIRECTION] = "direkto",
+        [PCX_LEXER_KEYWORD_CONTAINER] = "ujo",
         [PCX_LEXER_KEYWORD_OBJECT] = "aĵo",
         [PCX_LEXER_KEYWORD_WEIGHT] = "pezo",
         [PCX_LEXER_KEYWORD_SIZE] = "grando",

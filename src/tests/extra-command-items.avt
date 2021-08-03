@@ -1,0 +1,48 @@
+nomo "Test"
+aŭtoro "Test"
+jaro "2021"
+
+ejo kampo {
+ priskribo "Vi estas en kampo."
+
+ luma
+
+ aĵo raketo {
+   nomo "piroteknika raketo"
+   fenomeno {
+     verbo "lanĉi"
+     direkto luno
+     mesaĝo "Vi lanĉis la $An al la $>. La $A detruis la $>n."
+     nova direkto nenio
+     nova aĵo nenio
+   }
+   fenomeno {
+     verbo "ĵeti"
+     ujo malgranda_kesto
+     mesaĝo "Vi provas ĵeti la $An en la $En sed ial vi malsukcesis kaj la $E
+             aperas en via poŝo."
+     nova ujo kunportata
+   }
+ }
+
+ aĵo luno {
+   nomo "plena luno"
+   fenomeno {
+     verbo "manĝi"
+     mesaĝo "Vi manĝis la $An. Ĝi havis fromaĝan guston."
+     nova aĵo nenio
+   }
+
+   fenomeno {
+     verbo "meti"
+     ujo malgranda_kesto
+     mesaĝo "Vi provas meti la $An en la $En, sed la $A estas
+             tro granda kaj la $E detruiĝas."
+     nova ujo nenio
+   }
+ }
+
+ aĵo malgranda_kesto {
+   enhavo 50
+ }
+}

@@ -112,6 +112,9 @@ test('subroutine', test_avt,
      args : files('tests/subroutine.avt', 'tests/subroutine.txt'))
 test('direction-rules', test_avt,
      args : files('tests/direction-rules.avt', 'tests/direction-rules.txt'))
+test('extra-command-items', test_avt,
+     args : files('tests/extra-command-items.avt',
+                  'tests/extra-command-items.txt'))
 
 test_parser_src = [
         'pcx-util.c',

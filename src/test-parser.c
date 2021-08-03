@@ -1236,7 +1236,7 @@ main(int argc, char **argv)
         assert(!strcmp(rule->text, "Ne dormu!"));
         assert(rule->points == 0);
         /* Implicitly added condition because the rule is in a room */
-        assert(rule->n_conditions == 4);
+        assert(rule->n_conditions == 6);
         assert(rule->conditions[0].subject == PCX_AVT_RULE_SUBJECT_ROOM);
         assert(rule->conditions[0].condition == PCX_AVT_CONDITION_IN_ROOM);
         assert(rule->conditions[0].data == 1);
@@ -1247,6 +1247,10 @@ main(int argc, char **argv)
         assert(rule->conditions[2].condition == PCX_AVT_CONDITION_NOTHING);
         assert(rule->conditions[3].subject == PCX_AVT_RULE_SUBJECT_MONSTER);
         assert(rule->conditions[3].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[4].subject == PCX_AVT_RULE_SUBJECT_DIRECTION);
+        assert(rule->conditions[4].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[5].subject == PCX_AVT_RULE_SUBJECT_IN);
+        assert(rule->conditions[5].condition == PCX_AVT_CONDITION_NOTHING);
 
         rule++;
 
@@ -1257,7 +1261,7 @@ main(int argc, char **argv)
         assert(rule->text == avt->rules[0].text);
         assert(rule->points == 0);
         /* Implicitly added condition because the rule is in an object */
-        assert(rule->n_conditions == 3);
+        assert(rule->n_conditions == 5);
         assert(rule->conditions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
         assert(rule->conditions[0].condition == PCX_AVT_CONDITION_OBJECT_IS);
         assert(rule->conditions[0].data == 3);
@@ -1266,6 +1270,10 @@ main(int argc, char **argv)
         assert(rule->conditions[1].condition == PCX_AVT_CONDITION_NOTHING);
         assert(rule->conditions[2].subject == PCX_AVT_RULE_SUBJECT_MONSTER);
         assert(rule->conditions[2].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[3].subject == PCX_AVT_RULE_SUBJECT_DIRECTION);
+        assert(rule->conditions[3].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[4].subject == PCX_AVT_RULE_SUBJECT_IN);
+        assert(rule->conditions[4].condition == PCX_AVT_CONDITION_NOTHING);
 
         rule++;
 
@@ -1278,7 +1286,7 @@ main(int argc, char **argv)
         assert(!strcmp(rule->text, "Vi manĝis!"));
         assert(rule->points == 128);
 
-        assert(rule->n_conditions == 26);
+        assert(rule->n_conditions == 28);
         assert(rule->conditions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
         assert(rule->conditions[0].condition == PCX_AVT_CONDITION_SOMETHING);
         assert(rule->conditions[1].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
@@ -1375,6 +1383,10 @@ main(int argc, char **argv)
         /* Implicitly added condition */
         assert(rule->conditions[25].subject == PCX_AVT_RULE_SUBJECT_MONSTER);
         assert(rule->conditions[25].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[26].subject == PCX_AVT_RULE_SUBJECT_DIRECTION);
+        assert(rule->conditions[26].condition == PCX_AVT_CONDITION_NOTHING);
+        assert(rule->conditions[27].subject == PCX_AVT_RULE_SUBJECT_IN);
+        assert(rule->conditions[27].condition == PCX_AVT_CONDITION_NOTHING);
 
         assert(rule->n_actions == 22);
         assert(rule->actions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
