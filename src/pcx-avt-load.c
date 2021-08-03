@@ -935,6 +935,8 @@ extract_action(struct load_data *data,
 
                 /* New actions not in the original file format */
         case PCX_AVT_ACTION_RUN_RULE:
+        case PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR:
+        case PCX_AVT_ACTION_CARRY_ANOTHER_OBJECT:
                 break;
         }
 

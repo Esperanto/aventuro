@@ -914,6 +914,12 @@ execute_action(struct pcx_avt_state *state,
 
                 break;
 
+        case PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR:
+                put_movable_in_room(state,
+                                    data->room,
+                                    state->object_index[action->data]);
+                break;
+
         case PCX_AVT_ACTION_CHANGE_END:
                 if (movable &&
                     movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT) {
@@ -967,6 +973,9 @@ execute_action(struct pcx_avt_state *state,
                 if (movable &&
                     movable->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
                         carry_movable(state, movable);
+                break;
+        case PCX_AVT_ACTION_CARRY_ANOTHER_OBJECT:
+                carry_movable(state, state->object_index[action->data]);
                 break;
         case PCX_AVT_ACTION_SET_OBJECT_ATTRIBUTE:
                 if (movable &&

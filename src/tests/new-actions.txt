@@ -1,0 +1,65 @@
+Vi estas en via salono. Vi vidas magian monerilon.
+
+> uzi la monerilon
+
+La moner-generilo komencas funkcii.
+
+> rigardi la monerilon
+
+Vi vidas nenion specialan pri la magia monerilo.
+
+Monero aperas apud la monerilo.
+
+> rigardi
+
+Vi estas en via salono. Vi vidas magian monerilon kaj kvincendan moneron.
+
+> preni la moneron
+
+Vi prenis la kvincendan moneron.
+
+> kion mi havas?
+
+Vi kunportas kvincendan moneron.
+
+> uzi la monerilon
+
+La moner-generilo komencas funkcii.
+
+> o
+
+Vi estas en via kuirejo.
+
+Monero aperas apud la monerilo.
+
+> kion mi havas?
+
+Vi kunportas nenion.
+
+> rigardi
+
+Vi estas en via kuirejo.
+
+> okc
+
+Vi estas en via salono. Vi vidas magian monerilon kaj kvincendan moneron.
+
+> okc
+
+Vi estas en via manĝejo.
+
+> kion mi kunportas
+
+Vi kunportas nenion.
+
+> mi kantos!
+
+Via kanto plaĉas al eta birdo kiu surteriĝas en viaj manoj.
+
+> kion mi kunportas
+
+Vi kunportas etan birdon.
+
+> rigardi
+
+Vi estas en via manĝejo.

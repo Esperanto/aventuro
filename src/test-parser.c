@@ -1223,6 +1223,8 @@ main(int argc, char **argv)
                              "   nova eco bluba\n"
                              "   nova eco malvera bluba\n"
                              "   fenomeno dormaverto\n"
+                             "   nova kunportata ruĝa_terpomo\n"
+                             "   nova apero blua_terpomo\n"
                              "}");
 
         assert(avt->n_verbs == 4);
@@ -1388,7 +1390,7 @@ main(int argc, char **argv)
         assert(rule->conditions[27].subject == PCX_AVT_RULE_SUBJECT_IN);
         assert(rule->conditions[27].condition == PCX_AVT_CONDITION_NOTHING);
 
-        assert(rule->n_actions == 22);
+        assert(rule->n_actions == 24);
         assert(rule->actions[0].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
         assert(rule->actions[0].action == PCX_AVT_ACTION_NOTHING);
         assert(rule->actions[1].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
@@ -1462,6 +1464,13 @@ main(int argc, char **argv)
         assert(rule->actions[21].subject == PCX_AVT_RULE_SUBJECT_ROOM);
         assert(rule->actions[21].action == PCX_AVT_ACTION_RUN_RULE);
         assert(rule->actions[21].data == 0);
+        assert(rule->actions[22].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[22].action == PCX_AVT_ACTION_CARRY_ANOTHER_OBJECT);
+        assert(rule->actions[22].data == 3);
+        assert(rule->actions[23].subject == PCX_AVT_RULE_SUBJECT_ROOM);
+        assert(rule->actions[23].action ==
+               PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR);
+        assert(rule->actions[23].data == 1);
 
         pcx_avt_free(avt);
 

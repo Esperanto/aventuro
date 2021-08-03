@@ -1,0 +1,50 @@
+nomo "Test"
+aŭtoro "Test"
+jaro "2021"
+
+ejo salono {
+  priskribo "Vi estas en via salono."
+
+  orienten kuirejo
+  okcidenten manĝejo
+
+  luma
+
+  aĵo magia_monerilo {
+    fenomeno {
+      verbo "uzi"
+      mesaĝo "La moner-generilo komencas funkcii."
+      nova aĵo fino 2
+    }
+    fenomeno {
+      verbo "fini"
+      mesaĝo "$SMonero aperas apud la monerilo."
+      nova apero monero
+    }
+  }
+}
+
+aĵo monero {
+  nomo "kvincenda monero"
+}
+
+ejo kuirejo {
+  luma
+  priskribo "Vi estas en via kuirejo."
+  okcidenten salono
+}
+
+ejo manĝejo {
+  luma
+  priskribo "Vi estas en via manĝejo."
+  orienten salono
+
+  fenomeno {
+    verbo "kanti"
+    mesaĝo "Via kanto plaĉas al eta birdo kiu surteriĝas en viaj manoj."
+    nova kunportata eta_birdo
+  }
+}
+
+aĵo eta_birdo {
+}

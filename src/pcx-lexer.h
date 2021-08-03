@@ -101,6 +101,7 @@ enum pcx_lexer_keyword {
         PCX_LEXER_KEYWORD_UNSET,
         PCX_LEXER_KEYWORD_NEW,
         PCX_LEXER_KEYWORD_ELSEWHERE,
+        PCX_LEXER_KEYWORD_APPEAR,
 
         PCX_LEXER_N_KEYWORDS,
 };

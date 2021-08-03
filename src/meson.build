@@ -115,6 +115,8 @@ test('direction-rules', test_avt,
 test('extra-command-items', test_avt,
      args : files('tests/extra-command-items.avt',
                   'tests/extra-command-items.txt'))
+test('new-actions', test_avt,
+     args : files('tests/new-actions.avt', 'tests/new-actions.txt'))
 
 test_parser_src = [
         'pcx-util.c',

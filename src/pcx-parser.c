@@ -1310,6 +1310,14 @@ parse_action(struct pcx_parser *parser,
                          PCX_AVT_ACTION_UNSET_PLAYER_ATTRIBUTE,
                          &parser->player_attributes,
                          error);
+        case PCX_LEXER_KEYWORD_CARRYING:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                action->action = PCX_AVT_ACTION_CARRY_ANOTHER_OBJECT;
+                return parse_rule_object_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_APPEAR:
+                action = add_rule_action(rule, PCX_AVT_RULE_SUBJECT_ROOM);
+                action->action = PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR;
+                return parse_rule_object_param(parser, &action->param, error);
         default:
                 pcx_set_error(error,
                               &pcx_parser_error,

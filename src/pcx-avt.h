@@ -129,6 +129,10 @@ enum pcx_avt_action {
 
         /* Additonally run the actions of the given rule */
         PCX_AVT_ACTION_RUN_RULE = 0x80,
+        /* Make a named object appear in the room of the rule */
+        PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR = 0x81,
+        /* Make a named object be carried by the player */
+        PCX_AVT_ACTION_CARRY_ANOTHER_OBJECT = 0x82,
 };
 
 struct pcx_avt_movable {

@@ -133,6 +133,7 @@ keywords[] = {
         [PCX_LEXER_KEYWORD_UNSET] = "malvera",
         [PCX_LEXER_KEYWORD_NEW] = "nova",
         [PCX_LEXER_KEYWORD_ELSEWHERE] = "alien",
+        [PCX_LEXER_KEYWORD_APPEAR] = "apero",
 };
 
 _Static_assert(PCX_N_ELEMENTS(keywords) == PCX_LEXER_N_KEYWORDS,
