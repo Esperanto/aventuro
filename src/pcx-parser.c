@@ -1238,7 +1238,7 @@ parse_object_action(struct pcx_parser *parser,
 
         /* Anything else should directly be an object name */
         pcx_lexer_put_token(parser->lexer);
-        action->action = PCX_AVT_ACTION_REPLACE_OBJECT;
+        action->action = PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM;
         return parse_rule_object_param(parser, &action->param, error);
 }
 

@@ -885,8 +885,8 @@ execute_action(struct pcx_avt_state *state,
                 }
                 break;
 
-        case PCX_AVT_ACTION_REPLACE_OBJECT:
-        case PCX_AVT_ACTION_CREATE_OBJECT:
+        case PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM:
+        case PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM_2:
                 /* Despite the documentation, in testing with the
                  * original interpreter these actions seem to do
                  * exactly the same thing. If there is an object then
@@ -903,8 +903,8 @@ execute_action(struct pcx_avt_state *state,
 
                 break;
 
-        case PCX_AVT_ACTION_REPLACE_MONSTER:
-        case PCX_AVT_ACTION_CREATE_MONSTER:
+        case PCX_AVT_ACTION_REPLACE_MONSTER_IN_ROOM:
+        case PCX_AVT_ACTION_REPLACE_MONSTER_IN_ROOM_2:
                 if (movable)
                         disappear_movable(state, movable);
 

@@ -866,8 +866,8 @@ extract_action(struct load_data *data,
         action->data = rule_data[1];
 
         switch (action->action) {
-        case PCX_AVT_ACTION_REPLACE_OBJECT:
-        case PCX_AVT_ACTION_CREATE_OBJECT:
+        case PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM:
+        case PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM_2:
         case PCX_AVT_ACTION_CHANGE_OBJECT_ADJECTIVE:
         case PCX_AVT_ACTION_CHANGE_OBJECT_NAME:
         case PCX_AVT_ACTION_COPY_OBJECT:
@@ -883,8 +883,8 @@ extract_action(struct load_data *data,
                 action->data--;
                 return true;
 
-        case PCX_AVT_ACTION_REPLACE_MONSTER:
-        case PCX_AVT_ACTION_CREATE_MONSTER:
+        case PCX_AVT_ACTION_REPLACE_MONSTER_IN_ROOM:
+        case PCX_AVT_ACTION_REPLACE_MONSTER_IN_ROOM_2:
         case PCX_AVT_ACTION_CHANGE_MONSTER_ADJECTIVE:
         case PCX_AVT_ACTION_CHANGE_MONSTER_NAME:
         case PCX_AVT_ACTION_COPY_MONSTER:

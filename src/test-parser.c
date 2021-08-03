@@ -1399,7 +1399,8 @@ main(int argc, char **argv)
         assert(rule->actions[2].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
         assert(rule->actions[2].action == PCX_AVT_ACTION_CARRY);
         assert(rule->actions[3].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
-        assert(rule->actions[3].action == PCX_AVT_ACTION_REPLACE_OBJECT);
+        assert(rule->actions[3].action ==
+               PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM);
         assert(rule->actions[3].data == 0);
         assert(rule->actions[4].subject == PCX_AVT_RULE_SUBJECT_OBJECT);
         assert(rule->actions[4].action == PCX_AVT_ACTION_SET_OBJECT_ATTRIBUTE);
