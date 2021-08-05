@@ -187,6 +187,7 @@ struct pcx_parser_pronoun {
 
 struct pcx_parser_alias {
         struct pcx_list link;
+        char *adjective;
         char *name;
         bool plural;
         enum pcx_parser_target_type target_type;
@@ -1510,6 +1511,79 @@ parse_rule(struct pcx_parser *parser,
         return PCX_PARSER_RETURN_OK;
 }
 
+static bool
+split_movable_name(struct pcx_parser *parser,
+                   int line_num,
+                   char *name, /* modified by this func */
+                   char **adjective_out,
+                   char **name_out,
+                   bool *plural_out,
+                   struct pcx_error **error)
+{
+        char *space = strchr(name, ' ');
+        char *adjective, *noun;
+        bool adjective_plural = false, noun_plural = false;
+
+        if (space) {
+                adjective = name;
+                noun = space + 1;
+
+                int adjective_len = space - name;
+
+                if (adjective_len >= 1 && adjective[adjective_len - 1] == 'j') {
+                        adjective_len--;
+                        adjective_plural = true;
+                }
+                if (adjective_len <= 2 || adjective[adjective_len - 1] != 'a')
+                        goto error;
+                adjective[--adjective_len] = '\0';
+
+                if (!pcx_avt_hat_is_alphabetic_string(adjective))
+                        goto error;
+        } else {
+                adjective = NULL;
+                noun = name;
+        }
+
+        int noun_len = strlen(noun);
+
+        if (noun_len >= 1 && noun[noun_len - 1] == 'j') {
+                noun_len--;
+                noun_plural = true;
+        }
+        if (noun_len <= 2 || noun[noun_len - 1] != 'o')
+                goto error;
+        noun[--noun_len] = '\0';
+
+        if (!pcx_avt_hat_is_alphabetic_string(noun))
+                goto error;
+
+        if (adjective != NULL && adjective_plural != noun_plural) {
+                pcx_set_error(error,
+                              &pcx_parser_error,
+                              PCX_PARSER_ERROR_INVALID,
+                              "Object’s adjective and noun don’t have the "
+                              "same plurality at line %i",
+                              line_num);
+                return false;
+        }
+
+        *name_out = pcx_strdup(noun);
+        *adjective_out = adjective ? pcx_strdup(adjective) : NULL;
+        *plural_out = noun_plural;
+
+        return true;
+
+error:
+        pcx_set_error(error,
+                      &pcx_parser_error,
+                      PCX_PARSER_ERROR_INVALID,
+                      "The object name must be an adjective followed by a noun "
+                      "at line %i",
+                      line_num);
+        return false;
+}
+
 static enum pcx_parser_return
 parse_alias(struct pcx_parser *parser,
             struct pcx_parser_target *target,
@@ -1527,28 +1601,20 @@ parse_alias(struct pcx_parser *parser,
                       "Expected alias name",
                       error);
 
-        alias->name = pcx_strdup(token->string_value);
+        char *name = pcx_strdup(token->string_value);
 
-        int name_len = strlen(alias->name);
+        bool ret = split_movable_name(parser,
+                                      pcx_lexer_get_line_num(parser->lexer),
+                                      name,
+                                      &alias->adjective,
+                                      &alias->name,
+                                      &alias->plural,
+                                      error);
 
-        if (name_len > 0 && alias->name[name_len - 1] == 'j') {
-                alias->plural = true;
-                name_len--;
-        }
-        if (name_len < 2 ||
-            alias->name[name_len - 1] != 'o' ||
-            !pcx_avt_hat_is_alphabetic_string(alias->name)) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Alias name must be a noun at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+        pcx_free(name);
+
+        if (!ret)
                 return PCX_PARSER_RETURN_ERROR;
-        }
-
-        name_len--;
-
-        alias->name[name_len] = '\0';
 
         alias->target_type = target->type;
         alias->target_num = target->num;
@@ -2543,55 +2609,32 @@ compile_movable_name(struct pcx_parser *parser,
         else
                 name = pcx_strdup(name_str);
 
-        char *space = strchr(name, ' ');
+        bool plural;
 
-        if (space == NULL)
-                goto error;
+        bool ret = split_movable_name(parser,
+                                      line_num,
+                                      name,
+                                      &movable->adjective,
+                                      &movable->name,
+                                      &plural,
+                                      error);
 
-        char *adjective = name;
-        char *noun = space + 1;
-
-        bool adjective_plural = false, noun_plural = false;
-
-        int adjective_len = space - name;
-
-        if (adjective_len >= 1 && adjective[adjective_len - 1] == 'j') {
-                adjective_len--;
-                adjective_plural = true;
-        }
-        if (adjective_len <= 2 || adjective[adjective_len - 1] != 'a')
-                goto error;
-        adjective[--adjective_len] = '\0';
-
-        int noun_len = strlen(noun);
-
-        if (noun_len >= 1 && noun[noun_len - 1] == 'j') {
-                noun_len--;
-                noun_plural = true;
-        }
-        if (noun_len <= 2 || noun[noun_len - 1] != 'o')
-                goto error;
-        noun[--noun_len] = '\0';
-
-        if (!pcx_avt_hat_is_alphabetic_string(noun) ||
-            !pcx_avt_hat_is_alphabetic_string(adjective))
-                goto error;
-
-        movable->name = pcx_strdup(noun);
-        movable->adjective = pcx_strdup(adjective);
         pcx_free(name);
 
-        if (adjective_plural != noun_plural) {
+        if (!ret)
+                return false;
+
+        if (movable->adjective == NULL) {
                 pcx_set_error(error,
                               &pcx_parser_error,
                               PCX_PARSER_ERROR_INVALID,
-                              "Object’s adjective and noun don’t have the "
-                              "same plurality at line %i",
+                              "The object name must be an adjective "
+                              "followed by a noun at line %i",
                               line_num);
                 return false;
         }
 
-        if (noun_plural) {
+        if (plural) {
                 if (pronoun->specified &&
                     pronoun->value != PCX_AVT_PRONOUN_PLURAL) {
                         pcx_set_error(error,
@@ -2608,17 +2651,6 @@ compile_movable_name(struct pcx_parser *parser,
         }
 
         return true;
-
-error:
-        pcx_free(name);
-
-        pcx_set_error(error,
-                      &pcx_parser_error,
-                      PCX_PARSER_ERROR_INVALID,
-                      "The object name must be an adjective followed by a noun "
-                      "at line %i",
-                      line_num);
-        return false;
 }
 
 static bool
@@ -2731,6 +2763,8 @@ compile_alias(struct pcx_parser *parser,
 
         avt_alias->plural = alias->plural;
         avt_alias->index = alias->target_num;
+        avt_alias->adjective = alias->adjective;
+        alias->adjective = NULL;
         avt_alias->name = alias->name;
         alias->name = NULL;
 
@@ -3182,6 +3216,7 @@ destroy_aliases(struct pcx_parser *parser)
         struct pcx_parser_alias *alias, *tmp;
 
         pcx_list_for_each_safe(alias, tmp, &parser->aliases, link) {
+                pcx_free(alias->adjective);
                 pcx_free(alias->name);
                 pcx_free(alias);
         }

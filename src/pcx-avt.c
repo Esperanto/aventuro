@@ -82,8 +82,10 @@ pcx_avt_free(struct pcx_avt *avt)
         pcx_free(avt->author);
         pcx_free(avt->year);
 
-        for (size_t i = 0; i < avt->n_aliases; i++)
+        for (size_t i = 0; i < avt->n_aliases; i++) {
+                pcx_free(avt->aliases[i].adjective);
                 pcx_free(avt->aliases[i].name);
+        }
 
         pcx_free(avt->aliases);
 

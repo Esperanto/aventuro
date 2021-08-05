@@ -117,6 +117,8 @@ test('extra-command-items', test_avt,
                   'tests/extra-command-items.txt'))
 test('new-actions', test_avt,
      args : files('tests/new-actions.avt', 'tests/new-actions.txt'))
+test('aliases', test_avt,
+     args : files('tests/aliases.avt', 'tests/aliases.txt'))
 
 test_parser_src = [
         'pcx-util.c',

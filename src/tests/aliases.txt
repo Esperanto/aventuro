@@ -1,0 +1,33 @@
+Vi estas en via salono. Vi vidas verdan pomon.
+
+> rigardi verdan pomon.
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi la pomon
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi la falsan piron.
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi la piron.
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi la verdan piron.
+
+Vi ne vidas verdan piron.
+
+> rigardi la cielpotaton.
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi la verdan cielpotaton.
+
+Vi ne vidas verdan cielpotaton.
+
+> rigardi la falsan cielpotaton.
+
+Vi ne vidas falsan cielpotaton.

@@ -1,0 +1,16 @@
+# Tests aliases with and without adjectives
+
+nomo "Test"
+aŭtoro "Test"
+jaro "2021"
+
+ejo salono {
+ luma
+ priskribo "Vi estas en via salono."
+
+ aĵo verda_pomo {
+   priskribo "Ĝi estas verda pomo. Ne piro."
+   alinomo "falsa piro"
+   alinomo "cielpotato"
+ }
+}

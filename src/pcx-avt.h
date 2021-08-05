@@ -280,6 +280,7 @@ struct pcx_avt_alias {
         enum pcx_avt_alias_type type;
         bool plural;
         int index;
+        char *adjective;
         char *name;
 };
 

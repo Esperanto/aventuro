@@ -476,15 +476,18 @@ fail_checks[] = {
         },
         {
                 "aĵo a { alinomo \"a\" }",
-                "Alias name must be a noun at line 1"
+                "The object name must be an adjective followed by a noun "
+                "at line 1"
         },
         {
                 "aĵo a { alinomo \"fluga\" }",
-                "Alias name must be a noun at line 1"
+                "The object name must be an adjective followed by a noun "
+                "at line 1"
         },
         {
-                "aĵo a { alinomo \"fluga aviadilo\" }",
-                "Alias name must be a noun at line 1"
+                "aĵo a { alinomo \"flu3a melono\" }",
+                "The object name must be an adjective followed by a noun "
+                "at line 1"
         },
         {
                 "fenomeno { aĵo ŝargo -3 }",
@@ -1122,27 +1125,37 @@ main(int argc, char **argv)
                              "aĵo blua_skatolo {\n"
                              "   alinomo \"kartono\"\n"
                              "   alinomo \"randoj\"\n"
+                             "   alinomo \"bluverda skatolo\"\n"
                              "}"
                              "aĵo timiga_pupo {\n"
                              "   alinomo \"pupeto\"\n"
                              "}");
-        assert(avt->n_aliases == 3);
+        assert(avt->n_aliases == 4);
 
         assert(!strcmp(avt->rooms[0].name, "nenio"));
         assert(avt->aliases[0].type == PCX_AVT_ALIAS_TYPE_OBJECT);
         assert(!avt->aliases[0].plural);
         assert(avt->aliases[0].index == 0);
+        assert(avt->aliases[0].adjective == NULL);
         assert(!strcmp(avt->aliases[0].name, "karton"));
 
         assert(avt->aliases[1].type == PCX_AVT_ALIAS_TYPE_OBJECT);
         assert(avt->aliases[1].plural);
         assert(avt->aliases[1].index == 0);
+        assert(avt->aliases[1].adjective == NULL);
         assert(!strcmp(avt->aliases[1].name, "rand"));
 
         assert(avt->aliases[2].type == PCX_AVT_ALIAS_TYPE_OBJECT);
         assert(!avt->aliases[2].plural);
-        assert(avt->aliases[2].index == 1);
-        assert(!strcmp(avt->aliases[2].name, "pupet"));
+        assert(avt->aliases[2].index == 0);
+        assert(!strcmp(avt->aliases[2].adjective, "bluverd"));
+        assert(!strcmp(avt->aliases[2].name, "skatol"));
+
+        assert(avt->aliases[3].type == PCX_AVT_ALIAS_TYPE_OBJECT);
+        assert(!avt->aliases[3].plural);
+        assert(avt->aliases[3].index == 1);
+        assert(avt->aliases[3].adjective == NULL);
+        assert(!strcmp(avt->aliases[3].name, "pupet"));
 
         pcx_avt_free(avt);
 
