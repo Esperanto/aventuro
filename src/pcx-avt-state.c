@@ -1665,6 +1665,10 @@ static struct pcx_avt_state_movable *
 find_movable_via_alias(struct pcx_avt_state *state,
                        const struct pcx_avt_command_noun *noun)
 {
+        /* None of the aliases have adjectives */
+        if (noun->adjective.start)
+                return NULL;
+
         for (unsigned i = 0; i < state->avt->n_aliases; i++) {
                 const struct pcx_avt_alias *alias = state->avt->aliases + i;
 
@@ -1684,11 +1688,6 @@ find_movable_via_alias(struct pcx_avt_state *state,
                         movable = state->monster_index[alias->index];
                         break;
                 }
-
-                if (noun->adjective.start &&
-                    !pcx_avt_command_word_equal(&noun->adjective,
-                                                movable->base.adjective))
-                        continue;
 
                 if (!is_movable_present(state, movable))
                         continue;

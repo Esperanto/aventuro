@@ -670,7 +670,7 @@ Vi ne vidas skribilojn.
 
 > rigardi plastan krajonon
 
-Ĝi ne funkcias. Kiu kreis tion?
+Vi ne vidas plastan krajonon.
 
 > rigardi kaŭĉukan krajonon
 
@@ -694,7 +694,7 @@ Vi malfermis la plastan ujon. En ĝi vi vidas putrintan sandviĉon.
 
 > rigardi bongustan pastaĵon
 
-Ili aspektas freŝaj.
+Vi ne vidas bongustan pastaĵon.
 
 > rigardi pastaĵojn
 
