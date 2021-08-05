@@ -50,10 +50,6 @@ pcx_file_error_from_errno(int errnum)
                 return PCX_FILE_ERROR_INTR;
         case EPERM:
                 return PCX_FILE_ERROR_PERM;
-        case EPFNOSUPPORT:
-                return PCX_FILE_ERROR_PFNOSUPPORT;
-        case EAFNOSUPPORT:
-                return PCX_FILE_ERROR_AFNOSUPPORT;
         case EMFILE:
                 return PCX_FILE_ERROR_MFILE;
         }
