@@ -119,6 +119,9 @@ test('new-actions', test_avt,
      args : files('tests/new-actions.avt', 'tests/new-actions.txt'))
 test('aliases', test_avt,
      args : files('tests/aliases.avt', 'tests/aliases.txt'))
+test('optional-adjective', test_avt,
+     args : files('tests/optional-adjective.avt',
+                  'tests/optional-adjective.txt'))
 
 test_parser_src = [
         'pcx-util.c',

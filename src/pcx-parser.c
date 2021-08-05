@@ -1578,8 +1578,8 @@ error:
         pcx_set_error(error,
                       &pcx_parser_error,
                       PCX_PARSER_ERROR_INVALID,
-                      "The object name must be an adjective followed by a noun "
-                      "at line %i",
+                      "The object name must be an optional adjective followed "
+                      "by a noun at line %i",
                       line_num);
         return false;
 }
@@ -2623,16 +2623,6 @@ compile_movable_name(struct pcx_parser *parser,
 
         if (!ret)
                 return false;
-
-        if (movable->adjective == NULL) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "The object name must be an adjective "
-                              "followed by a noun at line %i",
-                              line_num);
-                return false;
-        }
 
         if (plural) {
                 if (pronoun->specified &&

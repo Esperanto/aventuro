@@ -140,7 +140,9 @@ enum pcx_avt_action {
 };
 
 struct pcx_avt_movable {
-        /* Owned by this. These will have the ending removed. */
+        /* Owned by this. These will have the ending removed. The
+         * adjective can be NULL
+         */
         char *name, *adjective;
         /* Owned by the parent pcx_avt. Can be NULL. */
         const char *description;

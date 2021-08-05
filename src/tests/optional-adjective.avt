@@ -1,0 +1,45 @@
+# Tests objects with and without adjectives
+
+nomo "Test"
+aŭtoro "Test"
+jaro "2021"
+
+ejo salono {
+  luma
+  priskribo "Vi estas en via salono."
+
+  aĵo skribilo {
+  }
+
+  aĵo blua_sako {
+  }
+
+  aĵo ruĝa_pilko {
+  }
+}
+
+fenomeno {
+  verbo "blukontroli"
+  aĵo adjektivo blua_sako
+  mesaĝo "La $A estas blua."
+}
+
+fenomeno {
+  verbo "senadjektivkontroli"
+  aĵo adjektivo skribilo
+  mesaĝo "La $A ne havas adjektivon."
+}
+
+fenomeno {
+  verbo "senadjektivigi"
+  aĵo io
+  mesaĝo "La $A ne plu havos adjektivon."
+  nova aĵo adjektivo skribilo
+}
+
+fenomeno {
+  verbo "kopii"
+  aĵo io
+  mesaĝo "Vi kopias la $An al la skribilo."
+  nova aĵo kopio skribilo
+}

@@ -1,0 +1,65 @@
+Vi estas en via salono. Vi vidas skribilon, bluan sakon kaj ruĝan pilkon.
+
+> rigardi la skribilon
+
+Vi vidas nenion specialan pri la skribilo.
+
+> rigardi la bluan skribilon
+
+Vi ne vidas bluan skribilon.
+
+> blukontroli skribilon
+
+Mi ne komprenas vin.
+
+> blukontroli bluan sakon
+
+La blua sako estas blua.
+
+> blukontroli ruĝan pilkon.
+
+Mi ne komprenas vin.
+
+> senadjektivkontroli bluan sakon
+
+Mi ne komprenas vin.
+
+> senadjektivkontroli sakon
+
+Mi ne komprenas vin.
+
+> senadjektivkontroli skribilon
+
+La skribilo ne havas adjektivon.
+
+> senadjektivigi bluan sakon
+
+La blua sako ne plu havos adjektivon.
+
+> rigardi la bluan sakon
+
+Vi ne vidas bluan sakon.
+
+> rigardi la sakon
+
+Vi vidas nenion specialan pri la sako.
+
+> senadjektivkontroli sakon
+
+La sako ne havas adjektivon.
+
+> kopiu ruĝan pilkon
+
+Vi kopias la ruĝan pilkon al la skribilo.
+
+> senadjektivkontroli pilkon
+
+Vi ne vidas pilkon.
+
+> rigardi
+
+Vi estas en via salono. Vi vidas skribilon, sakon kaj skribilon.
+
+> kopiu skribilon
+
+Vi kopias la skribilon al la skribilo.

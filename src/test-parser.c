@@ -365,18 +365,10 @@ fail_checks[] = {
                 BLURB
                 "ejo s1 { priskribo \"j\" }\n"
                 "aĵo juvelo {\n"
-                "}\n",
-                "The object name must be an adjective followed by a noun "
-                "at line 3"
-        },
-        {
-                BLURB
-                "ejo s1 { priskribo \"j\" }\n"
-                "aĵo juvelo {\n"
                 "  nomo \"ruĝo juvelo\"\n"
                 "}\n",
-                "The object name must be an adjective followed by a noun "
-                "at line 3"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 3"
         },
         {
                 BLURB
@@ -384,8 +376,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"a juvelo\"\n"
                 "}\n",
-                "The object name must be an adjective followed by a noun "
-                "at line 3"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 3"
         },
         {
                 BLURB
@@ -393,8 +385,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝa juvel\"\n"
                 "}\n",
-                "The object name must be an adjective followed by a noun "
-                "at line 3"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 3"
         },
         {
                 BLURB
@@ -402,8 +394,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝa \"\n"
                 "}\n",
-                "The object name must be an adjective followed by a noun "
-                "at line 3"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 3"
         },
         {
                 BLURB
@@ -420,8 +412,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj &juveloj\"\n"
                 "}\n",
-                "The object name must be an adjective followed by a noun "
-                "at line 3"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 3"
         },
         {
                 BLURB
@@ -476,18 +468,18 @@ fail_checks[] = {
         },
         {
                 "aĵo a { alinomo \"a\" }",
-                "The object name must be an adjective followed by a noun "
-                "at line 1"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 1"
         },
         {
                 "aĵo a { alinomo \"fluga\" }",
-                "The object name must be an adjective followed by a noun "
-                "at line 1"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 1"
         },
         {
                 "aĵo a { alinomo \"flu3a melono\" }",
-                "The object name must be an adjective followed by a noun "
-                "at line 1"
+                "The object name must be an optional adjective followed by a "
+                "noun at line 1"
         },
         {
                 "fenomeno { aĵo ŝargo -3 }",

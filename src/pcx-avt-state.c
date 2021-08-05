@@ -305,14 +305,16 @@ add_movable_to_message(struct pcx_avt_state *state,
                        const struct pcx_avt_movable *movable,
                        const char *suffix)
 {
-        add_message_string(state, movable->adjective);
-        add_message_c(state, 'a');
-        if (movable->pronoun == PCX_AVT_PRONOUN_PLURAL)
-                add_message_c(state, 'j');
-        if (suffix)
-                add_message_string(state, suffix);
+        if (movable->adjective) {
+                add_message_string(state, movable->adjective);
+                add_message_c(state, 'a');
+                if (movable->pronoun == PCX_AVT_PRONOUN_PLURAL)
+                        add_message_c(state, 'j');
+                if (suffix)
+                        add_message_string(state, suffix);
 
-        add_message_c(state, ' ');
+                add_message_c(state, ' ');
+        }
 
         add_message_string(state, movable->name);
         add_message_c(state, 'o');
@@ -631,7 +633,10 @@ init_movable(struct pcx_avt_state *state,
              struct pcx_avt_state_movable *movable)
 {
         movable->base.name = pcx_strdup(movable->base.name);
-        movable->base.adjective = pcx_strdup(movable->base.adjective);
+        movable->base.adjective =
+                movable->base.adjective ?
+                pcx_strdup(movable->base.adjective) :
+                NULL;
 
         pcx_list_init(&movable->contents);
 
@@ -755,8 +760,22 @@ copy_movable(struct pcx_avt_state_movable *dst,
                &src->base,
                sizeof (*dst) - offsetof(struct pcx_avt_state_movable, base));
         dst->type = src->type;
-        dst->base.adjective = pcx_strdup(dst->base.adjective);
+        dst->base.adjective =
+                dst->base.adjective ?
+                pcx_strdup(dst->base.adjective) :
+                NULL;
         dst->base.name = pcx_strdup(dst->base.name);
+}
+
+static bool
+adjective_is_same(const char *a,
+                  const char *b)
+{
+        if (a == NULL)
+                return b == NULL;
+        if (b == NULL)
+                return false;
+        return !strcmp(a, b);
 }
 
 static bool
@@ -836,9 +855,9 @@ check_condition(struct pcx_avt_state *state,
                 return get_random(state) < condition->data;
         case PCX_AVT_CONDITION_OBJECT_SAME_ADJECTIVE:
                 return (movable &&
-                        !strcmp(movable->base.adjective,
-                                state->object_index[condition->data]->
-                                base.adjective));
+                        adjective_is_same(movable->base.adjective,
+                                          state->object_index[condition->data]->
+                                          base.adjective));
         case PCX_AVT_CONDITION_OBJECT_SAME_NAME:
                 return (movable &&
                         !strcmp(movable->base.name,
@@ -846,17 +865,18 @@ check_condition(struct pcx_avt_state *state,
                                 base.name));
         case PCX_AVT_CONDITION_OBJECT_SAME_NOUN:
                 return (movable &&
-                        !strcmp(movable->base.adjective,
-                                state->object_index[condition->data]->
-                                base.adjective) &&
+                        adjective_is_same(movable->base.adjective,
+                                          state->object_index[condition->data]->
+                                          base.adjective) &&
                         !strcmp(movable->base.name,
                                 state->object_index[condition->data]->
                                 base.name));
         case PCX_AVT_CONDITION_MONSTER_SAME_ADJECTIVE:
                 return (movable &&
-                        !strcmp(movable->base.adjective,
-                                state->monster_index[condition->data]->
-                                base.adjective));
+                        adjective_is_same(movable->base.adjective,
+                                          state->
+                                          monster_index[condition->data]->
+                                          base.adjective));
         case PCX_AVT_CONDITION_MONSTER_SAME_NAME:
                 return (movable &&
                         !strcmp(movable->base.name,
@@ -864,9 +884,10 @@ check_condition(struct pcx_avt_state *state,
                                 base.name));
         case PCX_AVT_CONDITION_MONSTER_SAME_NOUN:
                 return (movable &&
-                        !strcmp(movable->base.adjective,
-                                state->monster_index[condition->data]->
-                                base.adjective) &&
+                        adjective_is_same(movable->base.adjective,
+                                          state->
+                                          monster_index[condition->data]->
+                                          base.adjective) &&
                         !strcmp(movable->base.name,
                                 state->monster_index[condition->data]->
                                 base.name));
@@ -1039,7 +1060,9 @@ execute_action(struct pcx_avt_state *state,
                         const struct pcx_avt_state_movable *other =
                                 state->object_index[action->data];
                         movable->base.adjective =
-                                pcx_strdup(other->base.adjective);
+                                other->base.adjective ?
+                                pcx_strdup(other->base.adjective) :
+                                NULL;
                 }
                 break;
         case PCX_AVT_ACTION_CHANGE_MONSTER_ADJECTIVE:
@@ -1048,7 +1071,9 @@ execute_action(struct pcx_avt_state *state,
                         const struct pcx_avt_state_movable *other =
                                 state->monster_index[action->data];
                         movable->base.adjective =
-                                pcx_strdup(other->base.adjective);
+                                other->base.adjective ?
+                                pcx_strdup(other->base.adjective) :
+                                NULL;
                 }
                 break;
         case PCX_AVT_ACTION_CHANGE_OBJECT_NAME:
@@ -1654,9 +1679,12 @@ movable_matches_noun(const struct pcx_avt_movable *movable,
         if (noun->plural != (movable->pronoun == PCX_AVT_PRONOUN_PLURAL))
                 return false;
 
-        if (noun->adjective.start &&
-            !pcx_avt_command_word_equal(&noun->adjective, movable->adjective))
-                return false;
+        if (noun->adjective.start) {
+                if (movable->adjective == NULL ||
+                    !pcx_avt_command_word_equal(&noun->adjective,
+                                                movable->adjective))
+                        return false;
+        }
 
         return pcx_avt_command_word_equal(&noun->name, movable->name);
 }
