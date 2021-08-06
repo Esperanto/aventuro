@@ -87,11 +87,16 @@ struct pcx_avt_state_room {
         uint32_t attributes;
 };
 
+struct pcx_avt_state_reference {
+        bool plural;
+        struct pcx_avt_state_movable *movable;
+};
+
 struct pcx_avt_state_references {
-        struct pcx_avt_state_movable *object;
-        struct pcx_avt_state_movable *tool;
-        struct pcx_avt_state_movable *in;
-        struct pcx_avt_state_movable *direction;
+        struct pcx_avt_state_reference object;
+        struct pcx_avt_state_reference tool;
+        struct pcx_avt_state_reference in;
+        struct pcx_avt_state_reference direction;
 };
 
 struct pcx_avt_state_run_rule_data {
@@ -1718,9 +1723,14 @@ movable_matches_noun(const struct pcx_avt_movable *movable,
 static bool
 pronoun_can_reference(struct pcx_avt_state *state,
                       const struct pcx_avt_command_pronoun *pronoun,
-                      const struct pcx_avt_state_movable *movable)
+                      const struct pcx_avt_state_reference *ref)
 {
-        switch (movable->base.pronoun) {
+        enum pcx_avt_pronoun ref_pronoun =
+                ref->plural ?
+                PCX_AVT_PRONOUN_PLURAL :
+                ref->movable->base.pronoun;
+
+        switch (ref_pronoun) {
         case PCX_AVT_PRONOUN_MAN:
                 if ((pronoun->genders & PCX_AVT_COMMAND_GENDER_MAN) == 0 ||
                     pronoun->plural)
@@ -1742,7 +1752,7 @@ pronoun_can_reference(struct pcx_avt_state *state,
                 break;
         }
 
-        if (!is_movable_present(state, movable))
+        if (!is_movable_present(state, ref->movable))
                 return false;
 
         return true;
@@ -1758,21 +1768,21 @@ find_movable_by_pronoun(struct pcx_avt_state *state,
         if (pronoun->person != 3)
                 return NULL;
 
-        if (prev_refs->object &&
-            pronoun_can_reference(state, pronoun, prev_refs->object))
-                return prev_refs->object;
+        if (prev_refs->object.movable &&
+            pronoun_can_reference(state, pronoun, &prev_refs->object))
+                return prev_refs->object.movable;
 
-        if (prev_refs->tool &&
-            pronoun_can_reference(state, pronoun, prev_refs->tool))
-                return prev_refs->tool;
+        if (prev_refs->tool.movable &&
+            pronoun_can_reference(state, pronoun, &prev_refs->tool))
+                return prev_refs->tool.movable;
 
-        if (prev_refs->in &&
-            pronoun_can_reference(state, pronoun, prev_refs->in))
-                return prev_refs->in;
+        if (prev_refs->in.movable &&
+            pronoun_can_reference(state, pronoun, &prev_refs->in))
+                return prev_refs->in.movable;
 
-        if (prev_refs->direction &&
-            pronoun_can_reference(state, pronoun, prev_refs->direction))
-                return prev_refs->direction;
+        if (prev_refs->direction.movable &&
+            pronoun_can_reference(state, pronoun, &prev_refs->direction))
+                return prev_refs->direction.movable;
 
         return NULL;
 }
@@ -1820,6 +1830,15 @@ find_movable(struct pcx_avt_state *state,
 }
 
 static void
+find_movable_reference(struct pcx_avt_state *state,
+                       const struct pcx_avt_command_noun *noun,
+                       struct pcx_avt_state_reference *ref)
+{
+        ref->movable = find_movable(state, noun);
+        ref->plural = noun->plural;
+}
+
+static void
 send_missing_reference_message(struct pcx_avt_state *state,
                                const struct pcx_avt_command_noun *noun)
 {
@@ -1848,12 +1867,12 @@ get_object_or_message(struct pcx_avt_state *state,
                       const struct pcx_avt_command *command,
                       const struct pcx_avt_state_references *references)
 {
-        if (references->object == NULL) {
+        if (references->object.movable == NULL) {
                 send_missing_reference_message(state, &command->object);
                 return NULL;
         }
 
-        return references->object;
+        return references->object.movable;
 }
 
 static struct pcx_avt_state_movable *
@@ -1861,12 +1880,12 @@ get_tool_or_message(struct pcx_avt_state *state,
                     const struct pcx_avt_command *command,
                     const struct pcx_avt_state_references *references)
 {
-        if (references->tool == NULL) {
+        if (references->tool.movable == NULL) {
                 send_missing_reference_message(state, &command->tool);
                 return NULL;
         }
 
-        return references->tool;
+        return references->tool.movable;
 }
 
 static struct pcx_avt_state_movable *
@@ -1874,12 +1893,12 @@ get_in_or_message(struct pcx_avt_state *state,
                   const struct pcx_avt_command *command,
                   const struct pcx_avt_state_references *references)
 {
-        if (references->in == NULL) {
+        if (references->in.movable == NULL) {
                 send_missing_reference_message(state, &command->in);
                 return NULL;
         }
 
-        return references->in;
+        return references->in.movable;
 }
 
 static struct pcx_avt_state_movable *
@@ -1887,12 +1906,12 @@ get_direction_or_message(struct pcx_avt_state *state,
                     const struct pcx_avt_command *command,
                     const struct pcx_avt_state_references *references)
 {
-        if (references->direction == NULL) {
+        if (references->direction.movable == NULL) {
                 send_missing_reference_message(state, &command->direction);
                 return NULL;
         }
 
-        return references->direction;
+        return references->direction.movable;
 }
 
 struct get_weight_closure {
@@ -3150,15 +3169,25 @@ get_references(struct pcx_avt_state *state,
 {
         memset(references, 0, sizeof *references);
 
-        if ((command->has & PCX_AVT_COMMAND_HAS_OBJECT))
-                references->object = find_movable(state, &command->object);
-        if ((command->has & PCX_AVT_COMMAND_HAS_TOOL))
-                references->tool = find_movable(state, &command->tool);
-        if ((command->has & PCX_AVT_COMMAND_HAS_IN))
-                references->in = find_movable(state, &command->in);
+        if ((command->has & PCX_AVT_COMMAND_HAS_OBJECT)) {
+                find_movable_reference(state,
+                                       &command->object,
+                                       &references->object);
+        }
+        if ((command->has & PCX_AVT_COMMAND_HAS_TOOL)) {
+                find_movable_reference(state,
+                                       &command->tool,
+                                       &references->tool);
+        }
+        if ((command->has & PCX_AVT_COMMAND_HAS_IN)) {
+                find_movable_reference(state,
+                                       &command->in,
+                                       &references->in);
+        }
         if ((command->has & PCX_AVT_COMMAND_HAS_DIRECTION)) {
-                references->direction =
-                        find_movable(state, &command->direction);
+                find_movable_reference(state,
+                                       &command->direction,
+                                       &references->direction);
         }
 }
 

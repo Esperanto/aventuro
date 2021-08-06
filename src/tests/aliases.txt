@@ -31,3 +31,38 @@ Vi ne vidas verdan cielpotaton.
 > rigardi la falsan cielpotaton.
 
 Vi ne vidas falsan cielpotaton.
+
+# Check that using an alias with a different plurality doesn’t break
+# the pronouns.
+
+> rigardi la piron
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi ĝin
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi la piron
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi ilin
+
+Mi ne scias kion “ili” indikas.
+
+> rigardi la pomerojn
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi ilin
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi la pomerojn
+
+Ĝi estas verda pomo. Ne piro.
+
+> rigardi ĝin
+
+Mi ne scias kion “ĝi” indikas.
