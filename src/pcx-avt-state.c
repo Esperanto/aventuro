@@ -3117,6 +3117,18 @@ handle_unknown_command(struct pcx_avt_state *state,
                        const struct pcx_avt_command *command,
                        const struct pcx_avt_state_references *references)
 {
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural)) {
+                add_message_string(state,
+                                   "Mi ne komprenas vin. Bonvole "
+                                   "faru komandojn aŭ komencu frazon "
+                                   "per “mi”.");
+                end_message(state);
+                return true;
+        }
+
         add_message_string(state, "Vi ne povas ");
         add_word_to_message(state, &command->verb);
         add_message_c(state, 'i');
