@@ -1,4 +1,4 @@
-Vi estas en via salono. Vi vidas etajn rizerojn, plomban pilkon, paperan statueton, kartonan skatolon, magian sakon kaj grandan pezaĵon.
+Vi estas en via salono. Vi vidas etajn rizerojn, plomban pilkon, paperan statueton, kartonan skatolon, magian sakon, grandan pezaĵon, rizujojn kaj keglopilkojn.
 
 > rigardi la skatolon
 
@@ -80,7 +80,7 @@ Vi ne povas meti ion en sin mem.
 
 > rigardi
 
-Vi estas en via salono. Vi vidas plomban pilkon, paperan statueton kaj grandan pezaĵon.
+Vi estas en via salono. Vi vidas plomban pilkon, paperan statueton, grandan pezaĵon, rizujojn kaj keglopilkojn.
 
 > rigardi la sakon
 
@@ -163,3 +163,77 @@ Vi metis la grandan pezaĵon en la magian sakon.
 > preni plomban pilkon
 
 Kune kun tio kion vi jam portas la plomba pilko estas tro peza por porti.
+
+> meti la rizerojn en la nuklean reakcilon.
+
+Vi ne vidas nuklean reakcilon.
+
+> meti la rizerojn en la grandan pezaĵon.
+
+Vi ne povas meti ion en la grandan pezaĵon.
+
+> malfermi la rizujojn
+
+La rizujoj jam estas malfermitaj.
+
+> fermi la rizujojn
+
+Vi fermis la rizujojn.
+
+> rigardi la rizujojn.
+
+Ĝi estas aro de etaj ujoj por rizeroj. Ili estas fermitaj.
+
+> enmeti la rizerojn en la rizujojn.
+
+Vi ne povas meti ion en la rizujojn ĉar ili estas fermitaj.
+
+> meti la nuklean bruligaĵon en la sakon
+
+Vi ne vidas nuklean bruligaĵon.
+
+> preni la nuklean bruligaĵon.
+
+Vi ne vidas nuklean bruligaĵon.
+
+> ĵeti la magian sakon
+
+Vi ĵetis la magian sakon.
+
+> malfermi la rizujojn.
+
+Vi malfermis la rizujojn.
+
+> meti la keglopilkojn en la rizujojn.
+
+Vi prenis la keglopilkojn.
+
+La keglopilkoj estas tro grandaj por eniri la rizujojn.
+
+> preni la keglopilkojn.
+
+Vi jam portas la keglopilkojn.
+
+> ĵeti la keglopilkojn
+
+Vi ĵetis la keglopilkojn.
+
+> preni la grandan pezaĵon.
+
+Vi prenis la grandan pezaĵon.
+
+> preni la keglopilkojn
+
+Kune kun tio kion vi jam portas la keglopilkoj estas tro pezaj por porti.
+
+> ĵeti la grandan pezaĵon.
+
+Vi ĵetis la grandan pezaĵon.
+
+> preni la paperan statueton.
+
+Vi prenis la paperan statueton.
+
+> preni la keglopilkojn.
+
+Kune kun tio kion vi jam portas la keglopilkoj estas tro grandaj por teni.

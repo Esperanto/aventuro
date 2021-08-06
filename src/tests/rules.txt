@@ -201,6 +201,10 @@ La monstro nun estas rekoblita.
 
 Mi ne komprenas vin.
 
+> preni la grandan dinosaŭron.
+
+Vi ne povas porti la grandan dinosaŭron.
+
 @random 99
 
 > o

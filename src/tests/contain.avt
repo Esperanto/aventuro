@@ -43,4 +43,16 @@ ejo salono {
   grando 80
   pezo 80
  }
+
+ aĵo rizujoj {
+  priskribo "Ĝi estas aro de etaj ujoj por rizeroj."
+  fermebla
+  enhavo 3
+ }
+
+ aĵo keglopilkoj {
+  priskribo "3 keglopilkoj"
+  pezo 90
+  grando 50
+ }
 }
