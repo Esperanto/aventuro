@@ -10,7 +10,7 @@ Vi ne vidas bluan skribilon.
 
 > blukontroli skribilon
 
-Mi ne komprenas vin.
+Vi ne povas blukontroli la skribilon.
 
 > blukontroli bluan sakon
 
@@ -18,15 +18,15 @@ La blua sako estas blua.
 
 > blukontroli ruĝan pilkon.
 
-Mi ne komprenas vin.
+Vi ne povas blukontroli la ruĝan pilkon.
 
 > senadjektivkontroli bluan sakon
 
-Mi ne komprenas vin.
+Vi ne povas senadjektivkontroli la bluan sakon.
 
 > senadjektivkontroli sakon
 
-Mi ne komprenas vin.
+Vi ne povas senadjektivkontroli la bluan sakon.
 
 > senadjektivkontroli skribilon
 

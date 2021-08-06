@@ -6,7 +6,7 @@ Per kio vi volas bruligi la plastan anason?
 
 > vi fajrigos la anason.
 
-Mi ne komprenas vin.
+Vi ne povas fajrigi la plastan anason.
 
 > fajrigi la anason per la alumeto.
 
@@ -156,7 +156,7 @@ Vi estas en ĉevalejo sen la ĉevaloj. Estas fojno en la angulo. Vi vidas magian
 
 > kontroli la monon
 
-Mi ne komprenas vin.
+Vi ne povas kontroli la valoran monbileton.
 
 > bruligi la monon per la alumeto
 
@@ -208,7 +208,7 @@ Vi ne povas malŝalti la plastan anason.
 
 > kontroli la poŝlanternon.
 
-Mi ne komprenas vin.
+Vi ne povas kontroli la magian poŝlanternon.
 
 > lumigi la poŝlanternon
 
@@ -236,7 +236,7 @@ La magia poŝlanterno jam estas malŝaltita.
 
 > kontroli la poŝlanternon.
 
-Mi ne komprenas vin.
+Vi ne povas kontroli la magian poŝlanternon.
 
 > lumigi la fojnon
 

@@ -3112,6 +3112,49 @@ handle_custom_command(struct pcx_avt_state *state,
         return run_rules(state, &command->verb, &data);
 }
 
+static bool
+handle_unknown_command(struct pcx_avt_state *state,
+                       const struct pcx_avt_command *command,
+                       const struct pcx_avt_state_references *references)
+{
+        add_message_string(state, "Vi ne povas ");
+        add_word_to_message(state, &command->verb);
+        add_message_c(state, 'i');
+
+        if (references->object.movable) {
+                add_message_string(state, " la ");
+                add_movable_to_message(state,
+                                       &references->object.movable->base,
+                                       "n");
+        }
+
+        if (references->tool.movable) {
+                add_message_string(state, " per la ");
+                add_movable_to_message(state,
+                                       &references->tool.movable->base,
+                                       NULL);
+        }
+
+        if (references->direction.movable) {
+                add_message_string(state, " al la ");
+                add_movable_to_message(state,
+                                       &references->direction.movable->base,
+                                       NULL);
+        }
+
+        if (references->in.movable) {
+                add_message_string(state, " en la ");
+                add_movable_to_message(state,
+                                       &references->in.movable->base,
+                                       "n");
+        }
+
+        add_message_c(state, '.');
+        end_message(state);
+
+        return true;
+}
+
 static void
 handle_command(struct pcx_avt_state *state,
                const struct pcx_avt_command *command,
@@ -3159,7 +3202,7 @@ handle_command(struct pcx_avt_state *state,
         if (handle_custom_command(state, command, references))
                 return;
 
-        send_message(state, "Mi ne komprenas vin.");
+        handle_unknown_command(state, command, references);
 }
 
 static void

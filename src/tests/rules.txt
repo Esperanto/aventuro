@@ -185,11 +185,11 @@ La ajho nun estas reboklita.
 
 > rebokli la grandan dinosaŭron
 
-Mi ne komprenas vin.
+Vi ne povas rebokli la grandan dinosaŭron.
 
 > rebokli
 
-Mi ne komprenas vin.
+Vi ne povas rebokli.
 
 # This one only works on monsters.
 
@@ -199,7 +199,7 @@ La monstro nun estas rekoblita.
 
 > rekobli la bluan pilkon
 
-Mi ne komprenas vin.
+Vi ne povas rekobli la bluan pilkon.
 
 > preni la grandan dinosaŭron.
 
@@ -396,7 +396,7 @@ Vi fermis la lignan keston.
 
 > rideti
 
-Mi ne komprenas vin.
+Vi ne povas rideti.
 
 > malfermu la keston
 
@@ -412,7 +412,7 @@ La pupo malaperis post kiam vi tuŝis ĝin!
 
 > rideti
 
-Mi ne komprenas vin.
+Vi ne povas rideti.
 
 > o
 
@@ -436,7 +436,7 @@ Vi tuŝis ion bluan.
 
 > tusxi ruĝan skribilon
 
-Mi ne komprenas vin.
+Vi ne povas tuŝi la ruĝan skribilon.
 
 > preni ruĝan skribilon
 
@@ -518,7 +518,7 @@ Vi tuŝis ion mojosan.
 
 > tusxi timigan araneon
 
-Mi ne komprenas vin.
+Vi ne povas tuŝi la timigan araneon.
 
 > leki la mojosan araneon
 
@@ -530,7 +530,7 @@ La monstro malaperas.
 
 > leki la mojosan araneon
 
-Mi ne komprenas vin.
+Vi ne povas leki la mojosan araneon.
 
 > mkontroli la timigan araneon
 
@@ -940,7 +940,7 @@ Li aspektas kontenta.
 
 > savu la virinon per la sableroj
 
-Mi ne komprenas vin.
+Vi ne povas savi la kontentan virinon per la etaj sableroj.
 
 > rigardi ilin
 
@@ -948,7 +948,7 @@ Estas multe da ili.
 
 > savu la virinon per la viro
 
-Mi ne komprenas vin.
+Vi ne povas savi la kontentan virinon per la kontenta viro.
 
 > rigardi lin
 
@@ -956,7 +956,7 @@ Li aspektas kontenta.
 
 > savu la virinon per la viro
 
-Mi ne komprenas vin.
+Vi ne povas savi la kontentan virinon per la kontenta viro.
 
 > rigardi rin
 
@@ -964,7 +964,7 @@ Mi ne komprenas vin.
 
 > savu la virinon en la sableroj per la viro
 
-Mi ne komprenas vin.
+Vi ne povas savi la kontentan virinon per la kontenta viro en la etajn sablerojn.
 
 > rigardi ilin
 
@@ -972,7 +972,7 @@ Estas multe da ili.
 
 > lanĉu la virinon al la viro
 
-Mi ne komprenas vin.
+Vi ne povas lanĉi la kontentan virinon al la kontenta viro.
 
 > rigardu lin
 
@@ -1048,7 +1048,7 @@ Estas direktoj ĉi tie.
 
 > iri ŝranken
 
-Mi ne komprenas vin.
+Vi ne povas iri al la granda ŝranko.
 
 > eniri la grandan ŝrankon
 

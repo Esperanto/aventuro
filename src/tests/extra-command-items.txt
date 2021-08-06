@@ -32,11 +32,11 @@ Vi estas en kampo. Vi vidas piroteknikan raketon, plenan lunon kaj malgrandan ke
 
 > manĝi la lunon al la luno
 
-Mi ne komprenas vin.
+Vi ne povas manĝi la plenan lunon al la plena luno.
 
 > manĝi la lunon en la luno
 
-Mi ne komprenas vin.
+Vi ne povas manĝi la plenan lunon en la plenan lunon.
 
 > manĝi la lunon
 
