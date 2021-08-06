@@ -70,6 +70,11 @@
 #define PCX_AVT_LOAD_INFORMATION_OFFSET 0xc8e1
 #define PCX_AVT_LOAD_INFORMATION_SIZE 51
 
+enum pcx_avt_load_alias_type {
+        PCX_AVT_LOAD_ALIAS_TYPE_OBJECT = 1,
+        PCX_AVT_LOAD_ALIAS_TYPE_MONSTER = 3,
+};
+
 struct pcx_error_domain
 pcx_avt_load_error;
 
@@ -444,16 +449,55 @@ done:
         return ret;
 }
 
-static bool
-is_valid_alias_type(enum pcx_avt_alias_type type)
+static void
+extract_alias_index(const uint8_t *alias_data,
+                    uint8_t *type,
+                    uint8_t *index)
 {
-        switch (type) {
-        case PCX_AVT_ALIAS_TYPE_OBJECT:
-        case PCX_AVT_ALIAS_TYPE_MONSTER:
-                return true;
+        *type = alias_data[21];
+        *index = alias_data[22];
+}
+
+static size_t
+count_aliases(const uint8_t *alias_data,
+              int index,
+              size_t total_n_aliases)
+{
+        size_t n_aliases = 1;
+        uint8_t type_a, index_a;
+
+        extract_alias_index(alias_data + index * PCX_AVT_LOAD_ALIAS_SIZE,
+                            &type_a,
+                            &index_a);
+
+        while (index + n_aliases < total_n_aliases) {
+                uint8_t type_b, index_b;
+
+                extract_alias_index(alias_data +
+                                    (index + n_aliases) *
+                                    PCX_AVT_LOAD_ALIAS_SIZE,
+                                    &type_b,
+                                    &index_b);
+                if (type_a != type_b || index_a != index_b)
+                        break;
+
+                n_aliases++;
         }
 
-        return false;
+        return n_aliases;
+}
+
+static int
+compare_alias(const void *a, const void *b)
+{
+        uint8_t type_a, index_a;
+        uint8_t type_b, index_b;
+
+        extract_alias_index(a, &type_a, &index_a);
+        extract_alias_index(b, &type_b, &index_b);
+
+        return (((((int) type_a) << 8) | (int) index_a) -
+                ((((int) type_b) << 8) | (int) index_b));
 }
 
 static bool
@@ -477,54 +521,28 @@ load_aliases(struct load_data *data,
                 goto done;
         }
 
-        data->avt->n_aliases = buf.length / PCX_AVT_LOAD_ALIAS_SIZE;
-        data->avt->aliases = pcx_calloc(data->avt->n_aliases *
-                                        sizeof (struct pcx_avt_alias));
+        size_t total_n_aliases = buf.length / PCX_AVT_LOAD_ALIAS_SIZE;
 
-        for (size_t a = 0; a < data->avt->n_aliases; a++) {
-                struct pcx_avt_alias *alias = data->avt->aliases + a;
+        /* Sort the aliases so we can easily count how many there are
+         * for each movable.
+         */
+        qsort(buf.data,
+              total_n_aliases,
+              PCX_AVT_LOAD_ALIAS_SIZE,
+              compare_alias);
+
+        for (size_t a = 0; a < total_n_aliases;) {
                 const uint8_t *alias_data =
                         buf.data + a * PCX_AVT_LOAD_ALIAS_SIZE;
+                uint8_t type, index;
 
-                alias->name = extract_string(alias_data, 20, error);
+                extract_alias_index(alias_data, &type, &index);
 
-                if (alias->name == NULL) {
-                        ret = false;
-                        goto done;
-                }
+                struct pcx_avt_movable *movable;
 
-                int name_len = strlen(alias->name);
-
-                if (name_len > 2 && alias->name[name_len - 1] == 'j') {
-                        alias->plural = true;
-                        name_len--;
-                }
-
-                if (name_len > 2 && alias->name[name_len - 1] == 'o')
-                        name_len--;
-
-                alias->name[name_len] = '\0';
-
-                alias_data += 21;
-
-                alias->type = *(alias_data++);
-
-                if (!is_valid_alias_type(alias->type)) {
-                        pcx_set_error(error,
-                                      &pcx_avt_load_error,
-                                      PCX_AVT_LOAD_ERROR_INVALID_ALIAS,
-                                      "An alias has an invalid type (0x%x)",
-                                      alias->type);
-                        ret = false;
-                        goto done;
-                }
-
-                alias->index = *(alias_data++);
-
-                switch (alias->type) {
-                case PCX_AVT_ALIAS_TYPE_OBJECT:
-                        if (alias->index < 1 ||
-                            alias->index > data->avt->n_objects) {
+                switch (type) {
+                case PCX_AVT_LOAD_ALIAS_TYPE_OBJECT:
+                        if (index < 1 || index > data->avt->n_objects) {
                                 pcx_set_error(error,
                                               &pcx_avt_load_error,
                                               PCX_AVT_LOAD_ERROR_INVALID_OBJECT,
@@ -533,11 +551,10 @@ load_aliases(struct load_data *data,
                                 ret = false;
                                 goto done;
                         }
-                        alias->index--;
-                        break;
-                case PCX_AVT_ALIAS_TYPE_MONSTER:
-                        if (alias->index < 1 ||
-                            alias->index > data->avt->n_monsters) {
+                        movable = &data->avt->objects[index - 1].base;
+                        goto found_type;
+                case PCX_AVT_LOAD_ALIAS_TYPE_MONSTER:
+                        if (index < 1 || index > data->avt->n_monsters) {
                                 int e = PCX_AVT_LOAD_ERROR_INVALID_MONSTER;
                                 pcx_set_error(error,
                                               &pcx_avt_load_error,
@@ -547,9 +564,56 @@ load_aliases(struct load_data *data,
                                 ret = false;
                                 goto done;
                         }
-                        alias->index--;
-                        break;
+                        movable = &data->avt->monsters[index - 1].base;
+                        goto found_type;
                 }
+
+                pcx_set_error(error,
+                              &pcx_avt_load_error,
+                              PCX_AVT_LOAD_ERROR_INVALID_ALIAS,
+                              "An alias has an invalid type (0x%x)",
+                              type);
+                ret = false;
+                goto done;
+
+        found_type:
+                assert(movable->n_aliases == 0);
+                assert(movable->aliases == NULL);
+
+                movable->n_aliases = count_aliases(buf.data,
+                                                   a,
+                                                   total_n_aliases);
+
+                movable->aliases = pcx_calloc(sizeof (struct pcx_avt_alias) *
+                                              movable->n_aliases);
+
+                for (size_t i = 0; i < movable->n_aliases; i++) {
+                        struct pcx_avt_alias *alias =
+                                movable->aliases + i;
+
+                        alias->name = extract_string(alias_data, 20, error);
+
+                        if (alias->name == NULL) {
+                                ret = false;
+                                goto done;
+                        }
+
+                        int name_len = strlen(alias->name);
+
+                        if (name_len > 2 && alias->name[name_len - 1] == 'j') {
+                                alias->plural = true;
+                                name_len--;
+                        }
+
+                        if (name_len > 2 && alias->name[name_len - 1] == 'o')
+                                name_len--;
+
+                        alias->name[name_len] = '\0';
+
+                        alias_data += PCX_AVT_LOAD_ALIAS_SIZE;
+                }
+
+                a += movable->n_aliases;
         }
 
 done:

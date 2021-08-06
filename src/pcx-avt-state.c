@@ -1673,59 +1673,46 @@ get_capital_pronoun_name(enum pcx_avt_pronoun pronoun)
 }
 
 static bool
-movable_matches_noun(const struct pcx_avt_movable *movable,
-                     const struct pcx_avt_command_noun *noun)
+movable_parts_matches_noun(bool plural,
+                           const char *adjective,
+                           const char *name,
+                           const struct pcx_avt_command_noun *noun)
 {
-        if (noun->plural != (movable->pronoun == PCX_AVT_PRONOUN_PLURAL))
+        if (noun->plural != plural)
                 return false;
 
         if (noun->adjective.start) {
-                if (movable->adjective == NULL ||
+                if (adjective == NULL ||
                     !pcx_avt_command_word_equal(&noun->adjective,
-                                                movable->adjective))
+                                                adjective))
                         return false;
         }
 
-        return pcx_avt_command_word_equal(&noun->name, movable->name);
+        return pcx_avt_command_word_equal(&noun->name, name);
 }
 
-static struct pcx_avt_state_movable *
-find_movable_via_alias(struct pcx_avt_state *state,
-                       const struct pcx_avt_command_noun *noun)
+static bool
+movable_matches_noun(const struct pcx_avt_movable *movable,
+                     const struct pcx_avt_command_noun *noun)
 {
-        for (unsigned i = 0; i < state->avt->n_aliases; i++) {
-                const struct pcx_avt_alias *alias = state->avt->aliases + i;
+        if (movable_parts_matches_noun(movable->pronoun ==
+                                       PCX_AVT_PRONOUN_PLURAL,
+                                       movable->adjective,
+                                       movable->name,
+                                       noun))
+                return true;
 
-                if (noun->plural != alias->plural)
-                        continue;
+        for (size_t i = 0; i < movable->n_aliases; i++) {
+                const struct pcx_avt_alias *alias = movable->aliases + i;
 
-                if (!pcx_avt_command_word_equal(&noun->name, alias->name))
-                        continue;
-
-                struct pcx_avt_state_movable *movable = NULL;
-
-                switch (alias->type) {
-                case PCX_AVT_ALIAS_TYPE_OBJECT:
-                        movable = state->object_index[alias->index];
-                        break;
-                case PCX_AVT_ALIAS_TYPE_MONSTER:
-                        movable = state->monster_index[alias->index];
-                        break;
-                }
-
-                if (noun->adjective.start &&
-                    (alias->adjective == NULL ||
-                     !pcx_avt_command_word_equal(&noun->adjective,
-                                                 alias->adjective)))
-                        continue;
-
-                if (!is_movable_present(state, movable))
-                        continue;
-
-                return movable;
+                if (movable_parts_matches_noun(alias->plural,
+                                               alias->adjective,
+                                               alias->name,
+                                               noun))
+                        return true;
         }
 
-        return NULL;
+        return false;
 }
 
 static bool
@@ -1828,10 +1815,6 @@ find_movable(struct pcx_avt_state *state,
                 if (found)
                         return found;
         }
-
-        found = find_movable_via_alias(state, noun);
-        if (found)
-                return found;
 
         return NULL;
 }

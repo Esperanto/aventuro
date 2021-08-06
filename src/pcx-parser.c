@@ -185,15 +185,6 @@ struct pcx_parser_pronoun {
         enum pcx_avt_pronoun value;
 };
 
-struct pcx_parser_alias {
-        struct pcx_list link;
-        char *adjective;
-        char *name;
-        bool plural;
-        enum pcx_parser_target_type target_type;
-        int target_num;
-};
-
 struct pcx_parser_object {
         struct pcx_parser_target base;
         char *name;
@@ -216,6 +207,7 @@ struct pcx_parser_object {
         long burn_time;
         long end;
         struct pcx_parser_pronoun pronoun;
+        struct pcx_buffer aliases;
 };
 
 enum pcx_parser_value_type {
@@ -1586,20 +1578,24 @@ error:
 
 static enum pcx_parser_return
 parse_alias(struct pcx_parser *parser,
-            struct pcx_parser_target *target,
+            struct pcx_parser_object *object,
             struct pcx_error **error)
 {
         const struct pcx_lexer_token *token;
 
         check_item_keyword(parser, PCX_LEXER_KEYWORD_ALIAS, error);
-
-        struct pcx_parser_alias *alias = pcx_calloc(sizeof *alias);
-        pcx_list_insert(parser->aliases.prev, &alias->link);
-
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_STRING,
                       "Expected alias name",
                       error);
+
+        pcx_buffer_set_length(&object->aliases,
+                              object->aliases.length +
+                              sizeof (struct pcx_avt_alias));
+        struct pcx_avt_alias *alias =
+                ((struct pcx_avt_alias *) (object->aliases.data +
+                                           object->aliases.length)) - 1;
+        memset(alias, 0, sizeof *alias);
 
         char *name = pcx_strdup(token->string_value);
 
@@ -1615,9 +1611,6 @@ parse_alias(struct pcx_parser *parser,
 
         if (!ret)
                 return PCX_PARSER_RETURN_ERROR;
-
-        alias->target_type = target->type;
-        alias->target_num = target->num;
 
         return PCX_PARSER_RETURN_OK;
 }
@@ -1853,6 +1846,8 @@ parse_object(struct pcx_parser *parser,
         struct pcx_parser_object *object = pcx_calloc(sizeof *object);
         add_target(parser, &parser->objects, &object->base);
 
+        pcx_buffer_init(&object->aliases);
+
         if (!assign_symbol(parser,
                            PCX_PARSER_TARGET_TYPE_OBJECT,
                            &object->base,
@@ -1916,7 +1911,7 @@ parse_object(struct pcx_parser *parser,
                         return PCX_PARSER_RETURN_ERROR;
                 }
 
-                switch (parse_alias(parser, &object->base, error)) {
+                switch (parse_alias(parser, object, error)) {
                 case PCX_PARSER_RETURN_OK:
                         continue;
                 case PCX_PARSER_RETURN_NOT_MATCHED:
@@ -2732,31 +2727,14 @@ compile_object(struct pcx_parser *parser,
         else
                 avt_object->base.pronoun = PCX_AVT_PRONOUN_ANIMAL;
 
-        return true;
-}
+        avt_object->base.n_aliases = (object->aliases.length /
+                                      sizeof (struct pcx_avt_alias));
 
-static bool
-compile_alias(struct pcx_parser *parser,
-              struct pcx_parser_alias *alias,
-              struct pcx_avt_alias *avt_alias,
-              struct pcx_error **error)
-{
-        switch (alias->target_type) {
-        case PCX_PARSER_TARGET_TYPE_OBJECT:
-                avt_alias->type = PCX_AVT_ALIAS_TYPE_OBJECT;
-                break;
-        case PCX_PARSER_TARGET_TYPE_RULE:
-        case PCX_PARSER_TARGET_TYPE_TEXT:
-        case PCX_PARSER_TARGET_TYPE_ROOM:
-                assert(false);
+        if (avt_object->base.n_aliases > 0) {
+                avt_object->base.aliases = pcx_memdup(object->aliases.data,
+                                                      object->aliases.length);
+                memset(object->aliases.data, 0, object->aliases.length);
         }
-
-        avt_alias->plural = alias->plural;
-        avt_alias->index = alias->target_num;
-        avt_alias->adjective = alias->adjective;
-        alias->adjective = NULL;
-        avt_alias->name = alias->name;
-        alias->name = NULL;
 
         return true;
 }
@@ -3066,25 +3044,6 @@ compile_file(struct pcx_parser *parser,
                 object_num++;
         }
 
-        avt->n_aliases = pcx_list_length(&parser->aliases);
-
-        if (avt->n_aliases > 0) {
-                avt->aliases = pcx_calloc(sizeof (struct pcx_avt_alias) *
-                                          avt->n_aliases);
-
-                struct pcx_parser_alias *alias;
-                int alias_num = 0;
-
-                pcx_list_for_each(alias, &parser->aliases, link) {
-                        if (!compile_alias(parser,
-                                           alias,
-                                           avt->aliases + alias_num, error))
-                                return false;
-
-                        alias_num++;
-                }
-        }
-
         avt->n_verbs = pcx_list_length(&parser->verbs);
 
         if (avt->n_verbs > 0) {
@@ -3185,6 +3144,18 @@ destroy_objects(struct pcx_parser *parser)
 
         pcx_list_for_each_safe(object, tmp, &parser->objects, base.link) {
                 pcx_free(object->name);
+
+                size_t n_aliases = (object->aliases.length /
+                                    sizeof (struct pcx_avt_alias));
+                for (size_t i = 0; i < n_aliases; i++) {
+                        struct pcx_avt_alias *alias =
+                                ((struct pcx_avt_alias *)
+                                 object->aliases.data) + i;
+                        pcx_free(alias->adjective);
+                        pcx_free(alias->name);
+                }
+
+                pcx_buffer_destroy(&object->aliases);
                 pcx_free(object);
         }
 }
@@ -3201,24 +3172,11 @@ destroy_texts(struct pcx_parser *parser)
 }
 
 static void
-destroy_aliases(struct pcx_parser *parser)
-{
-        struct pcx_parser_alias *alias, *tmp;
-
-        pcx_list_for_each_safe(alias, tmp, &parser->aliases, link) {
-                pcx_free(alias->adjective);
-                pcx_free(alias->name);
-                pcx_free(alias);
-        }
-}
-
-static void
 destroy_parser(struct pcx_parser *parser)
 {
         destroy_rooms(parser);
         destroy_objects(parser);
         destroy_texts(parser);
-        destroy_aliases(parser);
         destroy_rules(parser);
         destroy_verbs(parser);
 

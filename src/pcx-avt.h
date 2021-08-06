@@ -139,6 +139,12 @@ enum pcx_avt_action {
         PCX_AVT_ACTION_REPLACE_OBJECT = 0x83,
 };
 
+struct pcx_avt_alias {
+        bool plural;
+        char *adjective;
+        char *name;
+};
+
 struct pcx_avt_movable {
         /* Owned by this. These will have the ending removed. The
          * adjective can be NULL
@@ -146,6 +152,9 @@ struct pcx_avt_movable {
         char *name, *adjective;
         /* Owned by the parent pcx_avt. Can be NULL. */
         const char *description;
+
+        size_t n_aliases;
+        struct pcx_avt_alias *aliases;
 
         enum pcx_avt_pronoun pronoun;
 
@@ -273,19 +282,6 @@ struct pcx_avt_rule {
         struct pcx_avt_action_data *actions;
 };
 
-enum pcx_avt_alias_type {
-        PCX_AVT_ALIAS_TYPE_OBJECT = 1,
-        PCX_AVT_ALIAS_TYPE_MONSTER = 3,
-};
-
-struct pcx_avt_alias {
-        enum pcx_avt_alias_type type;
-        bool plural;
-        int index;
-        char *adjective;
-        char *name;
-};
-
 struct pcx_avt {
         char *name;
         char *author;
@@ -299,9 +295,6 @@ struct pcx_avt {
 
         size_t n_rules;
         struct pcx_avt_rule *rules;
-
-        size_t n_aliases;
-        struct pcx_avt_alias *aliases;
 
         size_t n_rooms;
         struct pcx_avt_room *rooms;

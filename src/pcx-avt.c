@@ -22,6 +22,17 @@
 
 #include "pcx-util.h"
 
+static void
+free_aliases(struct pcx_avt_movable *movable)
+{
+        for (size_t i = 0; i < movable->n_aliases; i++) {
+                pcx_free(movable->aliases[i].adjective);
+                pcx_free(movable->aliases[i].name);
+        }
+
+        pcx_free(movable->aliases);
+}
+
 void
 pcx_avt_free(struct pcx_avt *avt)
 {
@@ -55,6 +66,7 @@ pcx_avt_free(struct pcx_avt *avt)
 
                 pcx_free(object->base.name);
                 pcx_free(object->base.adjective);
+                free_aliases(&object->base);
         }
 
         pcx_free(avt->objects);
@@ -64,6 +76,7 @@ pcx_avt_free(struct pcx_avt *avt)
 
                 pcx_free(monster->base.name);
                 pcx_free(monster->base.adjective);
+                free_aliases(&monster->base);
         }
 
         pcx_free(avt->monsters);
@@ -81,13 +94,6 @@ pcx_avt_free(struct pcx_avt *avt)
         pcx_free(avt->name);
         pcx_free(avt->author);
         pcx_free(avt->year);
-
-        for (size_t i = 0; i < avt->n_aliases; i++) {
-                pcx_free(avt->aliases[i].adjective);
-                pcx_free(avt->aliases[i].name);
-        }
-
-        pcx_free(avt->aliases);
 
         pcx_free(avt);
 }
