@@ -1002,6 +1002,7 @@ extract_action(struct load_data *data,
         case PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR:
         case PCX_AVT_ACTION_CARRY_ANOTHER_OBJECT:
         case PCX_AVT_ACTION_REPLACE_OBJECT:
+        case PCX_AVT_ACTION_MOVE_INTO:
                 break;
         }
 

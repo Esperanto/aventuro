@@ -137,6 +137,8 @@ enum pcx_avt_action {
          * and then make the subject disappear.
          */
         PCX_AVT_ACTION_REPLACE_OBJECT = 0x83,
+        /* Make the object move to be contained by another named object */
+        PCX_AVT_ACTION_MOVE_INTO = 0x84,
 };
 
 struct pcx_avt_alias {

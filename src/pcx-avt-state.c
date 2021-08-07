@@ -925,6 +925,14 @@ execute_action(struct pcx_avt_state *state,
                 }
                 break;
 
+        case PCX_AVT_ACTION_MOVE_INTO:
+                if (movable) {
+                        reparent_movable(state,
+                                         state->object_index[action->data],
+                                         movable);
+                }
+                break;
+
         case PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM:
         case PCX_AVT_ACTION_REPLACE_OBJECT_IN_ROOM_2:
                 /* Despite the documentation, in testing with the

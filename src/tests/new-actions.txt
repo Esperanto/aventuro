@@ -121,3 +121,43 @@ Vi rompis la bluan skribilon. Vi estas monstro.
 La stumpo ĉeestas.
 
 La rompita skribilo ĉeestas.
+
+> ensakigi la tason
+
+Vi ensakigis la malplenan tason.
+
+> rigardi la sakon
+
+Ĝi estas blua plasta sako. En ĝi vi vidas rompitan skribilon kaj malplenan tason.
+
+> ensakigi la skribilon
+
+Vi ensakigis la rompitan skribilon.
+
+> rigardi la sakon
+
+Ĝi estas blua plasta sako. En ĝi vi vidas malplenan tason kaj rompitan skribilon.
+
+> rigardi
+
+Vi estas en kampo. Vi vidas malfeliĉan stumpon kaj bluan sakon.
+
+> ensakigi la stumpon
+
+Vi ensakigis la malfeliĉan stumpon.
+
+> rigardi la sakon
+
+Ĝi estas blua plasta sako. En ĝi vi vidas malplenan tason, rompitan skribilon kaj malfeliĉan stumpon.
+
+> rigardi
+
+Vi estas en kampo. Vi vidas bluan sakon.
+
+> ensakigi la bluan sakon.
+
+Vi ensakigis la bluan sakon.
+
+> rigardi
+
+Vi estas en kampo.

@@ -104,3 +104,10 @@ fenomeno {
   ĉeestas rompita_skribilo
   mesaĝo "La rompita skribilo ĉeestas."
 }
+
+fenomeno {
+  verbo "ensakigi"
+  mesaĝo "Vi ensakigis la $An."
+  aĵo io
+  nova aĵo enen blua_sako
+}

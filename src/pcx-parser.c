@@ -1188,6 +1188,9 @@ parse_object_action(struct pcx_parser *parser,
         case PCX_LEXER_KEYWORD_ELSEWHERE:
                 action->action = PCX_AVT_ACTION_MOVE_TO;
                 return parse_rule_room_param(parser, &action->param, error);
+        case PCX_LEXER_KEYWORD_INTO:
+                action->action = PCX_AVT_ACTION_MOVE_INTO;
+                return parse_rule_object_param(parser, &action->param, error);
         case PCX_LEXER_KEYWORD_END:
                 action->action = PCX_AVT_ACTION_CHANGE_END;
                 return parse_rule_int_param(parser, &action->param, error);
