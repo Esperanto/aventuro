@@ -644,7 +644,7 @@ ejo gufujo {
       verbo "malfermi"
       verbo "preni"
       verbo "tuŝi"
-      mesaĝo "La vendisto minace ordonas vin foriri de la $An kaj ne tuŝi ĝin."
+      mesaĝo "La vendisto minace ordonas vin foriri de la $A kaj ne tuŝi ĝin."
     }
   }
 
