@@ -108,9 +108,38 @@ body {
     animation: fadeIn linear 0.5s;
 }
 
+.exampleCommand {
+    background-color: #eeeeee;
+    padding: 0.5em;
+}
+
 @keyframes fadeIn {
     0% { opacity: 0; }
     100% { opacity: 1; }
+}
+
+#chatTitleStub {
+    width: 3em;
+}
+
+#help {
+    background-color: white;
+    padding: 0 1em;
+}
+
+#helpButton {
+    flex-basis: 0;
+    display: inline-block;
+    z-index: 4;
+}
+
+#helpButton img {
+    border: 0;
+    outline: none;
+    text-decoration: none;
+    width: 2em;
+    height: 2em;
+    margin-right: 1em;
 }
 
 @media only all and (max-width: 45em) {

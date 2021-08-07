@@ -4,6 +4,8 @@ data_files = [
         'send.png',
         'aventuro.css',
         'background.png',
+        'help.png',
+        'help.html',
 ]
 
 web_dir = get_option('datadir') / 'web'
