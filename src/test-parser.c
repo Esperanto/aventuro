@@ -228,35 +228,35 @@ fail_checks[] = {
         },
         {
                 "teksto t \"what \x80\"",
-                "String contains invalid UTF-8 at line 1"
+                "linio 1: Teksto enhavas nevalidan UTF-8"
         },
         {
                 "ejo s\x80t",
-                "Invalid UTF-8 encountered at line 1"
+                "linio 1: Trovis nevalidan UTF-8"
         },
         {
                 "ejo s {\n"
                 "(\n",
-                "Unexpected character ‘(’ on line 2"
+                "linio 2: Neatendita signo ‘(’"
         },
         {
                 "42s",
-                "Invalid number “42s” on line 1"
+                "linio 1: Nevalida numero “42s”"
         },
         {
                 "\"\\n\"",
-                "Invalid escape sequence in string on line 1"
+                "linio 1: Nevalida kodŝanĝa signo"
         },
         {
                 "\"\\",
-                "Invalid escape sequence in string on line 1"
+                "linio 1: Nevalida kodŝanĝa signo"
         },
         {
                 BLURB
                 "ejo s1 {\n"
                 " priskribo \"I forgot to close the door\n"
                 "}\n",
-                "Unterminated string sequence at line 3"
+                "linio 3: Senfina teksto"
         },
         {
                 BLURB
@@ -324,7 +324,7 @@ fail_checks[] = {
         {
                 "aĵo skribilo\n"
                 " { (\n",
-                "Unexpected character ‘(’ on line 2"
+                "linio 2: Neatendita signo ‘(’"
         },
         {
                 "aĵo skribilo {\n"
@@ -592,7 +592,7 @@ fail_checks[] = {
                 "  verbo \"kuri\"\n"
                 "  &amp;\n"
                 "}",
-                "Unexpected character ‘&’ on line 3"
+                "linio 3: Neatendita signo ‘&’"
         },
         {
                 "fenomeno {\n"

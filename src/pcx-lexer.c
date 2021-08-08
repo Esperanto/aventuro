@@ -139,6 +139,62 @@ keywords[] = {
 _Static_assert(PCX_N_ELEMENTS(keywords) == PCX_LEXER_N_KEYWORDS,
                "Keyword is a missing a name");
 
+static void
+set_verror(struct pcx_lexer *lexer,
+           struct pcx_error **error,
+           enum pcx_lexer_error code,
+           int line_num,
+           const char *format,
+           va_list ap)
+{
+        struct pcx_buffer buf = PCX_BUFFER_STATIC_INIT;
+
+        pcx_buffer_append_printf(&buf,
+                                 "linio %i: ",
+                                 line_num);
+
+        pcx_buffer_append_vprintf(&buf, format, ap);
+
+        pcx_set_error(error,
+                      &pcx_lexer_error,
+                      code,
+                      "%s",
+                      (const char *) buf.data);
+
+        pcx_buffer_destroy(&buf);
+}
+
+PCX_PRINTF_FORMAT(4, 5)
+static void
+set_error(struct pcx_lexer *lexer,
+           struct pcx_error **error,
+           enum pcx_lexer_error code,
+           const char *format,
+           ...)
+{
+        va_list ap;
+
+        va_start(ap, format);
+        set_verror(lexer, error, code, lexer->line_num, format, ap);
+        va_end(ap);
+}
+
+PCX_PRINTF_FORMAT(5, 6)
+static void
+set_error_with_line(struct pcx_lexer *lexer,
+                    struct pcx_error **error,
+                    enum pcx_lexer_error code,
+                    int line_num,
+                    const char *format,
+                    ...)
+{
+        va_list ap;
+
+        va_start(ap, format);
+        set_verror(lexer, error, code, line_num, format, ap);
+        va_end(ap);
+}
+
 static int
 get_character(struct pcx_lexer *lexer)
 {
@@ -265,11 +321,10 @@ normalize_string(struct pcx_lexer *lexer, struct pcx_error **error)
         *dst = '\0';
 
         if (!pcx_utf8_is_valid_string(str)) {
-                pcx_set_error(error,
-                              &pcx_lexer_error,
-                              PCX_LEXER_ERROR_INVALID_STRING,
-                              "String contains invalid UTF-8 at line %i",
-                              lexer->line_num);
+                set_error(lexer,
+                          error,
+                          PCX_LEXER_ERROR_INVALID_STRING,
+                          "Teksto enhavas nevalidan UTF-8");
                 return false;
         }
 
@@ -282,11 +337,10 @@ find_symbol(struct pcx_lexer *lexer, struct pcx_error **error)
         const char *str = (const char *) lexer->buffer.data;
 
         if (!pcx_utf8_is_valid_string(str)) {
-                pcx_set_error(error,
-                              &pcx_lexer_error,
-                              PCX_LEXER_ERROR_INVALID_SYMBOL,
-                              "Invalid UTF-8 encountered at line %i",
-                              lexer->line_num);
+                set_error(lexer,
+                          error,
+                          PCX_LEXER_ERROR_INVALID_SYMBOL,
+                          "Trovis nevalidan UTF-8");
                 return false;
         }
 
@@ -376,13 +430,11 @@ pcx_lexer_get_token(struct pcx_lexer *lexer,
                                         PCX_LEXER_TOKEN_TYPE_EOF;
                                 return &lexer->token;
                         } else {
-                                pcx_set_error(error,
-                                              &pcx_lexer_error,
-                                              PCX_LEXER_ERROR_UNEXPECTED_CHAR,
-                                              "Unexpected character ‘%c’ on "
-                                              "line %i",
-                                              ch,
-                                              lexer->line_num);
+                                set_error(lexer,
+                                          error,
+                                          PCX_LEXER_ERROR_UNEXPECTED_CHAR,
+                                          "Neatendita signo ‘%c’",
+                                          ch);
                                 return NULL;
                         }
                         break;
@@ -408,13 +460,11 @@ pcx_lexer_get_token(struct pcx_lexer *lexer,
                         lexer->token.number_value = strtol(str, &tail, 10);
 
                         if (errno || *tail) {
-                                pcx_set_error(error,
-                                              &pcx_lexer_error,
-                                              PCX_LEXER_ERROR_INVALID_NUMBER,
-                                              "Invalid number “%s” on "
-                                              "line %i",
-                                              str,
-                                              lexer->line_num);
+                                set_error(lexer,
+                                          error,
+                                          PCX_LEXER_ERROR_INVALID_NUMBER,
+                                          "Nevalida numero “%s”",
+                                          str);
                                 return NULL;
                         }
 
@@ -447,12 +497,12 @@ pcx_lexer_get_token(struct pcx_lexer *lexer,
                                         PCX_LEXER_STATE_READING_STRING_ESCAPE;
                                 break;
                         } else if (ch == -1) {
-                                pcx_set_error(error,
-                                              &pcx_lexer_error,
-                                              PCX_LEXER_ERROR_INVALID_STRING,
-                                              "Unterminated string sequence "
-                                              "at line %i",
-                                              lexer->string_start_line);
+                                set_error_with_line
+                                        (lexer,
+                                         error,
+                                         PCX_LEXER_ERROR_INVALID_STRING,
+                                         lexer->string_start_line,
+                                         "Senfina teksto");
                                 return NULL;
                         } else if (ch != '"') {
                                 pcx_buffer_append_c(&lexer->buffer, ch);
@@ -476,12 +526,10 @@ pcx_lexer_get_token(struct pcx_lexer *lexer,
                                 lexer->state = PCX_LEXER_STATE_READING_STRING;
                                 break;
                         }
-                        pcx_set_error(error,
-                                      &pcx_lexer_error,
-                                      PCX_LEXER_ERROR_INVALID_NUMBER,
-                                      "Invalid escape sequence in string on "
-                                      "line %i",
-                                      lexer->line_num);
+                        set_error(lexer,
+                                  error,
+                                  PCX_LEXER_ERROR_INVALID_NUMBER,
+                                  "Nevalida kodŝanĝa signo");
                         return NULL;
 
                 case PCX_LEXER_STATE_SKIPPING_COMMENT:
