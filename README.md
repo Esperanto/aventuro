@@ -2,6 +2,8 @@
 
 Ĉi tiu projekto celas rekrei malnovan sistemon por tekstaventuroj kiu nomiĝas [Aventuro](https://eo.wikipedia.org/wiki/Aventuro_%28tekstaventuro%29). La originala programo estas elŝutebla [ĉi tie](http://ifarchive.org/if-archive/interpreters-other/aventuro/). Oni verkis ĝin en 1987, kaj tial ĝi estas programo por DOS. Ĝi tamen ankoraŭ funkcias facile nun en [DOSBox](https://www.dosbox.com/).
 
+Se vi simple volas ludi tekstaventuron, vi povas ludi ĉe [Gemelo.org](https://gemelo.org/kongreso).
+
 Parto de la tasko estas kompreni la originalan sistemon. La originala sistemo inkluzivas kompililon por krei proprajn ludojn. La programlingvo estas dokumentita jam en la originala programo. Ĉi tiu deponejo ankaŭ havas [dokumenton](dokumentoj/avt-formato.md) por provi kompreni la duuman formaton de la dosieroj kiujn la kompililo kreas. Estas pli facile kompreni la formaton de la duumaj dosieroj per la du dokumentoj kune.
 
 ## Interpretilo
@@ -17,6 +19,10 @@ Sekve, se oni elŝutas la originalan zip-dosieron de Aventuro, oni povas ludi la
     ./play-avt TEXEL.AVT
 
 La interpretilo ankoraŭ ne estas tute finita do ne eblas plene ludi la ludon.
+
+## Nova datumlingvo
+
+Krom povi ludi la aventurojn de la originala sistemo, ĉi tiu interpretilo ankaŭ havas novan datumlingvon por krei ludojn. Ĝi povas rekte legi la datumlingvon kaj ne necesas programtradukilo por konverti ĝin al duuma dosiero. La lingvo ankoraŭ ne havas dokumentojn, sed oni povas vidi [ekzemplan ludon](ludoj/kongreso1.avt) en la deponejo.
 
 ## Retpaĝo
 
