@@ -187,6 +187,12 @@ aĵo androjda_saĝtelefono {
     mesaĝo "Vi ne volas ĵeti vian telefonon en malluma loko ĉar vi
             eble ne plu trovos ĝin."
   }
+
+  fenomeno {
+    verbo "meti"
+    ujo ilara_kesto
+    mesaĝo "La ilaro estas por iloj, ne por telefonoj."
+  }
 }
 
 fenomeno ne_reto {
