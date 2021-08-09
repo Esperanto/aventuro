@@ -261,15 +261,70 @@ typedef enum pcx_parser_return
                         return PCX_PARSER_RETURN_ERROR;                 \
                                                                         \
                 if (token->type != (token_type)) {                      \
-                        pcx_set_error(error,                            \
-                                      &pcx_parser_error,                \
-                                      PCX_PARSER_ERROR_INVALID,         \
-                                      "%s at line %i",                  \
-                                      (msg),                            \
-                                      pcx_lexer_get_line_num(parser->lexer)); \
+                        set_error(parser,                               \
+                                  error,                                \
+                                  "%s",                                 \
+                                  (msg));                               \
                         return PCX_PARSER_RETURN_ERROR;                 \
                 }                                                       \
         } while (0)
+
+static void
+set_verror(struct pcx_parser *parser,
+           struct pcx_error **error,
+           int line_num,
+           const char *format,
+           va_list ap)
+{
+        struct pcx_buffer buf = PCX_BUFFER_STATIC_INIT;
+
+        pcx_buffer_append_printf(&buf,
+                                 "linio %i: ",
+                                 line_num);
+
+        pcx_buffer_append_vprintf(&buf, format, ap);
+
+        pcx_set_error(error,
+                      &pcx_parser_error,
+                      PCX_PARSER_ERROR_INVALID,
+                      "%s",
+                      (const char *) buf.data);
+
+        pcx_buffer_destroy(&buf);
+}
+
+PCX_PRINTF_FORMAT(3, 4)
+static void
+set_error(struct pcx_parser *parser,
+           struct pcx_error **error,
+           const char *format,
+           ...)
+{
+        va_list ap;
+
+        va_start(ap, format);
+        set_verror(parser,
+                   error,
+                   pcx_lexer_get_line_num(parser->lexer),
+                   format,
+                   ap);
+        va_end(ap);
+}
+
+PCX_PRINTF_FORMAT(4, 5)
+static void
+set_error_with_line(struct pcx_parser *parser,
+                    struct pcx_error **error,
+                    int line_num,
+                    const char *format,
+                    ...)
+{
+        va_list ap;
+
+        va_start(ap, format);
+        set_verror(parser, error, line_num, format, ap);
+        va_end(ap);
+}
 
 static bool
 text_reference_specified(const struct pcx_parser_text_reference *reference)
@@ -292,12 +347,7 @@ assign_symbol(struct pcx_parser *parser,
                 return false;
 
         if (token->type != PCX_LEXER_TOKEN_TYPE_SYMBOL) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "%s at line %i",
-                              msg,
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "%s", msg);
                 return false;
         }
 
@@ -316,11 +366,7 @@ assign_symbol(struct pcx_parser *parser,
                 (struct pcx_parser_target **) parser->symbols.data;
 
         if (symbols[token->symbol_value]) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Same name used for multiple objects at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "Pluraj aferoj havas la saman nomon");
                 return false;
         }
 
@@ -342,18 +388,13 @@ parse_string_property(struct pcx_parser *parser,
         check_item_keyword(parser, prop->prop_keyword, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_STRING,
-                      "String expected",
+                      "Atendis tekston",
                       error);
 
         char **field = (char **) (((uint8_t *) object) + prop->offset);
 
         if (*field) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "%s at line %i",
-                              prop->duplicate_msg,
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "%s", prop->duplicate_msg);
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -373,18 +414,16 @@ parse_int_property(struct pcx_parser *parser,
         check_item_keyword(parser, prop->prop_keyword, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_NUMBER,
-                      "Number expected",
+                      "Atendis numeron",
                       error);
 
         unsigned *field = (unsigned *) (((uint8_t *) object) + prop->offset);
 
         if (token->number_value < prop->min_value ||
             token->number_value > prop->max_value) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Number out of range at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser,
+                          error,
+                          "Numero estas ekster la valida intervalo");
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -427,11 +466,9 @@ get_attribute_num(struct pcx_parser *parser,
         }
 
         if (n_symbols + 2 > 32) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Too many unique attributes at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser,
+                          error,
+                          "Tro da unikaj ecoj");
                 return false;
         }
 
@@ -455,7 +492,7 @@ parse_attribute_property(struct pcx_parser *parser,
                 check_item_keyword(parser, PCX_LEXER_KEYWORD_ATTRIBUTE, error);
                 require_token(parser,
                               PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                              "Attribute name expected",
+                              "Atendis nomon de eco",
                               error);
         } else {
                 check_item_keyword(parser, prop->prop_keyword, error);
@@ -493,7 +530,7 @@ parse_reference_property(struct pcx_parser *parser,
         check_item_keyword(parser, prop->prop_keyword, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Item name expected",
+                      "Atendis nomon de afero",
                       error);
 
         struct pcx_parser_reference *ref =
@@ -501,12 +538,7 @@ parse_reference_property(struct pcx_parser *parser,
                 (((uint8_t *) object) + prop->offset);
 
         if (ref->symbol) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "%s at line %i",
-                              prop->duplicate_msg,
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "%s", prop->duplicate_msg);
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -579,12 +611,10 @@ store_text_reference(struct pcx_parser *parser,
                 }
                 /* flow through */
         default:
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Expected text item%s at line %i",
-                              optional ? " or “nenio”" : "",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser,
+                          error,
+                          "Atendis tekston%s",
+                          optional ? " aŭ “nenio”" : "");
                 return false;
         }
 
@@ -606,12 +636,7 @@ parse_text_property(struct pcx_parser *parser,
                 (((uint8_t *) object) + prop->offset);
 
         if (text_reference_specified(field)) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "%s at line %i",
-                              prop->duplicate_msg,
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "%s", prop->duplicate_msg);
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -664,11 +689,7 @@ parse_pronoun_property(struct pcx_parser *parser,
         }
 
         if (field->specified) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Pronoun already specified at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "La pronomo jam estas difinita");
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -764,7 +785,7 @@ rule_props[] = {
                 offsetof(struct pcx_parser_rule, message),
                 PCX_PARSER_VALUE_TYPE_TEXT,
                 PCX_LEXER_KEYWORD_MESSAGE,
-                "Rule already has a message",
+                "La fenomeno jam havas mesaĝon",
         },
         {
                 offsetof(struct pcx_parser_rule, points),
@@ -801,18 +822,14 @@ parse_verb(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_STRING,
-                      "String expected",
+                      "Atendis tekston",
                       error);
 
         char *name = pcx_strdup(token->string_value);
         int len = strlen(name);
 
         if (len < 2 || name[len - 1] != 'i') {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Verb must end in ‘i’ at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "La verbo devas finiĝi per ‘i’");
                 pcx_free(name);
                 return PCX_PARSER_RETURN_ERROR;
         }
@@ -850,16 +867,14 @@ parse_rule_int_param(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_NUMBER,
-                      "Number expected",
+                      "Atendis numeron",
                       error);
 
         if (token->number_value < 0 ||
             token->number_value > 255) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Number out of range at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser,
+                          error,
+                          "Numero estas ekster la valida intervalo");
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -898,7 +913,7 @@ parse_rule_object_param(struct pcx_parser *parser,
         return parse_rule_reference_param(parser,
                                           param,
                                           PCX_PARSER_RULE_PARAMETER_TYPE_OBJECT,
-                                          "Object name expected",
+                                          "Atendis nomon de aĵo",
                                           error);
 }
 
@@ -913,7 +928,7 @@ parse_rule_attribute_param(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Expected attribute name or “malvera”",
+                      "Atendis nomon de eco aŭ “malvera”",
                       error);
 
         if (token->symbol_value == PCX_LEXER_KEYWORD_UNSET) {
@@ -921,7 +936,7 @@ parse_rule_attribute_param(struct pcx_parser *parser,
 
                 require_token(parser,
                               PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                              "Expected attribute name",
+                              "Atendis nomon de eco",
                               error);
         } else {
                 *is_set = true;
@@ -973,7 +988,7 @@ parse_object_condition(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Expected rule condition",
+                      "Atendis kondiĉon de fenomeno",
                       error);
 
         switch (token->symbol_value) {
@@ -1034,7 +1049,7 @@ parse_rule_room_param(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Room name expected",
+                      "Atendis nomon de ejo",
                       error);
 
         param->type = PCX_PARSER_RULE_PARAMETER_TYPE_ROOM;
@@ -1053,7 +1068,7 @@ parse_room_condition(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Expected rule condition",
+                      "Atendis kondiĉon de fenomeno",
                       error);
 
         if (token->symbol_value == PCX_LEXER_KEYWORD_ATTRIBUTE) {
@@ -1177,7 +1192,7 @@ parse_object_action(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Expected rule action",
+                      "Atendis agon de fenomeno",
                       error);
 
         switch (token->symbol_value) {
@@ -1247,7 +1262,7 @@ parse_room_action(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Expected rule action",
+                      "Atendis agon de regulo",
                       error);
 
         if (token->symbol_value == PCX_LEXER_KEYWORD_ATTRIBUTE) {
@@ -1276,7 +1291,7 @@ parse_action(struct pcx_parser *parser,
         check_item_keyword(parser, PCX_LEXER_KEYWORD_NEW, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Expected action",
+                      "Atendis agon",
                       error);
 
         struct pcx_parser_rule_action *action;
@@ -1315,13 +1330,11 @@ parse_action(struct pcx_parser *parser,
                 action->action = PCX_AVT_ACTION_ANOTHER_OBJECT_APPEAR;
                 return parse_rule_object_param(parser, &action->param, error);
         default:
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Unknown action “%s” at line %i",
-                              pcx_lexer_get_symbol_name(parser->lexer,
-                                                        token->symbol_value),
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser,
+                          error,
+                          "Nekonata ago “%s”",
+                          pcx_lexer_get_symbol_name(parser->lexer,
+                                                    token->symbol_value));
                 return PCX_PARSER_RETURN_ERROR;
         }
 }
@@ -1342,7 +1355,7 @@ parse_run_rule_action(struct pcx_parser *parser,
         return parse_rule_reference_param(parser,
                                           &action->param,
                                           PCX_PARSER_RULE_PARAMETER_TYPE_RULE,
-                                          "Rule name expected",
+                                          "Atendis nomon de fenomeno",
                                           error);
 }
 
@@ -1403,18 +1416,18 @@ parse_rule(struct pcx_parser *parser,
                 if (!assign_symbol(parser,
                                    PCX_PARSER_TARGET_TYPE_RULE,
                                    &rule->base,
-                                   "Expected rule name or ‘{’",
+                                   "Atendis nomon de fenomeno aŭ ‘{’",
                                    error))
                         return PCX_PARSER_RETURN_ERROR;
 
                 require_token(parser,
                               PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
-                              "Expected ‘{’",
+                              "Atendis ‘{’",
                               error);
         } else {
                 require_token(parser,
                               PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
-                              "Expected rule name or ‘{’",
+                              "Atendis nomon de fenomeno aŭ ‘{’",
                               error);
         }
 
@@ -1484,21 +1497,16 @@ parse_rule(struct pcx_parser *parser,
                         return PCX_PARSER_RETURN_ERROR;
                 }
 
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Expected rule item or ‘}’ at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "Atendis eron de fenomeno aŭ ‘}’");
 
                 return PCX_PARSER_RETURN_ERROR;
         }
 
         if (!had_verb) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Every rule needs at least one verb at line %i",
-                              rule->base.line_num);
+                set_error_with_line(parser,
+                                    error,
+                                    rule->base.line_num,
+                                    "Ĉiu fenomeno bezonas almenaŭ unu verbon");
 
                 return PCX_PARSER_RETURN_ERROR;
         }
@@ -1554,12 +1562,11 @@ split_movable_name(struct pcx_parser *parser,
                 goto error;
 
         if (adjective != NULL && adjective_plural != noun_plural) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Object’s adjective and noun don’t have the "
-                              "same plurality at line %i",
-                              line_num);
+                set_error_with_line(parser,
+                                    error,
+                                    line_num,
+                                    "La adjektivo kaj la substantivo de la aĵo "
+                                    "ne havas la saman plurecon");
                 return false;
         }
 
@@ -1570,12 +1577,11 @@ split_movable_name(struct pcx_parser *parser,
         return true;
 
 error:
-        pcx_set_error(error,
-                      &pcx_parser_error,
-                      PCX_PARSER_ERROR_INVALID,
-                      "The object name must be an optional adjective followed "
-                      "by a noun at line %i",
-                      line_num);
+        set_error_with_line(parser,
+                            error,
+                            line_num,
+                            "La nomo de la aĵo devas havi nedevigan "
+                            "adjektivon kaj substantivon");
         return false;
 }
 
@@ -1589,7 +1595,7 @@ parse_alias(struct pcx_parser *parser,
         check_item_keyword(parser, PCX_LEXER_KEYWORD_ALIAS, error);
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_STRING,
-                      "Expected alias name",
+                      "Atendis nomon de la alinomo",
                       error);
 
         pcx_buffer_set_length(&object->aliases,
@@ -1624,19 +1630,19 @@ object_props[] = {
                 offsetof(struct pcx_parser_object, name),
                 PCX_PARSER_VALUE_TYPE_STRING,
                 PCX_LEXER_KEYWORD_NAME,
-                "Object already has a name",
+                "La aĵo jam havas nomon",
         },
         {
                 offsetof(struct pcx_parser_object, description),
                 PCX_PARSER_VALUE_TYPE_TEXT,
                 PCX_LEXER_KEYWORD_DESCRIPTION,
-                "Object already has a description",
+                "La aĵo jam havas priskribon",
         },
         {
                 offsetof(struct pcx_parser_object, read_text),
                 PCX_PARSER_VALUE_TYPE_TEXT,
                 PCX_LEXER_KEYWORD_LEGIBLE,
-                "Object already has read text",
+                "La aĵo jam havas legeblan tekston",
         },
         {
                 offsetof(struct pcx_parser_object, points),
@@ -1720,13 +1726,13 @@ object_props[] = {
                 offsetof(struct pcx_parser_object, into),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_INTO,
-                "Object already has an into direction",
+                "La aĵo jam havas enan direkton",
         },
         {
                 offsetof(struct pcx_parser_object, location),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_LOCATION,
-                "Object already has a location",
+                "La aĵo jam havas lokon",
         },
         {
                 offsetof(struct pcx_parser_object, attributes),
@@ -1854,7 +1860,7 @@ parse_object(struct pcx_parser *parser,
         if (!assign_symbol(parser,
                            PCX_PARSER_TARGET_TYPE_OBJECT,
                            &object->base,
-                           "Expected object name",
+                           "Atendis nomon de aĵo",
                            error))
                 return PCX_PARSER_RETURN_ERROR;
 
@@ -1868,7 +1874,7 @@ parse_object(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
-                      "Expected ‘{’",
+                      "Atendis ‘{’",
                       error);
 
         while (true) {
@@ -1932,11 +1938,8 @@ parse_object(struct pcx_parser *parser,
                         return PCX_PARSER_RETURN_ERROR;
                 }
 
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Expected object item or ‘}’ at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "Atendis eron de aĵo aŭ ‘}’");
+
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -1949,55 +1952,55 @@ room_props[] = {
                 offsetof(struct pcx_parser_room, name),
                 PCX_PARSER_VALUE_TYPE_STRING,
                 PCX_LEXER_KEYWORD_NAME,
-                "Room already has a name",
+                "La ejo jam havas nomon",
         },
         {
                 offsetof(struct pcx_parser_room, description),
                 PCX_PARSER_VALUE_TYPE_TEXT,
                 PCX_LEXER_KEYWORD_DESCRIPTION,
-                "Room already has a description",
+                "La ejo jam havas priskribon",
         },
         {
                 offsetof(struct pcx_parser_room, movements[0]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_NORTH,
-                "Room already has a north direction",
+                "La ejo jam havas nordan direkton",
         },
         {
                 offsetof(struct pcx_parser_room, movements[1]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_EAST,
-                "Room already has an east direction",
+                "La ejo jam havas orientan direkton",
         },
         {
                 offsetof(struct pcx_parser_room, movements[2]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_SOUTH,
-                "Room already has a south direction",
+                "La ejo jam havas sudan direkton",
         },
         {
                 offsetof(struct pcx_parser_room, movements[3]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_WEST,
-                "Room already has a west direction",
+                "La ejo jam havas okcidentan direkton",
         },
         {
                 offsetof(struct pcx_parser_room, movements[4]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_UP,
-                "Room already has an up direction",
+                "La ejo jam havas supran direkton",
         },
         {
                 offsetof(struct pcx_parser_room, movements[5]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_DOWN,
-                "Room already has a down direction",
+                "La ejo jam havas suban direkton",
         },
         {
                 offsetof(struct pcx_parser_room, movements[6]),
                 PCX_PARSER_VALUE_TYPE_REFERENCE,
                 PCX_LEXER_KEYWORD_EXIT,
-                "Room already has an exit direction",
+                "La ejo jam havas eliran direkton",
         },
         {
                 offsetof(struct pcx_parser_room, attributes),
@@ -2048,7 +2051,7 @@ parse_direction(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_STRING,
-                      "Expected direction name",
+                      "Atendis nomon de la direkto",
                       error);
 
         direction->name = pcx_strdup(token->string_value);
@@ -2060,11 +2063,9 @@ parse_direction(struct pcx_parser *parser,
         if (name_len < 2 ||
             direction->name[name_len - 1] != 'o' ||
             !pcx_avt_hat_is_alphabetic_string(direction->name)) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Direction name must be a noun at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser,
+                          error,
+                          "Nomo de direkto devas esti substantivo");
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -2074,7 +2075,7 @@ parse_direction(struct pcx_parser *parser,
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_SYMBOL,
-                      "Expected room name",
+                      "Atendis nomon de ejo",
                       error);
 
         direction->room.symbol = token->symbol_value;
@@ -2107,13 +2108,13 @@ parse_room(struct pcx_parser *parser,
         if (!assign_symbol(parser,
                            PCX_PARSER_TARGET_TYPE_ROOM,
                            &room->base,
-                           "Expected room name",
+                           "Atendis nomon de ejo",
                            error))
                 return PCX_PARSER_RETURN_ERROR;
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_OPEN_BRACKET,
-                      "Expected ‘{’",
+                      "Atendis ‘{’",
                       error);
 
         while (true) {
@@ -2168,11 +2169,7 @@ parse_room(struct pcx_parser *parser,
                         return PCX_PARSER_RETURN_ERROR;
                 }
 
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Expected room item or ‘}’ at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser, error, "Atendis eron de ejo aŭ ‘}’");
                 return PCX_PARSER_RETURN_ERROR;
         }
 
@@ -2196,13 +2193,13 @@ parse_text(struct pcx_parser *parser,
         if (!assign_symbol(parser,
                            PCX_PARSER_TARGET_TYPE_TEXT,
                            &text->base,
-                           "Expected text name",
+                           "Atendis nomon de la teksto",
                            error))
                 return PCX_PARSER_RETURN_ERROR;
 
         require_token(parser,
                       PCX_LEXER_TOKEN_TYPE_STRING,
-                      "Expected string",
+                      "Atendis tekston",
                       error);
 
         text->text = pcx_strdup(token->string_value);
@@ -2216,25 +2213,25 @@ file_props[] = {
                 offsetof(struct pcx_parser, game_name),
                 PCX_PARSER_VALUE_TYPE_STRING,
                 PCX_LEXER_KEYWORD_NAME,
-                "Room already has a name",
+                "La ludo jam havas nomon",
         },
         {
                 offsetof(struct pcx_parser, game_author),
                 PCX_PARSER_VALUE_TYPE_STRING,
                 PCX_LEXER_KEYWORD_AUTHOR,
-                "Room already has an author",
+                "La ludo jam havas aŭtoron",
         },
         {
                 offsetof(struct pcx_parser, game_year),
                 PCX_PARSER_VALUE_TYPE_STRING,
                 PCX_LEXER_KEYWORD_YEAR,
-                "Room already has a year",
+                "La ludo jam havas jaron",
         },
         {
                 offsetof(struct pcx_parser, game_intro),
                 PCX_PARSER_VALUE_TYPE_STRING,
                 PCX_LEXER_KEYWORD_INTRODUCTION,
-                "Room already has an introduction",
+                "La ludo jam havas enkondukon",
         },
 };
 
@@ -2287,11 +2284,10 @@ parse_file(struct pcx_parser *parser,
                         return false;
                 }
 
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Expected toplevel item at line %i",
-                              pcx_lexer_get_line_num(parser->lexer));
+                set_error(parser,
+                          error,
+                          "Atendis dosier-nivelan eron "
+                          "(kiel ejon, aĵon ktp)");
                 return false;
         }
 
@@ -2346,11 +2342,10 @@ resolve_text_reference(struct pcx_parser *parser,
                 }
 
                 if (buffer_contains_pointer(&parser->tmp_buf, ref)) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Cyclic reference detected at line %i",
-                                      line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            line_num,
+                                            "Detektis ciklan referencon");
                         return false;
                 }
 
@@ -2403,11 +2398,10 @@ found: (void) 0;
         return true;
 
 error:
-        pcx_set_error(error,
-                      &pcx_parser_error,
-                      PCX_PARSER_ERROR_INVALID,
-                      "Invalid text reference at line %i",
-                      line_num);
+        set_error_with_line(parser,
+                            error,
+                            line_num,
+                            "Nevalida referenco al teksto");
         return false;
 }
 
@@ -2457,11 +2451,10 @@ compile_room_directions(struct pcx_parser *parser,
 
                 if (target == NULL ||
                     target->type != PCX_PARSER_TARGET_TYPE_ROOM) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Invalid room reference on line %i",
-                                      dir->room.line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            dir->room.line_num,
+                                            "Nevalida referenco al ejo");
                         return false;
                 }
 
@@ -2499,11 +2492,10 @@ compile_room_movements(struct pcx_parser *parser,
 
                 if (target == NULL ||
                     target->type != PCX_PARSER_TARGET_TYPE_ROOM) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Invalid room reference on line %i",
-                                      room->movements[i].line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            room->movements[i].line_num,
+                                            "Nevalida referenco al ejo");
                         return false;
                 }
 
@@ -2520,11 +2512,10 @@ compile_room(struct pcx_parser *parser,
              struct pcx_error **error)
 {
         if (!text_reference_specified(&room->description)) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Room is missing description at line %i",
-                              room->base.line_num);
+                set_error_with_line(parser,
+                                    error,
+                                    room->base.line_num,
+                                    "Mankas priskribo de la ejo");
                 return false;
         }
 
@@ -2583,11 +2574,10 @@ compile_movable_location(struct pcx_parser *parser,
         }
 
 error:
-        pcx_set_error(error,
-                      &pcx_parser_error,
-                      PCX_PARSER_ERROR_INVALID,
-                      "Invalid location reference on line %i",
-                      ref->line_num);
+        set_error_with_line(parser,
+                            error,
+                            ref->line_num,
+                            "Nevalida referenco al loko");
         return false;
 }
 
@@ -2625,12 +2615,11 @@ compile_movable_name(struct pcx_parser *parser,
         if (plural) {
                 if (pronoun->specified &&
                     pronoun->value != PCX_AVT_PRONOUN_PLURAL) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Object has a plural name but a "
-                                      "non-plural pronoun at line %i",
-                                      line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            line_num,
+                                            "La aĵo havas pluralan nomon "
+                                            "sed nepluralan pronomon");
                         return false;
                 }
 
@@ -2671,11 +2660,10 @@ compile_object(struct pcx_parser *parser,
 
                 if (target == NULL ||
                     target->type != PCX_PARSER_TARGET_TYPE_ROOM) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Invalid room reference on line %i",
-                                      object->into.line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            object->into.line_num,
+                                            "Nevalida referenco al ejo");
                         return false;
                 }
 
@@ -2683,12 +2671,11 @@ compile_object(struct pcx_parser *parser,
         }
 
         if (object->carrying && object->location.symbol) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Object is marked as carried but it also has a "
-                              "location at line %i",
-                              object->base.line_num);
+                set_error_with_line(parser,
+                                    error,
+                                    object->base.line_num,
+                                    "La aĵo estas markita kiel kunportata "
+                                    "sed ĝi ankaŭ havas lokon");
                 return false;
         }
 
@@ -2776,11 +2763,10 @@ compile_rule_param(struct pcx_parser *parser,
                                               param->reference.symbol);
                 if (target == NULL ||
                     target->type != PCX_PARSER_TARGET_TYPE_OBJECT) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Expected object name at line %i",
-                                      param->reference.line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            param->reference.line_num,
+                                            "Atendis nomon de aĵo");
                         return false;
                 }
                 *data = target->num;
@@ -2790,11 +2776,10 @@ compile_rule_param(struct pcx_parser *parser,
                                               param->reference.symbol);
                 if (target == NULL ||
                     target->type != PCX_PARSER_TARGET_TYPE_RULE) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Expected rule name at line %i",
-                                      param->reference.line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            param->reference.line_num,
+                                            "Atendis nomon de fenomeno");
                         return false;
                 }
                 *data = target->num;
@@ -2804,11 +2789,10 @@ compile_rule_param(struct pcx_parser *parser,
                                               param->reference.symbol);
                 if (target == NULL ||
                     target->type != PCX_PARSER_TARGET_TYPE_ROOM) {
-                        pcx_set_error(error,
-                                      &pcx_parser_error,
-                                      PCX_PARSER_ERROR_INVALID,
-                                      "Expected room name at line %i",
-                                      param->reference.line_num);
+                        set_error_with_line(parser,
+                                            error,
+                                            param->reference.line_num,
+                                            "Atendis nomon de ejo");
                         return false;
                 }
                 *data = target->num;
@@ -2964,7 +2948,7 @@ compile_info(struct pcx_parser *parser,
                 pcx_set_error(error,
                               &pcx_parser_error,
                               PCX_PARSER_ERROR_INVALID,
-                              "The game is missing the “nomo”");
+                              "Al la ludo mankas la “nomo”");
                 return false;
         }
 
@@ -2975,7 +2959,7 @@ compile_info(struct pcx_parser *parser,
                 pcx_set_error(error,
                               &pcx_parser_error,
                               PCX_PARSER_ERROR_INVALID,
-                              "The game is missing the “aŭtoro”");
+                              "Al la ludo mankas la “aŭtoro”");
                 return false;
         }
 
@@ -2986,7 +2970,7 @@ compile_info(struct pcx_parser *parser,
                 pcx_set_error(error,
                               &pcx_parser_error,
                               PCX_PARSER_ERROR_INVALID,
-                              "The game is missing the “jaro”");
+                              "Al la ludo mankas la “jaro”");
                 return false;
         }
 
@@ -3014,7 +2998,7 @@ compile_file(struct pcx_parser *parser,
                 pcx_set_error(error,
                               &pcx_parser_error,
                               PCX_PARSER_ERROR_INVALID,
-                              "The game needs at least one room");
+                              "La ludo bezonas almenaŭ unu ejon");
                 return false;
         }
 

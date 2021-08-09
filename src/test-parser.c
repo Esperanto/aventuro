@@ -50,29 +50,29 @@ static const struct fail_check
 fail_checks[] = {
         {
                 "",
-                "The game is missing the “nomo”"
+                "Al la ludo mankas la “nomo”"
         },
         {
                 "nomo \"testnomo\"",
-                "The game is missing the “aŭtoro”"
+                "Al la ludo mankas la “aŭtoro”"
         },
         {
                 "nomo \"testnomo\" aŭtoro \"testaŭtoro\"",
-                "The game is missing the “jaro”"
+                "Al la ludo mankas la “jaro”"
         },
         {
                 BLURB,
-                "The game needs at least one room"
+                "La ludo bezonas almenaŭ unu ejon"
         },
         {
                 BLURB
                 "ejo { }",
-                "Expected room name at line 2",
+                "linio 2: Atendis nomon de ejo",
         },
         {
                 BLURB
                 "ejo ejo1 { }",
-                "Room is missing description at line 2",
+                "linio 2: Mankas priskribo de la ejo",
         },
         {
                 BLURB
@@ -80,7 +80,7 @@ fail_checks[] = {
                 "nomo \"ejo unu\"\n"
                 "nomo \"ankoraŭ ejo unu\"\n"
                 "}\n",
-                "Room already has a name at line 4"
+                "linio 4: La ejo jam havas nomon"
         },
         {
                 BLURB
@@ -88,28 +88,28 @@ fail_checks[] = {
                 "priskribo \"ejo unu\"\n"
                 "priskribo \"ankoraŭ ejo unu\"\n"
                 "}\n",
-                "Room already has a description at line 4"
+                "linio 4: La ejo jam havas priskribon"
         },
         {
                 BLURB
                 "ejo ejo1 {\n"
                 "poentoj -1\n"
                 "}\n",
-                "Number out of range at line 3"
+                "linio 3: Numero estas ekster la valida intervalo",
         },
         {
                 BLURB
                 "ejo ejo1 {\n"
                 "poentoj 256\n"
                 "}\n",
-                "Number out of range at line 3"
+                "linio 3: Numero estas ekster la valida intervalo",
         },
         {
                 BLURB
                 "ejo ejo1 {\n"
                 "eco 42\n"
                 "}\n",
-                "Attribute name expected at line 3"
+                "linio 3: Atendis nomon de eco",
         },
         {
                 BLURB
@@ -123,14 +123,14 @@ fail_checks[] = {
                 "eco a28 eco a29 eco a30 eco a31\n"
                 "eco a32\n"
                 "}\n",
-                "Too many unique attributes at line 10"
+                "linio 10: Tro da unikaj ecoj",
         },
         {
                 BLURB
                 "ejo ejo1 {\n"
                 "okcidenten 3\n"
                 "}\n",
-                "Item name expected at line 3"
+                "linio 3: Atendis nomon de afero",
         },
         {
                 BLURB
@@ -138,7 +138,7 @@ fail_checks[] = {
                 "okcidenten ejo1\n"
                 "okcidenten ejo1\n"
                 "}\n",
-                "Room already has a west direction at line 4"
+                "linio 4: La ejo jam havas okcidentan direkton",
         },
         {
                 BLURB
@@ -146,59 +146,59 @@ fail_checks[] = {
                 "{ priskribo \"!\" }\n"
                 "ejo ejo1\n"
                 "{ priskribo \"!\" }\n",
-                "Same name used for multiple objects at line 4",
+                "linio 4: Pluraj aferoj havas la saman nomon",
         },
         {
                 BLURB
                 "ejo ejo1 { priskribo 3 }",
-                "Expected text item at line 2"
+                "linio 2: Atendis tekston",
         },
         {
                 BLURB
                 "ejo ejo1 {\n"
                 "3\n"
                 "}",
-                "Expected room item or ‘}’ at line 3"
+                "linio 3: Atendis eron de ejo aŭ ‘}’",
         },
         {
                 BLURB
                 "ejo ejo1 {\n",
-                "Expected room item or ‘}’ at line 3"
+                "linio 3: Atendis eron de ejo aŭ ‘}’",
         },
         {
                 "teksto 3",
-                "Expected text name at line 1"
+                "linio 1: Atendis nomon de la teksto",
         },
         {
                 "teksto t\n"
                 "3",
-                "Expected string at line 2"
+                "linio 2: Atendis tekston",
         },
         {
                 "nomo t\n",
-                "String expected at line 1"
+                "linio 1: Atendis tekston",
         },
         {
                 "# This is a comment\n"
                 "3",
-                "Expected toplevel item at line 2"
+                "linio 2: Atendis dosier-nivelan eron (kiel ejon, aĵon ktp)",
         },
         {
                 BLURB
                 "ejo ejo1 { priskribo ejo2 }\n"
                 "ejo ejo2 { priskribo ejo3 }\n"
                 "ejo ejo3 { priskribo ejo1 }\n",
-                "Cyclic reference detected at line 2"
+                "linio 2: Detektis ciklan referencon",
         },
         {
                 BLURB
                 "ejo ejo1 { priskribo ejo1 }\n",
-                "Cyclic reference detected at line 2"
+                "linio 2: Detektis ciklan referencon",
         },
         {
                 BLURB
                 "ejo ejo1 { priskribo ejo3 }\n",
-                "Invalid text reference at line 2"
+                "linio 2: Nevalida referenco al teksto",
         },
         {
                 BLURB
@@ -207,7 +207,7 @@ fail_checks[] = {
                  */
                 "ejo kuirejo { priskribo anonima_objekto }\n"
                 "aĵo anonima_objekto { }\n",
-                "Invalid text reference at line 2"
+                "linio 2: Nevalida referenco al teksto",
         },
         {
                 BLURB
@@ -215,7 +215,7 @@ fail_checks[] = {
                 " priskribo \"j\"\n"
                 " norden wibble\n"
                 "}\n",
-                "Invalid room reference on line 4"
+                "linio 4: Nevalida referenco al ejo",
         },
         {
                 BLURB
@@ -224,7 +224,7 @@ fail_checks[] = {
                 " norden t\n"
                 "}\n"
                 "teksto t \"not a room\"\n",
-                "Invalid room reference on line 4"
+                "linio 4: Nevalida referenco al ejo",
         },
         {
                 "teksto t \"what \x80\"",
@@ -263,35 +263,35 @@ fail_checks[] = {
                 "ejo s1 {\n"
                 " direkto potato potato \"potato\"\n"
                 "}\n",
-                "Expected direction name at line 3"
+                "linio 3: Atendis nomon de la direkto",
         },
         {
                 BLURB
                 "ejo s1 {\n"
                 " direkto \"potat\" potato \"potato\"\n"
                 "}\n",
-                "Direction name must be a noun at line 3"
+                "linio 3: Nomo de direkto devas esti substantivo",
         },
         {
                 BLURB
                 "ejo s1 {\n"
                 " direkto \"granda potato\" potato \"potato\"\n"
                 "}\n",
-                "Direction name must be a noun at line 3"
+                "linio 3: Nomo de direkto devas esti substantivo",
         },
         {
                 BLURB
                 "ejo s1 {\n"
                 " direkto \"\" potato \"potato\"\n"
                 "}\n",
-                "Direction name must be a noun at line 3"
+                "linio 3: Nomo de direkto devas esti substantivo",
         },
         {
                 BLURB
                 "ejo s1 {\n"
                 " direkto \"potato\" 3 \"potato\"\n"
                 "}\n",
-                "Expected room name at line 3"
+                "linio 3: Atendis nomon de ejo",
         },
         {
                 BLURB
@@ -299,7 +299,7 @@ fail_checks[] = {
                 " direkto \"potato\" s2 \"potato\"\n"
                 " priskribo \"j\"\n"
                 "}\n",
-                "Invalid room reference on line 3"
+                "linio 3: Nevalida referenco al ejo",
         },
         {
                 BLURB
@@ -307,19 +307,19 @@ fail_checks[] = {
                 " direkto \"potato\" s1 s3\n"
                 " priskribo \"j\"\n"
                 "}\n",
-                "Invalid text reference at line 3"
+                "linio 3: Nevalida referenco al teksto",
         },
         {
                 "aĵo skribilo {\n"
                 " viro\n"
                 " ino\n"
                 "}",
-                "Pronoun already specified at line 3"
+                "linio 3: La pronomo jam estas difinita",
         },
         {
                 "aĵo\n"
                 " {\n",
-                "Expected object name at line 2"
+                "linio 2: Atendis nomon de aĵo",
         },
         {
                 "aĵo skribilo\n"
@@ -330,19 +330,19 @@ fail_checks[] = {
                 "aĵo skribilo {\n"
                 " poentoj \"6\" \n"
                 "}\n",
-                "Number expected at line 2"
+                "linio 2: Atendis numeron",
         },
         {
                 "aĵo skribilo {\n"
                 " ejo { }\n"
                 "}\n",
-                "Expected object item or ‘}’ at line 2"
+                "linio 2: Atendis eron de aĵo aŭ ‘}’",
         },
         {
                 "ejo s1 { aĵo skribilo {\n"
                 " ejo { }\n"
                 "} }\n",
-                "Expected object item or ‘}’ at line 2"
+                "linio 2: Atendis eron de aĵo aŭ ‘}’",
         },
         {
                 BLURB
@@ -351,7 +351,7 @@ fail_checks[] = {
                 "  loko t1\n"
                 "}\n"
                 "teksto t1 \"hi\"\n",
-                "Invalid location reference on line 4"
+                "linio 4: Nevalida referenco al loko"
         },
         {
                 BLURB
@@ -359,7 +359,7 @@ fail_checks[] = {
                 "aĵo ruza_juvelo {\n"
                 "  loko t1\n"
                 "}\n",
-                "Invalid location reference on line 4"
+                "linio 4: Nevalida referenco al loko"
         },
         {
                 BLURB
@@ -367,8 +367,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝo juvelo\"\n"
                 "}\n",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 3"
+                "linio 3: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 BLURB
@@ -376,8 +376,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"a juvelo\"\n"
                 "}\n",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 3"
+                "linio 3: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 BLURB
@@ -385,8 +385,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝa juvel\"\n"
                 "}\n",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 3"
+                "linio 3: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 BLURB
@@ -394,8 +394,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝa \"\n"
                 "}\n",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 3"
+                "linio 3: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 BLURB
@@ -403,8 +403,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj juvelo\"\n"
                 "}\n",
-                "Object’s adjective and noun don’t have the same plurality "
-                "at line 3"
+                "linio 3: La adjektivo kaj la substantivo de la aĵo "
+                "ne havas la saman plurecon",
         },
         {
                 BLURB
@@ -412,8 +412,8 @@ fail_checks[] = {
                 "aĵo juvelo {\n"
                 "  nomo \"ruĝaj &juveloj\"\n"
                 "}\n",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 3"
+                "linio 3: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 BLURB
@@ -422,8 +422,8 @@ fail_checks[] = {
                 "  nomo \"ruĝaj juveloj\"\n"
                 "  besto\n"
                 "}\n",
-                "Object has a plural name but a non-plural pronoun "
-                "at line 3"
+                "linio 3: La aĵo havas pluralan nomon "
+                "sed nepluralan pronomon",
         },
         {
                 BLURB
@@ -432,7 +432,7 @@ fail_checks[] = {
                 "  nomo \"ruĝaj juveloj\"\n"
                 "  priskribo t\n"
                 "}\n",
-                "Invalid text reference at line 5"
+                "linio 5: Nevalida referenco al teksto",
         },
         {
                 BLURB
@@ -441,7 +441,7 @@ fail_checks[] = {
                 "  nomo \"ruĝaj juveloj\"\n"
                 "  legebla t\n"
                 "}\n",
-                "Invalid text reference at line 5"
+                "linio 5: Nevalida referenco al teksto",
         },
         {
                 BLURB
@@ -449,7 +449,7 @@ fail_checks[] = {
                 "aĵo ruĝa_juvelo {\n"
                 "   enen t\n"
                 "}\n",
-                "Invalid room reference on line 4"
+                "linio 4: Nevalida referenco al ejo",
         },
         {
                 BLURB
@@ -459,31 +459,31 @@ fail_checks[] = {
                 "    kunportata\n"
                 "  }\n"
                 "}\n",
-                "Object is marked as carried but it also has a location "
-                "at line 4"
+                "linio 4: La aĵo estas markita kiel kunportata "
+                "sed ĝi ankaŭ havas lokon",
         },
         {
                 "aĵo a { aĵo b{",
-                "Expected object item or ‘}’ at line 1"
+                "linio 1: Atendis eron de aĵo aŭ ‘}’",
         },
         {
                 "aĵo a { alinomo \"a\" }",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 1"
+                "linio 1: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 "aĵo a { alinomo \"fluga\" }",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 1"
+                "linio 1: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 "aĵo a { alinomo \"flu3a melono\" }",
-                "The object name must be an optional adjective followed by a "
-                "noun at line 1"
+                "linio 1: La nomo de la aĵo devas havi nedevigan "
+                "adjektivon kaj substantivon",
         },
         {
                 "fenomeno { aĵo ŝargo -3 }",
-                "Number out of range at line 1"
+                "linio 1: Numero estas ekster la valida intervalo",
         },
         {
                 "fenomeno {\n"
@@ -497,21 +497,21 @@ fail_checks[] = {
                 "eco a28 eco a29 eco a30 eco a31\n"
                 "eco a32\n"
                 "}\n",
-                "Too many unique attributes at line 10"
+                "linio 10: Tro da unikaj ecoj",
         },
         {
                 "fenomeno { verbo 3 }\n",
-                "String expected at line 1"
+                "linio 1: Atendis tekston",
         },
         {
                 "fenomeno { nova eco 6 }\n",
-                "Expected attribute name or “malvera” at line 1"
+                "linio 1: Atendis nomon de eco aŭ “malvera”",
         },
         {
                 BLURB
                 "ejo s1 { priskribo \"j\" }\n"
                 "fenomeno { verbo \"talk\" }\n",
-                "Verb must end in ‘i’ at line 3"
+                "linio 3: La verbo devas finiĝi per ‘i’",
         },
         {
                 BLURB
@@ -520,7 +520,7 @@ fail_checks[] = {
                 "   verbo \"paroli\"\n"
                 "   aĵo s1\n"
                 "}\n",
-                "Expected object name at line 5"
+                "linio 5: Atendis nomon de aĵo",
         },
         {
                 BLURB
@@ -530,7 +530,7 @@ fail_checks[] = {
                 "   verbo \"paroli\"\n"
                 "   nova ejo ruĝa_beto\n"
                 "}\n",
-                "Expected room name at line 6"
+                "linio 6: Atendis nomon de ejo",
         },
         {
                 BLURB
@@ -538,7 +538,7 @@ fail_checks[] = {
                 "fenomeno {\n"
                 "  mesaĝo \"Vi forgesis la verbon!\"\n"
                 "}\n",
-                "Every rule needs at least one verb at line 3"
+                "linio 3: Ĉiu fenomeno bezonas almenaŭ unu verbon",
         },
         {
                 BLURB
@@ -547,7 +547,7 @@ fail_checks[] = {
                 "  mesaĝo \"Vi forgesis la verbon!\"\n"
                 "  3\n"
                 "}\n",
-                "Expected rule item or ‘}’ at line 5"
+                "linio 5: Atendis eron de fenomeno aŭ ‘}’",
         },
         {
                 BLURB
@@ -555,7 +555,7 @@ fail_checks[] = {
                 "fenomeno {\n"
                 "  mesaĝo 3\n"
                 "}\n",
-                "Expected text item at line 4"
+                "linio 4: Atendis tekston",
         },
         {
                 BLURB
@@ -564,20 +564,20 @@ fail_checks[] = {
                 "  mesaĝo t23\n"
                 "  verbo \"kuri\"\n"
                 "}\n",
-                "Invalid text reference at line 4"
+                "linio 4: Nevalida referenco al teksto",
         },
         {
                 "fenomeno \"potato\" {\n"
                 "  verbo \"kuri\"\n"
                 "}",
-                "Expected rule name or ‘{’ at line 1"
+                "linio 1: Atendis nomon de fenomeno aŭ ‘{’",
         },
         {
                 "fenomeno mia_regulo\n"
                 "         \"potato\" {\n"
                 "  verbo \"kuri\"\n"
                 "}",
-                "Expected ‘{’ at line 2"
+                "linio 2: Atendis ‘{’",
         },
         {
                 "teksto mia_regulo \"strange\"\n"
@@ -585,7 +585,7 @@ fail_checks[] = {
                 "         \"potato\" {\n"
                 "  verbo \"kuri\"\n"
                 "}",
-                "Same name used for multiple objects at line 2"
+                "linio 2: Pluraj aferoj havas la saman nomon",
         },
         {
                 "fenomeno {\n"
@@ -598,7 +598,7 @@ fail_checks[] = {
                 "fenomeno {\n"
                 "  fenomeno 3\n"
                 "}\n",
-                "Rule name expected at line 2"
+                "linio 2: Atendis nomon de fenomeno",
         },
         {
                 BLURB
@@ -608,7 +608,7 @@ fail_checks[] = {
                 "  verbo \"kuri\"\n"
                 "}\n"
                 "teksto t1 \"hi\"\n",
-                "Expected rule name at line 4"
+                "linio 4: Atendis nomon de fenomeno",
         },
         {
                 BLURB
@@ -616,7 +616,7 @@ fail_checks[] = {
                 "fenomeno {\n"
                 "  nova verbo \"kuri\"\n"
                 "}\n",
-                "Unknown action “verbo” at line 4"
+                "linio 4: Nekonata ago “verbo”",
         },
 };
 
