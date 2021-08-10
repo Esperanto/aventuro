@@ -36,6 +36,7 @@ ejo ŝranko {
   priskribo "Vi estas en malgranda ŝranko kie oni stokas la purigilojn.
              Ĉe la suda muro estas pordo por eliri."
   suden koridoro
+  elen koridoro
 
   aĵo malnova_balailo {
     priskribo "Ĝi aspektas tre malnova kaj malpura."
@@ -94,6 +95,33 @@ ejo ŝranko {
       eco ŝranko_malfermita
       mesaĝo "La pordo estas malfermita."
     }
+
+    fenomeno malŝraŭbi_pordon {
+      verbo "malŝraŭbi"
+      verbo "ŝraŭbi"
+      verbo "malmunti"
+      verbo "rompi"
+      pero blua_ŝraŭbilo
+      mesaĝo "Vi ne povas malŝraŭbi la pordon. Eble se vi rigardos la
+              pordon detale vi trovos precizan parton por malŝraŭbi."
+    }
+
+    fenomeno {
+      verbo "malmunti"
+      mesaĝo "Vi ne povas malmunti la pordon. Eble se vi rigardos la
+              pordon detale vi trovos precizan parton por malmunti."
+    }
+
+    fenomeno {
+      verbo "malŝraŭbi"
+      verbo "ŝraŭbi"
+      mesaĝo malŝraŭbi_pordon
+    }
+
+    fenomeno {
+      verbo "rompi"
+      mesaĝo rompi_mane
+    }
   }
 
   aĵo porda_anso {
@@ -111,9 +139,16 @@ ejo ŝranko {
     }
 
     fenomeno {
+      verbo "malmunti"
+      mesaĝo "Vi ne povas malmunti la $An per viaj manoj."
+    }
+
+    fenomeno {
       verbo "malŝraŭbi"
       verbo "ŝraŭbi"
       verbo "turni"
+      verbo "malmunti"
+      verbo "rompi"
       pero blua_ŝraŭbilo
       eco malvera ŝranko_malfermita
       nova pero kunportata
@@ -124,10 +159,16 @@ ejo ŝranko {
       nova aĵo nenio
       poentoj 1
     }
+
+    fenomeno rompi_mane {
+      verbo "rompi"
+      mesaĝo "Vi ne sukcesas rompi la $An per viaj manoj."
+    }
   }
 
   fenomeno {
     verbo "sudeniri"
+    verbo "eliri"
     eco malvera ŝranko_malfermita
     mesaĝo "La pordo estas fermita kaj malhelpas vin iri suden."
   }
@@ -1049,4 +1090,15 @@ fenomeno {
 fenomeno {
   verbo "kanti"
   mesaĝo "Vi kantas la rekantaĵon de 10 bovinoj. Nenio okazas."
+}
+
+fenomeno {
+  verbo "dormi"
+  mesaĝo "Vi ne povos dormi dum tiu stranga homo ankoraŭ estas en la
+          kongresejo!"
+}
+
+fenomeno {
+  verbo "flari"
+  mesaĝo "Vi flaras nenion strangan."
 }
