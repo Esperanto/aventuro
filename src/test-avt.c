@@ -253,8 +253,8 @@ run_test(struct data *data)
 int
 main(int argc, char **argv)
 {
-        if (argc != 3) {
-                fprintf(stderr, "usage: test-avt <avt-file> <test-script>\n");
+        if (argc != 2 && argc != 3) {
+                fprintf(stderr, "usage: test-avt <avt-file> [test-script]\n");
                 return EXIT_FAILURE;
         }
 
@@ -262,7 +262,7 @@ main(int argc, char **argv)
                 .command_buffer = PCX_BUFFER_STATIC_INIT,
         };
         const char *avt_filename = argv[1];
-        const char *test_script = argv[2];
+        const char *test_script = argc > 2 ? argv[2] : NULL;
         struct pcx_error *error = NULL;
         int retval = EXIT_SUCCESS;
 
@@ -276,23 +276,25 @@ main(int argc, char **argv)
                 pcx_error_free(error);
                 retval = EXIT_FAILURE;
         } else {
-                data.input = fopen(test_script, "rt");
+                if (test_script) {
+                        data.input = fopen(test_script, "rt");
 
-                if (data.input == NULL) {
-                        fprintf(stderr,
-                                "%s: %s\n",
-                                test_script,
-                                strerror(errno));
-                        retval = EXIT_FAILURE;
-                } else {
-                        create_avt_state(&data);
-
-                        if (!run_test(&data))
+                        if (data.input == NULL) {
+                                fprintf(stderr,
+                                        "%s: %s\n",
+                                        test_script,
+                                        strerror(errno));
                                 retval = EXIT_FAILURE;
+                        } else {
+                                create_avt_state(&data);
 
-                        pcx_avt_state_free(data.state);
+                                if (!run_test(&data))
+                                        retval = EXIT_FAILURE;
 
-                        fclose(data.input);
+                                pcx_avt_state_free(data.state);
+
+                                fclose(data.input);
+                        }
                 }
 
                 pcx_avt_free(data.avt);
