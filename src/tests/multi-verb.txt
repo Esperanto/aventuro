@@ -19,3 +19,27 @@ Bone.
 > salti.
 
 Vi ne povas salti.
+
+> dormi
+
+En la salono dormado estas malpermesata.
+
+> naĝi
+
+En la salono naĝado estas malpermesata.
+
+> ridi
+
+En la salono ridado estas malpermesata.
+
+> mi iros suden
+
+Vi ne povas sudeniri de ĉi tie.
+
+> mi eliros
+
+Vi ne povas eliri de ĉi tie.
+
+> supren
+
+Vi ne povas supreniri de ĉi tie.

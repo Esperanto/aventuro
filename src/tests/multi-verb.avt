@@ -20,3 +20,17 @@ fenomeno {
  verbo "silenti"
  mesaĝo "Bone."
 }
+
+fenomeno {
+ verbo "dormi"
+ verbo "naĝi"
+ verbo "ridi"
+ mesaĝo "En la salono $Vado estas malpermesata."
+}
+
+fenomeno {
+ verbo "eliri"
+ verbo "supreniri"
+ verbo "sudeniri"
+ mesaĝo "Vi ne povas $Vi de ĉi tie."
+}

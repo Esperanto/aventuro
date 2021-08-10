@@ -100,6 +100,7 @@ struct pcx_avt_state_references {
 };
 
 struct pcx_avt_state_run_rule_data {
+        const struct pcx_avt_command_word *verb;
         struct pcx_avt_state_movable *command_object;
         struct pcx_avt_state_movable *object;
         struct pcx_avt_state_movable *monster;
@@ -1236,6 +1237,10 @@ send_rule_message(struct pcx_avt_state *state,
                                 }
                         }
                         break;
+                case 'V':
+                        if (data->verb && present)
+                                add_word_to_message(state, data->verb);
+                        break;
                 case 'D':
                         if (present) {
                                 enum pcx_avt_state_message_type type =
@@ -1369,6 +1374,7 @@ run_rules(struct pcx_avt_state *state,
         /* These will be filled in here */
         assert(data.object == NULL);
         assert(data.monster == NULL);
+        assert(data.verb == NULL);
 
         if (data.command_object &&
             data.command_object->type == PCX_AVT_STATE_MOVABLE_TYPE_OBJECT)
@@ -1377,6 +1383,8 @@ run_rules(struct pcx_avt_state *state,
         if (data.command_object &&
             data.command_object->type == PCX_AVT_STATE_MOVABLE_TYPE_MONSTER)
                 data.monster = data.command_object;
+
+        data.verb = verb;
 
         for (size_t i = 0; i < state->avt->n_verbs; i++) {
                 const char *verb_name = state->avt->verbs[i].name;
