@@ -58,6 +58,12 @@ ejo ŝranko {
     aĵo blua_ŝraŭbilo {
       priskribo "Ĝi estas blua ŝraŭbilo kun plata pinto."
       pezo 1 grando 1
+
+      fenomeno {
+        verbo "uzi"
+        mesaĝo "Mi ne scias kion vi volas fari per la $A. Eble vi
+                povas trovi pli precizan verbon."
+      }
     }
   }
 
