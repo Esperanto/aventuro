@@ -668,14 +668,21 @@ aĵo nomŝildo {
   priskribo "Estas skribita sur ĝi: IJK, nomo: Koralo Aleksandro.
              Vegana manĝo. Ĝi ankaŭ surhavas multe da glumarkoj."
 
-  fenomeno {
+  fenomeno montri_nomŝildon {
     verbo "doni"
     verbo "montri"
     direkto aŭskultisto
-    mesaĝo "Vi montras la $An al la $>. Ŝia mieno ekaspektas pli
+    mesaĝo "Vi montras la $An al la aŭskultisto. Ŝia mieno ekaspektas pli
             afabla kaj ŝi diras «Saluton Koralo, mi aŭskultas vin»."
     nova eco nomŝildo_montrita
     poentoj 1
+  }
+
+  fenomeno {
+    verbo "doni"
+    verbo "montri"
+    ejo aŭskulta_servo
+    fenomeno montri_nomŝildon
   }
 }
 
