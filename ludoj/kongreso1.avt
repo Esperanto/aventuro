@@ -892,7 +892,7 @@ fenomeno redoni_teon {
   verbo "redoni"
   aĵo eco tetaso
   direkto gufuja_vendisto
-  mesaĝo "Vi redonas la $An al la $>. Li ne dankas vin."
+  mesaĝo "Vi redonas la $An al la gufuja vendisto. Li ne dankas vin."
   nova aĵo nenio
   nova eco malvera taso_enluda
 }
@@ -902,9 +902,23 @@ fenomeno {
   verbo "redoni"
   aĵo malplena_taso
   direkto gufuja_vendisto
-  mesaĝo redoni_teon
-  nova aĵo nenio
-  nova eco malvera taso_enluda
+  fenomeno redoni_teon
+}
+
+fenomeno {
+  verbo "doni"
+  verbo "redoni"
+  aĵo eco tetaso
+  ejo gufujo
+  fenomeno redoni_teon
+}
+
+fenomeno {
+  verbo "doni"
+  verbo "redoni"
+  aĵo malplena_taso
+  ejo gufujo
+  fenomeno redoni_teon
 }
 
 aĵo kvineŭra_monbileto {
