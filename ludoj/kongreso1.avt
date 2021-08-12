@@ -191,6 +191,16 @@ ejo ŝranko {
   }
 }
 
+fenomeno {
+  verbo "malŝraŭbi"
+  verbo "ŝraŭbi"
+  verbo "turni"
+  verbo "malmunti"
+  pero blua_ŝraŭbilo
+  aĵo nenio
+  mesaĝo "Kion vi volas malŝraŭbi per la $P?"
+}
+
 aĵo androjda_saĝtelefono {
   priskribo "Vi aĉetis ĉi tiun telefonon antaŭ 3 jaroj. Kiel ĉiu
              modernulo vi malŝparas multe da tempo per ĝi."
