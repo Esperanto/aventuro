@@ -327,8 +327,13 @@ ejo koridoro {
     neportebla
     legebla multkolora_afiŝo
 
-    fenomeno {
+    fenomeno preni_afiŝon {
       verbo "preni"
+      verbo "forpreni"
+      verbo "forigi"
+      verbo "malafiŝi"
+      verbo "malglui"
+      verbo "tiri"
       aĵo eco malvera portebla
       nova aĵo eco portebla
       nova aĵo kunportata
@@ -337,6 +342,18 @@ ejo koridoro {
       mesaĝo "Vi prenas la $An. Malantaŭ ĝi vi rimarkas grandan
               rektangulan truon en la muro."
       poentoj 1
+    }
+
+    fenomeno {
+      verbo "detrui"
+      verbo "forŝiri"
+      verbo "deŝiri"
+      verbo "ŝiri"
+      aĵo eco malvera portebla
+      mesaĝo "Vi timas riproĉojn de la entrepreno de Amikumu se vi
+              detruas la afiŝon do vi decidas simple preni ĝin
+              anstataŭe."
+      fenomeno preni_afiŝon
     }
   }
 }
