@@ -2021,6 +2021,30 @@ is_carrying_movable(struct pcx_avt_state *state,
 }
 
 static bool
+is_verb_command_and_has(const struct pcx_avt_command *command,
+                        enum pcx_avt_command_has has)
+{
+        /* Must have verb and extra flags. Subject optional. */
+        if ((command->has & ~PCX_AVT_COMMAND_HAS_SUBJECT) !=
+            (PCX_AVT_COMMAND_HAS_VERB | has))
+                return false;
+
+        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
+            (!command->subject.is_pronoun ||
+             command->subject.pronoun.person != 1 ||
+             command->subject.pronoun.plural))
+                return false;
+
+        return true;
+}
+
+static bool
+is_verb_object_command(const struct pcx_avt_command *command)
+{
+        return is_verb_command_and_has(command, PCX_AVT_COMMAND_HAS_OBJECT);
+}
+
+static bool
 handle_compass_direction(struct pcx_avt_state *state,
                          const struct pcx_avt_command_noun *noun)
 {
@@ -2130,6 +2154,35 @@ handle_direction(struct pcx_avt_state *state,
                 return true;
 
         return false;
+}
+
+static bool
+handle_direction_verb(struct pcx_avt_state *state,
+                      const struct pcx_avt_command *command,
+                      const struct pcx_avt_state_references *references)
+{
+        if (!is_verb_command_and_has(command, 0 /* has */))
+                return false;
+
+        if (command->verb.length < 5)
+                return false;
+
+        struct pcx_avt_command_word go_verb = {
+                .start = command->verb.start + command->verb.length - 4,
+                .length = 4,
+        };
+
+        if (!pcx_avt_command_word_equal(&go_verb, "enir"))
+                return false;
+
+        struct pcx_avt_command_noun direction = {
+                .name = {
+                        .start = command->verb.start,
+                        .length = command->verb.length - 4,
+                },
+        };
+
+        return handle_compass_direction(state, &direction);
 }
 
 static bool
@@ -2343,30 +2396,6 @@ handle_look(struct pcx_avt_state *state,
         run_special_rules(state, "rigard", &data);
 
         return true;
-}
-
-static bool
-is_verb_command_and_has(const struct pcx_avt_command *command,
-                        enum pcx_avt_command_has has)
-{
-        /* Must have verb and extra flags. Subject optional. */
-        if ((command->has & ~PCX_AVT_COMMAND_HAS_SUBJECT) !=
-            (PCX_AVT_COMMAND_HAS_VERB | has))
-                return false;
-
-        if ((command->has & PCX_AVT_COMMAND_HAS_SUBJECT) &&
-            (!command->subject.is_pronoun ||
-             command->subject.pronoun.person != 1 ||
-             command->subject.pronoun.plural))
-                return false;
-
-        return true;
-}
-
-static bool
-is_verb_object_command(const struct pcx_avt_command *command)
-{
-        return is_verb_command_and_has(command, PCX_AVT_COMMAND_HAS_OBJECT);
 }
 
 static struct pcx_avt_state_movable *
@@ -3190,6 +3219,9 @@ handle_command(struct pcx_avt_state *state,
                const struct pcx_avt_state_references *references)
 {
         if (handle_direction(state, command, references))
+                return;
+
+        if (handle_direction_verb(state, command, references))
                 return;
 
         if (handle_look(state, command, references))

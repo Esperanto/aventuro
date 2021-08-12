@@ -117,3 +117,79 @@ Vi estas en alia loko.
 > norden
 
 Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi nordeniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi orienteniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi sudeniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi okcidenteniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi supreniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi malsupreniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi subeniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi eleniros
+
+Vi estas en alia loko.
+
+> norden
+
+Vi estas en via salono. Vi vidas sekuran keston.
+
+> mi subiros
+
+Vi ne povas subiri.
+
+> mi eniros
+
+Vi ne povas eniri.
+
+> mi marseniros
+
+Vi ne povas marseniri.
