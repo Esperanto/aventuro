@@ -729,6 +729,8 @@ ejo gufujo {
 
     alinomo "homo"
     alinomo "gufujestro"
+    alinomo "viro"
+    alinomo "ulo"
   }
 
   aĵo tea_tablo {
@@ -1046,6 +1048,9 @@ ejo aŭskulta_servo {
   aĵo aŭskultisto {
     alinomo "juna virino"
     alinomo "aŭskultistino"
+    alinomo "homo"
+    alinomo "ulo"
+    alinomo "ulino"
     ino
     neportebla
 
