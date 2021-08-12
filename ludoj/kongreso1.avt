@@ -381,6 +381,11 @@ aĵo monŝranko {
       eco taso_enluda
       mesaĝo ne_vendi_ĉar_jam_taso
     }
+
+    fenomeno {
+      verbo "doni"
+      mesaĝo "Al kiu vi volas doni la stelon?"
+    }
   }
 }
 
