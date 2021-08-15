@@ -32,6 +32,11 @@
    var gameIsOver = false;
    var editorText;
 
+   function bufferLength(buf)
+   {
+     return getValue(buf + 4, 'i32');
+   }
+
    function allocateBuffer()
    {
      var buf = _malloc(16);
@@ -41,7 +46,7 @@
 
    function addStringToBuffer(buf, str)
    {
-     var oldLength = getValue(buf + 4, 'i32');
+     var oldLength = bufferLength(buf);
      var strLength = lengthBytesUTF8(str);
      _pcx_buffer_ensure_size(buf, oldLength + strLength + 1);
      var data = getValue(buf, '*') + oldLength;
@@ -55,18 +60,30 @@
      _free(buf);
    }
 
+   function shouldAddNewline(buf, elem)
+   {
+     var name = elem.localName.toUpperCase();
+
+     if (name == 'BR')
+       return true;
+
+     if (name != 'DIV' && name != 'P')
+       return false;
+
+     var length = bufferLength(buf);
+     var data = getValue(buf, '*');
+
+     return length > 0 && getValue(data + length - 1, 'i8') != 10;
+   }
+
    function addDomToBuffer(buf, node)
    {
      if (node instanceof Element) {
-       if (node.localName.toUpperCase() == 'BR') {
-         if (node.nextSibling != null)
-           addStringToBuffer(buf, "\n");
-       } else {
-         var child;
-         for (child = node.firstChild; child != null; child = child.nextSibling)
-           addDomToBuffer(buf, child);
+       if (shouldAddNewline(buf, node))
          addStringToBuffer(buf, "\n");
-       }
+       var child;
+       for (child = node.firstChild; child != null; child = child.nextSibling)
+         addDomToBuffer(buf, child);
      } else if (node instanceof Text) {
        addStringToBuffer(buf, node.data);
      }
@@ -337,7 +354,7 @@
    {
      var buf = allocateBuffer();
      addDomToBuffer(buf, editorText);
-     avtDataLength = getValue(buf + 4, 'i32');
+     avtDataLength = bufferLength(buf);
      avtData = getValue(buf, '*');
 
      var errMsg = loadAvtData();
