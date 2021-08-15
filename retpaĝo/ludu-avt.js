@@ -237,12 +237,16 @@
      setValue(source, seek, '*');
      setValue(source + 4, read, '*');
 
-     var err = _malloc(4);
-     avt = _pcx_load_or_parse(source, err);
+     var errPtr = _malloc(4);
+     setValue(errPtr, 0, '*');
+     avt = _pcx_load_or_parse(source, errPtr);
+     var err = getValue(errPtr, '*');
+     _free(errPtr);
 
      avtData = null;
 
      if (avt == 0) {
+       _pcx_error_free(err);
        console.log("Eraro dum la ŝargo de la AVT-dosiero");
        return;
      }
