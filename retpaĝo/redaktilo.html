@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html lang="eo">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventuro – Redaktilo</title>
+    <link href="aventuro.css" rel="stylesheet" type="text/css">
+    <script defer type="text/javascript" src="avtlib.js"></script>
+    <script defer type="text/javascript" src="ludu-avt.js"></script>
+  </head>
+  <body>
+    <div id="panels">
+      <div id="editorSpace">
+        <div id="editorTitle">
+          <span class="titleStub">&nbsp;</span>
+          <span id="editorTitleText">Redaktilo</span>
+          <a id="runButton" href="#">
+            <img src="run.png" alt="Rulu">
+          </a>
+        </div>
+        <div id="editorMessage" style="display: none"></div>
+        <div id="editorText" contenteditable="true"></div>
+      </div>
+      <div id="content">
+        <div id="chatTitle">
+          <span class="titleStub">&nbsp;</span>
+          <span id="chatTitleText">
+            Aventuro
+          </span>
+          <a id="helpButton" href="help.html" target="_blank">
+            <img src="help.png" alt="@HELP@">
+          </a>
+        </div>
+        <div id="statusMessage" style="display: none"></div>
+        <div id="messages">
+        </div>
+        <button id="restartButton" style="display: none">Rekomenci</button>
+        <div id="inputContainer">
+          <div id="inputbox" spellcheck="true" contenteditable="true"></div>
+          <img id="sendButton" src="send.png">
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

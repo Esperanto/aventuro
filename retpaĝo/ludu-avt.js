@@ -20,15 +20,17 @@
  {
    var hasRun = false;
    var avtData = null;
+   var avtDataLength = 0;
    var hasRuntime = false;
    var seekPos = 0;
-   var avt;
+   var avt = 0;
    var avtState = 0;
    var inputbox;
    var messagesDiv;
    var statusMessageDiv;
    var restartButton;
    var gameIsOver = false;
+   var editorText;
 
    function seekAvtData(source, pos, error)
    {
@@ -38,14 +40,18 @@
 
    function readAvtData(source, memory, length)
    {
-     if (seekPos + length > avtData.byteLength)
-       length = avtData.byteLength - seekPos;
+     if (seekPos + length > avtDataLength)
+       length = avtDataLength - seekPos;
 
      if (length <= 0)
        return 0;
 
-     var slice = new Uint8Array(avtData.slice(seekPos, seekPos + length));
-     writeArrayToMemory(slice, memory);
+     if (typeof avtData === 'number') {
+       HEAPU8.copyWithin(memory, avtData + seekPos, avtData + seekPos + length);
+     } else {
+       var slice = new Uint8Array(avtData.slice(seekPos, seekPos + length));
+       writeArrayToMemory(slice, memory);
+     }
 
      seekPos += length;
 
@@ -149,7 +155,7 @@
 
    function sendCommand()
    {
-     if (gameIsOver)
+     if (gameIsOver || avt == 0 || avtState == 0)
        return;
 
      var text = inputbox.innerText.replace(/[\x01- ]/g, ' ');
@@ -198,7 +204,9 @@
      nameNode.appendChild(document.createTextNode(name));
      textDiv.insertBefore(nameNode, br);
 
-     document.title = name;
+     if (editorText == null)
+       document.title = name;
+
      var chatTitle = document.getElementById("chatTitleText");
      chatTitle.innerHTML = "";
      chatTitle.appendChild(document.createTextNode(name));
@@ -206,7 +214,7 @@
 
    function startGame()
    {
-     if (!hasRun)
+     if (!hasRun || avt == 0)
        return;
      if (avtState != 0)
        _pcx_avt_state_free(avtState);
@@ -224,12 +232,18 @@
      setRoomName();
    }
 
-   function checkRun()
+   function loadAvtData()
    {
-     if (hasRun || avtData == null || !hasRuntime)
-       return;
+     if (avtState != 0) {
+       _pcx_avt_state_free(avtState);
+       avtState = 0;
+     }
+     if (avt != 0) {
+       _pcx_avt_free(avt);
+       avt = 0;
+     }
 
-     hasRun = true;
+     seekPos = 0;
 
      var source = _malloc(8);
      var seek = addFunction(seekAvtData, 'iiii');
@@ -241,28 +255,31 @@
      setValue(errPtr, 0, '*');
      avt = _pcx_load_or_parse(source, errPtr);
      var err = getValue(errPtr, '*');
-     _free(errPtr);
 
-     avtData = null;
+     _free(errPtr);
+     _free(source);
 
      if (avt == 0) {
        var errMsg = UTF8ToString(err + 8);
        _pcx_error_free(err);
        console.log("Eraro dum la ŝargo de la AVT-dosiero: " + errMsg);
-       return;
+       return errMsg;
      }
 
-     inputbox = document.getElementById("inputbox");
-     inputbox.addEventListener("keydown", commandKeyCb);
-     messagesDiv = document.getElementById("messages");
-     statusMessageDiv = document.getElementById("statusMessage");
-     statusMessageDiv.style.display = "block";
-     restartButton = document.getElementById("restartButton");
-     restartButton.onclick = startGame;
-
-     document.getElementById("sendButton").onclick = sendCommand;
-
      startGame();
+
+     return null;
+   }
+
+   function checkRun()
+   {
+     if (hasRun || avtData == null || !hasRuntime)
+       return;
+
+     hasRun = true;
+
+     loadAvtData();
+     avtData = null;
    }
 
    function gotRuntime()
@@ -271,13 +288,55 @@
      checkRun();
    }
 
+   function clearEditorMessage()
+   {
+     document.getElementById("editorMessage").style.display = "none";
+   }
+
+   function editorRun()
+   {
+     var sourceCode = editorText.innerText;
+     avtDataLength = lengthBytesUTF8(sourceCode);
+     avtData = _malloc(avtDataLength + 1);
+     stringToUTF8(sourceCode, avtData, avtDataLength + 1);
+
+     var errMsg = loadAvtData();
+
+     _free(avtData);
+
+     if (errMsg != null) {
+       var editorMessage = document.getElementById("editorMessage");
+       editorMessage.innerHTML = "";
+       var textNode = document.createTextNode(errMsg);
+       editorMessage.appendChild(textNode);
+       editorMessage.style.display = "block";
+     } else {
+       clearEditorMessage();
+     }
+   }
+
    var ajax = new XMLHttpRequest();
 
    function gameLoaded()
    {
      avtData = ajax.response;
+     avtDataLength = avtData.byteLength;
      checkRun();
    }
+
+   inputbox = document.getElementById("inputbox");
+   inputbox.addEventListener("keydown", commandKeyCb);
+   messagesDiv = document.getElementById("messages");
+   statusMessageDiv = document.getElementById("statusMessage");
+   statusMessageDiv.style.display = "block";
+   restartButton = document.getElementById("restartButton");
+   restartButton.onclick = startGame;
+   editorText = document.getElementById("editorText");
+
+   document.getElementById("sendButton").onclick = sendCommand;
+
+   if (editorText != null)
+     document.getElementById("runButton").onclick = editorRun;
 
    ajax.responseType = "arraybuffer";
    ajax.addEventListener("load", gameLoaded);

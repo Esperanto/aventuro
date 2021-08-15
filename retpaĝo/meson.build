@@ -6,6 +6,8 @@ data_files = [
         'background.png',
         'help.png',
         'help.html',
+        'redaktilo.html',
+        'run.png',
 ]
 
 web_dir = get_option('datadir') / 'web'

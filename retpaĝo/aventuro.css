@@ -4,13 +4,18 @@ body {
     overscroll-behavior-y: contain;
 }
 
-#content {
+#panels {
+    display: flex;
+    flex-direction: row;
+}
+
+#content, #editorSpace {
     display: flex;
     flex-direction: column;
     background-color: #eeeeee;
 }
 
-#chatTitle {
+#chatTitle, #editorTitle {
     padding: 0.5em;
     height: 4em;
     border-bottom: 1px solid #d7d0ca;
@@ -20,7 +25,7 @@ body {
     align-items: center;
 }
 
-#chatTitleText {
+#chatTitleText, #editorTitleText {
     padding-top: 1em;
     font-size: large;
     font-weight: bold;
@@ -33,6 +38,14 @@ body {
     background-repeat: repeat;
     overflow: auto;
     flex-grow: 1;
+}
+
+#editorText {
+    background-color: #ffffff;
+    overflow: auto;
+    flex-grow: 1;
+    white-space: break-spaces;
+    font-family: monospace;
 }
 
 .message {
@@ -95,12 +108,12 @@ body {
     min-height: 2.5em;
 }
 
-#statusMessage {
+#statusMessage, #editorMessage {
     padding: 0.5em;
     text-align: center;
 }
 
-#statusMessage.error {
+#statusMessage.error, #editorMessage {
     background-color: #cc7079;
 }
 
@@ -118,7 +131,7 @@ body {
     100% { opacity: 1; }
 }
 
-#chatTitleStub {
+.titleStub {
     width: 3em;
 }
 
@@ -127,18 +140,26 @@ body {
     padding: 0 1em;
 }
 
-#helpButton {
+#helpButton, #runButton {
     flex-basis: 0;
     display: inline-block;
+}
+
+#helpButton {
     z-index: 4;
 }
 
-#helpButton img {
+#helpButton img, #runButton img {
     border: 0;
     outline: none;
     text-decoration: none;
     width: 2em;
     height: 2em;
+    margin-right: 1em;
+}
+
+#editorSpace {
+    flex-grow: 1;
     margin-right: 1em;
 }
 
@@ -160,7 +181,15 @@ body {
         max-width: 40em;
         margin-left: auto;
         margin-right: auto;
-        border-radius: 4px;
+    }
+
+    #content, #editorSpace {
         height: 95vh;
+        border-radius: 4px;
+    }
+
+    #panels #content {
+        flex-basis: 40em;
+        flex-shrink: 0;
     }
 }
