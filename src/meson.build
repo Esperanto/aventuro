@@ -54,6 +54,10 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
     '_pcx_avt_state_game_is_over',
     '_pcx_avt_state_get_current_room_name',
     '_pcx_error_free',
+    '_pcx_buffer_init',
+    '_pcx_buffer_set_length',
+    '_pcx_buffer_ensure_size',
+    '_pcx_buffer_destroy',
   ]
 
   web_lib_src = [

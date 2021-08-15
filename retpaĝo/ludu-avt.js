@@ -32,6 +32,46 @@
    var gameIsOver = false;
    var editorText;
 
+   function allocateBuffer()
+   {
+     var buf = _malloc(16);
+     _pcx_buffer_init(buf);
+     return buf;
+   }
+
+   function addStringToBuffer(buf, str)
+   {
+     var oldLength = getValue(buf + 4, 'i32');
+     var strLength = lengthBytesUTF8(str);
+     _pcx_buffer_ensure_size(buf, oldLength + strLength + 1);
+     var data = getValue(buf, '*') + oldLength;
+     stringToUTF8(str, data, strLength + 1);
+     _pcx_buffer_set_length(buf, oldLength + strLength);
+   }
+
+   function freeBuffer(buf)
+   {
+     _pcx_buffer_destroy(buf);
+     _free(buf);
+   }
+
+   function addDomToBuffer(buf, node)
+   {
+     if (node instanceof Element) {
+       if (node.localName.toUpperCase() == 'BR') {
+         if (node.nextSibling != null)
+           addStringToBuffer(buf, "\n");
+       } else {
+         var child;
+         for (child = node.firstChild; child != null; child = child.nextSibling)
+           addDomToBuffer(buf, child);
+         addStringToBuffer(buf, "\n");
+       }
+     } else if (node instanceof Text) {
+       addStringToBuffer(buf, node.data);
+     }
+   }
+
    function seekAvtData(source, pos, error)
    {
      seekPos = pos;
@@ -295,14 +335,14 @@
 
    function editorRun()
    {
-     var sourceCode = editorText.innerText;
-     avtDataLength = lengthBytesUTF8(sourceCode);
-     avtData = _malloc(avtDataLength + 1);
-     stringToUTF8(sourceCode, avtData, avtDataLength + 1);
+     var buf = allocateBuffer();
+     addDomToBuffer(buf, editorText);
+     avtDataLength = getValue(buf + 4, 'i32');
+     avtData = getValue(buf, '*');
 
      var errMsg = loadAvtData();
 
-     _free(avtData);
+     freeBuffer(buf);
 
      if (errMsg != null) {
        var editorMessage = document.getElementById("editorMessage");
