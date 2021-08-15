@@ -246,8 +246,9 @@
      avtData = null;
 
      if (avt == 0) {
+       var errMsg = UTF8ToString(err + 8);
        _pcx_error_free(err);
-       console.log("Eraro dum la ŝargo de la AVT-dosiero");
+       console.log("Eraro dum la ŝargo de la AVT-dosiero: " + errMsg);
        return;
      }
 
