@@ -113,6 +113,12 @@ body {
     text-align: center;
 }
 
+#closeEditorMessage {
+    float: right;
+    color: black;
+    text-decoration: none;
+}
+
 #statusMessage.error, #editorMessage {
     background-color: #cc7079;
 }

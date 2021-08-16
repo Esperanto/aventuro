@@ -419,8 +419,6 @@
      freeBuffer(buf);
 
      if (errMsg != null) {
-       var editorMessage = document.getElementById("editorMessage");
-       editorMessage.innerHTML = "";
        var messageNode = document.createTextNode(errMsg);
 
        var match = errMsg.match(/^linio ([0-9]+):/);
@@ -434,8 +432,10 @@
          messageNode = a;
        }
 
-       editorMessage.appendChild(messageNode);
-       editorMessage.style.display = "block";
+       var textSpan = document.getElementById("editorMessageText");
+       textSpan.innerHTML = "";
+       textSpan.appendChild(messageNode);
+       document.getElementById("editorMessage").style.display = "block";
      } else {
        clearEditorMessage();
      }
@@ -461,8 +461,10 @@
 
    document.getElementById("sendButton").onclick = sendCommand;
 
-   if (editorText != null)
+   if (editorText != null) {
      document.getElementById("runButton").onclick = editorRun;
+     document.getElementById("closeEditorMessage").onclick = clearEditorMessage;
+   }
 
    ajax.responseType = "arraybuffer";
    ajax.addEventListener("load", gameLoaded);
