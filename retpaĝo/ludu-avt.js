@@ -76,6 +76,63 @@
      return length > 0 && getValue(data + length - 1, 'i8') != 10;
    }
 
+   function findNodeForLine(root, targetLine)
+   {
+     var stack = [root.firstChild];
+     var lineNum = 1;
+     var atLineStart = true;
+
+     while (stack.length > 0) {
+       var node = stack.pop();
+
+       if (node == null)
+         continue;
+
+       stack.push(node.nextSibling);
+
+       if (node instanceof Element) {
+         var name = node.localName.toUpperCase();
+         if (name == 'BR') {
+           lineNum++;
+           atLineStart = true;
+         } else if (name == 'DIV' || name == 'P') {
+           if (!atLineStart) {
+             lineNum++;
+             atLineStart = true;
+           }
+         }
+         stack.push(node.firstChild);
+       } else if (node instanceof Text) {
+         if (lineNum >= targetLine)
+           return node;
+         if (node.data.length > 0)
+           atLineStart = false;
+       }
+     }
+
+     return null;
+   }
+
+   function jumpToEditorLine(lineNum)
+   {
+     var node = findNodeForLine(editorText, lineNum);
+
+     if (node == null) {
+       node = editorText.lastChild;
+       if (node == null)
+         node = editorText;
+     }
+
+     var range = document.createRange();
+     range.setStart(node, 0);
+     range.collapse(true);
+     var selection = window.getSelection();
+     selection.removeAllRanges();
+     selection.addRange(range);
+
+     node.parentNode.scrollIntoView();
+   }
+
    function addDomToBuffer(buf, node)
    {
      if (node instanceof Element) {
@@ -364,8 +421,20 @@
      if (errMsg != null) {
        var editorMessage = document.getElementById("editorMessage");
        editorMessage.innerHTML = "";
-       var textNode = document.createTextNode(errMsg);
-       editorMessage.appendChild(textNode);
+       var messageNode = document.createTextNode(errMsg);
+
+       var match = errMsg.match(/^linio ([0-9]+):/);
+       if (match) {
+         var lineNum = parseInt(match[1]);
+         jumpToEditorLine(lineNum);
+         var a = document.createElement("a");
+         a.href = "#";
+         a.onclick = function() { jumpToEditorLine(lineNum); };
+         a.appendChild(messageNode);
+         messageNode = a;
+       }
+
+       editorMessage.appendChild(messageNode);
        editorMessage.style.display = "block";
      } else {
        clearEditorMessage();
