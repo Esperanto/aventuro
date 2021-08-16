@@ -348,15 +348,6 @@
 
    function loadAvtData()
    {
-     if (avtState != 0) {
-       _pcx_avt_state_free(avtState);
-       avtState = 0;
-     }
-     if (avt != 0) {
-       _pcx_avt_free(avt);
-       avt = 0;
-     }
-
      seekPos = 0;
 
      var source = _malloc(8);
@@ -367,18 +358,27 @@
 
      var errPtr = _malloc(4);
      setValue(errPtr, 0, '*');
-     avt = _pcx_load_or_parse(source, errPtr);
+     var newAvt = _pcx_load_or_parse(source, errPtr);
      var err = getValue(errPtr, '*');
 
      _free(errPtr);
      _free(source);
 
-     if (avt == 0) {
+     if (newAvt == 0) {
        var errMsg = UTF8ToString(err + 8);
        _pcx_error_free(err);
        console.log("Eraro dum la ŝargo de la AVT-dosiero: " + errMsg);
        return errMsg;
      }
+
+     if (avtState != 0) {
+       _pcx_avt_state_free(avtState);
+       avtState = 0;
+     }
+     if (avt != 0)
+       _pcx_avt_free(avt);
+
+     avt = newAvt;
 
      startGame();
 
