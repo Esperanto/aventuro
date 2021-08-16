@@ -49,18 +49,6 @@ struct string_check {
 static const struct fail_check
 fail_checks[] = {
         {
-                "",
-                "Al la ludo mankas la “nomo”"
-        },
-        {
-                "nomo \"testnomo\"",
-                "Al la ludo mankas la “aŭtoro”"
-        },
-        {
-                "nomo \"testnomo\" aŭtoro \"testaŭtoro\"",
-                "Al la ludo mankas la “jaro”"
-        },
-        {
                 BLURB,
                 "La ludo bezonas almenaŭ unu ejon"
         },

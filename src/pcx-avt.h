@@ -285,6 +285,7 @@ struct pcx_avt_rule {
 };
 
 struct pcx_avt {
+        /* These can be NULL */
         char *name;
         char *author;
         char *year;

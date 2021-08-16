@@ -2944,35 +2944,11 @@ compile_info(struct pcx_parser *parser,
              struct pcx_avt *avt,
              struct pcx_error **error)
 {
-        if (parser->game_name == NULL) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Al la ludo mankas la “nomo”");
-                return false;
-        }
-
         avt->name = parser->game_name;
         parser->game_name = NULL;
 
-        if (parser->game_author == NULL) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Al la ludo mankas la “aŭtoro”");
-                return false;
-        }
-
         avt->author = parser->game_author;
         parser->game_author = NULL;
-
-        if (parser->game_year == NULL) {
-                pcx_set_error(error,
-                              &pcx_parser_error,
-                              PCX_PARSER_ERROR_INVALID,
-                              "Al la ludo mankas la “jaro”");
-                return false;
-        }
 
         avt->year = parser->game_year;
         parser->game_year = NULL;

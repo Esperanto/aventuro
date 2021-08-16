@@ -188,12 +188,19 @@ main(int argc, char **argv)
                 pcx_error_free(error);
                 data.retval = EXIT_FAILURE;
         } else {
-                printf("%s\n"
-                       "© %s %s\n"
-                       "\n",
-                       data.avt->name,
-                       data.avt->year,
-                       data.avt->author);
+                if (data.avt->name || data.avt->author || data.avt->year) {
+                        if (data.avt->name)
+                                printf("%s\n", data.avt->name);
+                        if (data.avt->year || data.avt->author) {
+                                fputs("©", stdout);
+                                if (data.avt->author)
+                                        printf(" %s", data.avt->author);
+                                if (data.avt->year)
+                                        printf(" %s", data.avt->year);
+                                fputc('\n', stdout);
+                        }
+                        fputc('\n', stdout);
+                }
 
                 data.state = pcx_avt_state_new(data.avt);
 
