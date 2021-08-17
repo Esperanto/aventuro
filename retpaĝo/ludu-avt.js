@@ -427,7 +427,7 @@
 
    function startGame()
    {
-     if (!hasRun || avt == 0)
+     if (!hasRuntime || avt == 0)
        return;
      if (avtState != 0)
        _pcx_avt_state_free(avtState);
@@ -543,15 +543,6 @@
      }
    }
 
-   var ajax = new XMLHttpRequest();
-
-   function gameLoaded()
-   {
-     avtData = ajax.response;
-     avtDataLength = avtData.byteLength;
-     checkRun();
-   }
-
    inputbox = document.getElementById("inputbox");
    inputbox.addEventListener("keydown", commandKeyCb);
    messagesDiv = document.getElementById("messages");
@@ -563,7 +554,21 @@
 
    document.getElementById("sendButton").onclick = sendCommand;
 
-   if (editorText != null) {
+   if (editorText == null) {
+     var ajax = new XMLHttpRequest();
+
+     function gameLoaded()
+     {
+       avtData = ajax.response;
+       avtDataLength = avtData.byteLength;
+       checkRun();
+     }
+
+     ajax.responseType = "arraybuffer";
+     ajax.addEventListener("load", gameLoaded);
+     ajax.open("GET", "ludo.avt");
+     ajax.send(null);
+   } else {
      document.getElementById("runButton").onclick = editorRun;
      document.getElementById("closeEditorMessage").onclick = clearEditorMessage;
      document.getElementById("backButton").onclick = function() {
@@ -573,11 +578,6 @@
      loadSourceCode();
      editorText.oninput = setSourceCodeModified;
    }
-
-   ajax.responseType = "arraybuffer";
-   ajax.addEventListener("load", gameLoaded);
-   ajax.open("GET", "ludo.avt");
-   ajax.send(null);
 
    Module.onRuntimeInitialized = gotRuntime;
 
