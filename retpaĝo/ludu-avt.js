@@ -31,6 +31,8 @@
    var restartButton;
    var gameIsOver = false;
    var editorText;
+   var saveTimeout = null;
+   var sourceCodeModified = false;
 
    function activatePanel(editor)
    {
@@ -157,6 +159,94 @@
      }
    }
 
+   function stringToBrs(elem, str)
+   {
+     var lastPos = 0;
+     var nextPos;
+
+     while ((nextPos = str.indexOf("\n", lastPos)) != -1) {
+       if (nextPos > lastPos) {
+         var sub = str.substring(lastPos, nextPos);
+         var textNode = document.createTextNode(sub);
+         elem.appendChild(textNode);
+       }
+
+       elem.appendChild(document.createElement("br"));
+
+       lastPos = nextPos + 1;
+     }
+
+     if (lastPos < str.length) {
+       var textNode = document.createTextNode(str.substring(lastPos));
+       elem.appendChild(textNode);
+     }
+   }
+
+   function loadSourceCode()
+   {
+     var sourceCode;
+
+     try {
+       sourceCode = localStorage.getItem("aventuroSourceCode");
+     } catch (e) {
+       return;
+     }
+
+     if (sourceCode == null)
+       return;
+
+     editorText.innerHTML = "";
+
+     stringToBrs(editorText, sourceCode);
+   }
+
+   function saveSourceCodeFromBuffer(buf)
+   {
+     if (saveTimeout != null) {
+       clearTimeout(saveTimeout);
+       saveTimeout = null;
+     }
+
+     if (!sourceCodeModified)
+       return;
+
+     sourceCodeModified = false;
+
+     var sourceCode = UTF8ToString(getValue(buf, '*'), bufferLength(buf));
+
+     try {
+       localStorage.setItem("aventuroSourceCode", sourceCode);
+       console.log("Source code saved");
+     } catch (e) {
+       console.log("Failed to save source code to local storage: " + e.name);
+     }
+   }
+
+   function saveSourceCode()
+   {
+     if (!sourceCodeModified)
+       return;
+
+     var buf = allocateBuffer();
+     addDomToBuffer(buf, editorText);
+     saveSourceCodeFromBuffer(buf);
+     freeBuffer(buf);
+   }
+
+   function saveTimeoutCb()
+   {
+     saveTimeout = null;
+     saveSourceCode();
+   }
+
+   function setSourceCodeModified()
+   {
+     if (saveTimeout != null)
+       clearTimeout(saveTimeout);
+     saveTimeout = setTimeout(saveTimeoutCb, 5000);
+     sourceCodeModified = true;
+   }
+
    function seekAvtData(source, pos, error)
    {
      seekPos = pos;
@@ -197,25 +287,7 @@
      textDiv.className = "messageText";
      innerDiv.appendChild(textDiv);
 
-     var lastPos = 0;
-     var nextPos;
-
-     while ((nextPos = text.indexOf("\n", lastPos)) != -1) {
-       if (nextPos > lastPos) {
-         var sub = text.substring(lastPos, nextPos);
-         var textNode = document.createTextNode(sub);
-         textDiv.appendChild(textNode);
-       }
-
-       textDiv.appendChild(document.createElement("br"));
-
-       lastPos = nextPos + 1;
-     }
-
-     if (lastPos < text.length) {
-       var textNode = document.createTextNode(text.substring(lastPos));
-       textDiv.appendChild(textNode);
-     }
+     stringToBrs(textDiv, text);
 
      return textDiv;
    }
@@ -441,6 +513,8 @@
      avtDataLength = bufferLength(buf);
      avtData = getValue(buf, '*');
 
+     saveSourceCodeFromBuffer(buf);
+
      var errMsg = loadAvtData();
 
      freeBuffer(buf);
@@ -496,6 +570,8 @@
        activatePanel(true /* editor */);
      };
      activatePanel(true /* editor */);
+     loadSourceCode();
+     editorText.oninput = setSourceCodeModified;
    }
 
    ajax.responseType = "arraybuffer";
