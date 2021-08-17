@@ -146,31 +146,29 @@ body {
     padding: 0 1em;
 }
 
-#helpButton, #runButton {
+#helpButton, #runButton, #backButton {
     flex-basis: 0;
     display: inline-block;
 }
 
-#helpButton {
-    z-index: 4;
-}
-
-#helpButton img, #runButton img {
+#helpButton img, #runButton img, #backButton img {
     border: 0;
     outline: none;
     text-decoration: none;
     width: 2em;
     height: 2em;
+}
+
+#helpButton img, #runButton img {
     margin-right: 1em;
 }
 
-#editorSpace {
-    flex-grow: 1;
-    margin-right: 1em;
+#backButton img {
+    margin-left: 1em;
 }
 
 @media only all and (max-width: 45em) {
-    #content {
+    #content, #editorSpace {
         position: absolute;
         top: 0px;
         left: 0px;
@@ -179,6 +177,18 @@ body {
         margin-left: 0px;
         margin-right: 0px;
         border-radius: 0px;
+    }
+
+    #panels #editorSpace, #panels #content {
+        display: none;
+    }
+
+    #panels #editorSpace.active, #panels #content.active {
+        display: flex;
+    }
+
+    #panels #content .titleStub {
+        display: none;
     }
 }
 
@@ -197,5 +207,14 @@ body {
     #panels #content {
         flex-basis: 40em;
         flex-shrink: 0;
+    }
+
+    #editorSpace {
+        flex-grow: 1;
+        margin-right: 1em;
+    }
+
+    #backButton {
+        display: none;
     }
 }

@@ -32,6 +32,17 @@
    var gameIsOver = false;
    var editorText;
 
+   function activatePanel(editor)
+   {
+     document.getElementById("content").className = editor ? "" : "active";
+     document.getElementById("editorSpace").className = editor ? "active" : "";
+
+     if (editor)
+       editorText.focus();
+     else
+       inputbox.focus();
+   }
+
    function bufferLength(buf)
    {
      return getValue(buf + 4, 'i32');
@@ -454,6 +465,7 @@
        document.getElementById("editorMessage").style.display = "block";
      } else {
        clearEditorMessage();
+       activatePanel(false /* editor */);
      }
    }
 
@@ -480,6 +492,10 @@
    if (editorText != null) {
      document.getElementById("runButton").onclick = editorRun;
      document.getElementById("closeEditorMessage").onclick = clearEditorMessage;
+     document.getElementById("backButton").onclick = function() {
+       activatePanel(true /* editor */);
+     };
+     activatePanel(true /* editor */);
    }
 
    ajax.responseType = "arraybuffer";
