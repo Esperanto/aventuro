@@ -33,6 +33,126 @@
    var editorText;
    var saveTimeout = null;
    var sourceCodeModified = false;
+   var currentExportDownload = null;
+   var downloadsFinished = 0;
+   var sourceElem = null;
+
+   const exportDownloads = [
+     [ "background.png", replaceImageWithInline, "blob" ],
+     [ "help.png", replaceImageWithInline, "blob" ],
+     [ "send.png", replaceImageWithInline, "blob" ],
+     [ "avtlib.wasm", addWasmBinary, "blob" ],
+     [ "avtlib.js", addDownloadedScript, "text" ],
+     [ "ludu-avt.js", addDownloadedScript, "text" ],
+   ];
+
+   function finishedDownload(doc)
+   {
+     if (++downloadsFinished < exportDownloads.length)
+       return;
+
+     var str = "<!doctype html>\n" + doc.documentElement.outerHTML;
+     var reader = new FileReader();
+     reader.onload = function () {
+       var a = document.createElement("a");
+       a.href = reader.result;
+       a.download = 'ludo.html';
+       a.click();
+       currentExportDownload = null;
+     };
+     reader.readAsDataURL(new Blob([str]));
+   }
+
+   function replaceImageWithInline(doc, filename, value)
+   {
+     var imgTag = doc.querySelector("img[src='" + filename + "']");
+     var reader = new FileReader();
+     if (imgTag) {
+       reader.onload = function () {
+         imgTag.src = reader.result;
+         finishedDownload(doc);
+       };
+     } else {
+       reader.onload = function() {
+         var styleTag = doc.querySelector("style");
+         styleTag.textContent =
+           styleTag.textContent.replace(filename, reader.result);
+         finishedDownload(doc);
+       }
+     }
+     reader.readAsDataURL(value);
+   }
+
+   function addDownloadedScript(doc, filename, value)
+   {
+     var elem = doc.createElement("script");
+     var text = doc.createTextNode(value);
+     elem.appendChild(text);
+     doc.body.appendChild(elem);
+     finishedDownload(doc);
+   }
+
+   function addWasmBinary(doc, filename, value)
+   {
+     var elem = doc.createElement("script");
+     var textBefore = doc.createTextNode(
+       ("var Module = {};\n" +
+        "(function () {\n" +
+        "var dataUri = '"));
+     elem.appendChild(textBefore);
+     var textAfter = doc.createTextNode(
+       ("';\n" +
+        "Module.locateFile = function(path, prefix) {\n" +
+        "if (dataUri && path.endsWith('.wasm')) {\n" +
+        "var ret = dataUri;\n" +
+        "dataUri = null;\n" +
+        "return ret;\n" +
+        "}\n" +
+        "return prefix + path;\n" +
+        "}\n" +
+        "})();\n"));
+     elem.appendChild(textAfter);
+     doc.body.appendChild(elem);
+
+     var reader = new FileReader();
+     reader.onload = function () {
+       elem.insertBefore(doc.createTextNode(reader.result), textAfter);
+       finishedDownload(doc);
+     };
+     reader.readAsDataURL(value);
+   }
+
+   function startExportDownload(doc)
+   {
+     var ajax = new XMLHttpRequest();
+
+     function exportDownloadFinished(e)
+     {
+       if (ajax.response == null || Math.floor(ajax.status / 100) != 2) {
+         var textSpan = document.getElementById("editorMessageText");
+         textSpan.innerHTML = "";
+         var errMsg = document.createTextNode("Elŝuto de dosiero por la " +
+                                              "eksporto malsukcesis");
+         textSpan.appendChild(errMsg);
+         document.getElementById("editorMessage").style.display = "block";
+         currentExportDownload = null;
+         return;
+       }
+
+       var download = exportDownloads[currentExportDownload];
+
+       download[1](doc, download[0], ajax.response);
+
+       if (++currentExportDownload < exportDownloads.length)
+         startExportDownload(doc);
+     }
+
+     var download = exportDownloads[currentExportDownload];
+     ajax.responseType = download[2];
+     ajax.addEventListener("loadend", exportDownloadFinished);
+     ajax.open("GET", download[0]);
+     ajax.send(null);
+   }
 
    function activatePanel(editor)
    {
@@ -498,7 +618,71 @@
    function gotRuntime()
    {
      hasRuntime = true;
-     checkRun();
+
+     if (sourceElem) {
+       var buf = allocateBuffer();
+       addDomToBuffer(buf, sourceElem);
+       avtDataLength = bufferLength(buf);
+       avtData = getValue(buf, '*');
+       loadAvtData();
+       freeBuffer(buf);
+     } else {
+       checkRun();
+     }
+   }
+
+   function exportGame()
+   {
+     if (currentExportDownload !== null)
+       return;
+
+     saveSourceCode();
+
+     downloadsFinished = 0;
+
+     var doc = document.implementation.createHTMLDocument();
+     var htmlElem = doc.importNode(document.documentElement, true);
+     doc.replaceChild(htmlElem, doc.documentElement);
+
+     doc.title = "Aventuro";
+
+     /* Move the game source to a hidden div at the bottom of the document */
+     var sourceCode = doc.getElementById("editorText");
+     sourceCode.contentEditable = false;
+     sourceCode.style.display = "none";
+     sourceCode.parentNode.removeChild(sourceCode);
+     sourceCode.id = "gameSourceCode";
+     doc.body.appendChild(sourceCode);
+
+     /* Remove the editor and replace the panels with just the content node */
+     var panels = doc.getElementById("panels");
+     var content = doc.getElementById("content");
+     panels.removeChild(content);
+     panels.parentNode.insertBefore(content, panels);
+     panels.parentNode.removeChild(panels);
+
+     /* Remove the back button */
+     var backButton = doc.getElementById("backButton");
+     backButton.parentNode.removeChild(backButton);
+
+     /* Replace the style tag with the inline contents */
+     var sheet = document.styleSheets[0];
+     var linkTag = doc.querySelector("link[type='text/css']");
+     linkTag.parentNode.removeChild(linkTag);
+     var styleElem = doc.createElement("style");
+     for (var i = 0; i < sheet.cssRules.length; i++) {
+       var text = doc.createTextNode(sheet.cssRules[i].cssText);
+       styleElem.appendChild(text);
+       styleElem.appendChild(doc.createTextNode("\n"));
+     }
+     doc.head.appendChild(styleElem);
+
+     /* Remove the script tags */
+     while (doc.scripts.length > 0)
+       doc.scripts[0].parentNode.removeChild(doc.scripts[0]);
+
+     currentExportDownload = 0;
+     startExportDownload(doc);
    }
 
    function clearEditorMessage()
@@ -555,19 +739,23 @@
    document.getElementById("sendButton").onclick = sendCommand;
 
    if (editorText == null) {
-     var ajax = new XMLHttpRequest();
+     sourceElem = document.getElementById("gameSourceCode");
 
-     function gameLoaded()
-     {
-       avtData = ajax.response;
-       avtDataLength = avtData.byteLength;
-       checkRun();
+     if (sourceElem == null) {
+       var ajax = new XMLHttpRequest();
+
+       function gameLoaded()
+       {
+         avtData = ajax.response;
+         avtDataLength = avtData.byteLength;
+         checkRun();
+       }
+
+       ajax.responseType = "arraybuffer";
+       ajax.addEventListener("load", gameLoaded);
+       ajax.open("GET", "ludo.avt");
+       ajax.send(null);
      }
-
-     ajax.responseType = "arraybuffer";
-     ajax.addEventListener("load", gameLoaded);
-     ajax.open("GET", "ludo.avt");
-     ajax.send(null);
    } else {
      document.getElementById("runButton").onclick = editorRun;
      document.getElementById("closeEditorMessage").onclick = clearEditorMessage;
@@ -577,6 +765,7 @@
      activatePanel(true /* editor */);
      loadSourceCode();
      editorText.oninput = setSourceCodeModified;
+     document.getElementById("exportButton").onclick = exportGame;
    }
 
    Module.onRuntimeInitialized = gotRuntime;

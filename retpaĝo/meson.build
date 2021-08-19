@@ -9,6 +9,7 @@ data_files = [
         'redaktilo.html',
         'run.png',
         'back.png',
+        'export.png',
 ]
 
 web_dir = get_option('datadir') / 'web'
