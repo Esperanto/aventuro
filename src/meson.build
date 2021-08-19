@@ -59,6 +59,15 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
     '_pcx_buffer_ensure_size',
     '_pcx_buffer_destroy',
   ]
+  web_runtime_funcs = [
+    'addFunction',
+    'getValue',
+    'setValue',
+    'lengthBytesUTF8',
+    'stringToUTF8',
+    'UTF8ToString',
+    'writeArrayToMemory',
+  ]
 
   web_lib_src = [
           'pcx-util.c',
@@ -80,6 +89,9 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
                      link_args: ['-s',
                                  'EXPORTED_FUNCTIONS=' +
                                  ','.join(web_lib_funcs),
+                                 '-s',
+                                 'EXPORTED_RUNTIME_METHODS=[' +
+                                 ','.join(web_runtime_funcs) + ']',
                                  '-s', 'ALLOW_TABLE_GROWTH'],
                      install: true,
                      install_dir: get_option('datadir') / 'web')
