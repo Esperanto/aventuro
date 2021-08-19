@@ -84,15 +84,20 @@ if meson.get_compiler('c', native: false).get_id() == 'emscripten'
           'pcx-parser.c',
           'pcx-load-or-parse.c',
   ]
+  web_lib_args = ['-s',
+                  'EXPORTED_FUNCTIONS=' +
+                  ','.join(web_lib_funcs),
+                  '-s',
+                  'EXPORTED_RUNTIME_METHODS=[' +
+                  ','.join(web_runtime_funcs) + ']',
+                  '-s', 'ALLOW_TABLE_GROWTH']
+  if get_option('buildtype') == 'release'
+     web_lib_args += [ '-O3' ]
+  endif
+
   web_lib = executable('avtlib.js', web_lib_src,
                      include_directories: configinc,
-                     link_args: ['-s',
-                                 'EXPORTED_FUNCTIONS=' +
-                                 ','.join(web_lib_funcs),
-                                 '-s',
-                                 'EXPORTED_RUNTIME_METHODS=[' +
-                                 ','.join(web_runtime_funcs) + ']',
-                                 '-s', 'ALLOW_TABLE_GROWTH'],
+                     link_args: web_lib_args,
                      install: true,
                      install_dir: get_option('datadir') / 'web')
 
