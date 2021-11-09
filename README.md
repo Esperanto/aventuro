@@ -22,7 +22,7 @@ La interpretilo ankoraŭ ne estas tute finita do ne eblas plene ludi la ludon.
 
 ## Nova datumlingvo
 
-Krom povi ludi la aventurojn de la originala sistemo, ĉi tiu interpretilo ankaŭ havas novan datumlingvon por krei ludojn. Ĝi povas rekte legi la datumlingvon kaj ne necesas programtradukilo por konverti ĝin al duuma dosiero. La lingvo ankoraŭ ne havas dokumentojn, sed oni povas vidi [ekzemplan ludon](ludoj/kongreso1.avt) en la deponejo.
+Krom povi ludi la aventurojn de la originala sistemo, ĉi tiu interpretilo ankaŭ havas novan datumlingvon por krei ludojn. Ĝi povas rekte legi la datumlingvon kaj ne necesas programtradukilo por konverti ĝin al duuma dosiero. Estas [dokumento](dokumentoj/kreu-ludon.md) en la deponejo por priskribi la lingvon. Oni ankaŭ povas vidi [ekzemplan ludon](ludoj/kongreso1.avt) en la deponejo.
 
 ## Retpaĝo
 
@@ -50,3 +50,7 @@ Sevke vi povas ruli retpaĝan servilon ĉe tiu dosierujo kaj ludi la ludon. Ne e
     twistd -no web --path ~/aventuro-install/share/web
 
 Tiam vi povas direkti vian retumilon al [http://localhost:8080/](http://localhost:8080/) por ludi.
+
+## Redaktilo
+
+La retejo ankaŭ inkluzivas [redaktilon](https://gemelo.org/redaktilo) por krei propran ludon per la nova datumlingvo rekte en la retumilo. Tio povas eksporti la ludon al unu HTML-a dosiero por facile kunhavigi sian kreaĵon.
