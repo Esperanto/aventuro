@@ -904,11 +904,16 @@ ejo gufujo {
     }
   }
 
-  fenomeno {
+  fenomeno paroli_al_gufujestro {
     verbo "paroli"
     direkto gufuja_vendisto
     mesaĝo "Vi diras saluton al la vendisto sed li nur grumblas kaj ne
             respondas."
+  }
+
+  fenomeno {
+    verbo "paroli"
+    mesaĝo paroli_al_gufujestro
   }
 }
 
