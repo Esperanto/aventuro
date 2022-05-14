@@ -913,6 +913,13 @@ ejo gufujo {
 
   fenomeno {
     verbo "paroli"
+    verbo "saluti"
+    mesaĝo paroli_al_gufujestro
+  }
+
+  fenomeno {
+    verbo "saluti"
+    aĵo gufuja_vendisto
     mesaĝo paroli_al_gufujestro
   }
 }
@@ -1096,6 +1103,7 @@ ejo aŭskulta_servo {
 
   fenomeno {
     verbo "alparoli"
+    verbo "saluti"
     aĵo aŭskultisto
     eco malvera nomŝildo_montrita
     mesaĝo paroli_al_virino
@@ -1103,6 +1111,7 @@ ejo aŭskulta_servo {
 
   fenomeno {
     verbo "paroli"
+    verbo "saluti"
     eco malvera nomŝildo_montrita
     mesaĝo paroli_al_virino
   }
@@ -1116,6 +1125,7 @@ ejo aŭskulta_servo {
 
   fenomeno {
     verbo "alparoli"
+    verbo "saluti"
     aĵo aŭskultisto
     eco nomŝildo_montrita
     nova ejo finejo
@@ -1123,6 +1133,7 @@ ejo aŭskulta_servo {
 
   fenomeno {
     verbo "paroli"
+    verbo "saluti"
     eco nomŝildo_montrita
     nova ejo finejo
   }
