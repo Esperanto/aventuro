@@ -240,7 +240,9 @@ Estas skribita sur la tabulo per kreto: La Ĝusta Esperanto: Leciono 1.
 
 > rigardi skribotablon
 
-Vi ne vidas skribotablon.
+Ili estas malgrandaj lignaj tabloj por lernejanoj.
+
+Sur unu el la tabloj estas manskribita noto.
 
 > rigardi tablojn
 
