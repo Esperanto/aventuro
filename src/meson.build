@@ -144,6 +144,8 @@ test('aliases', test_avt,
 test('optional-adjective', test_avt,
      args : files('tests/optional-adjective.avt',
                   'tests/optional-adjective.txt'))
+test('kongreso', test_avt,
+     args : files('../ludoj/kongreso1.avt', 'tests/kongreso.txt'))
 
 test_parser_src = [
         'pcx-util.c',

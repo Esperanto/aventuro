@@ -1,0 +1,575 @@
+Vi vekiĝas konfuzite en la mallumo. Kie vi estas? Vi strebas funkciigi vian cerbon kaj viaj memoroj malrapide revenas. Ho jes, vi partoprenas la Internacian Junularan Kongreson. La lasta okazaĵo kiun vi memoras estas ke vi babiladis kun interesa homo pri la gramatiko de la franca. Vi volis klarigi interesan parton kaj vi diris ekzemplan frazon. Subite malantaŭ vi, vi aŭdis viran voĉon krii «NE KROKODILU!». Vi sentis fortan doloron sur la kapo, la mondo mallumiĝis kaj vi senkonsciiĝis. Nun vi ŝajne troviĝas en malluma loko. Aĥ, via kapo doloras.
+
+Estas mallume. Vi vidas nenion.
+
+> rigardi keston
+
+Vi ne vidas keston kaj estas tro mallume por serĉi.
+
+> rigardi telefonon
+
+Vi aĉetis ĉi tiun telefonon antaŭ 3 jaroj. Kiel ĉiu modernulo vi malŝparas multe da tempo per ĝi.
+
+> kion mi havas
+
+Vi kunportas androjdan saĝtelefonon kaj kvineŭran monbileton.
+
+> tuŝi telefonon
+
+Vi tuŝas la ekranon de la telefono por veki ĝin. Ĝi eligas sufiĉe da lumo por vidi. La telefono ne kaptas retkonekton.
+
+> tuŝi telefonon
+
+Vi tuŝas la ekranon de la telefono por veki ĝin. Ĝi eligas sufiĉe da lumo por vidi. La telefono ne kaptas retkonekton.
+
+> rigardi
+
+Vi estas en malgranda ŝranko kie oni stokas la purigilojn. Ĉe la suda muro estas pordo por eliri. Vi vidas malnovan balailon kaj ilaran keston.
+
+> preni keston
+
+Vi prenis la ilaran keston.
+
+> rigardi ĝin
+
+Ĝi estas nigra plasta kesto por iloj. Ĝi estas fermita.
+
+> malfermu ĝin
+
+Vi malfermis la ilaran keston. En ĝi vi vidas bluan ŝraŭbilon.
+
+> rigardi anson
+
+La pordo havas normalan metalan anson. Ĝi estas fiksita al la pordo per 4 ŝraŭboj.
+
+> rigardi ŝraŭbojn
+
+La pordo havas normalan metalan anson. Ĝi estas fiksita al la pordo per 4 ŝraŭboj.
+
+La ekrano de via telefono mallumiĝas pro malaktiveco.
+
+> rigardi pordon
+
+Vi ne vidas pordon kaj estas tro mallume por serĉi.
+
+> ŝalti la telefonon
+
+Vi tuŝas la ekranon de la telefono por veki ĝin. Ĝi eligas sufiĉe da lumo por vidi. La telefono ne kaptas retkonekton.
+
+> malfermi pordon
+
+Vi tiras la anson de la pordo por malfermi ĝin… 
+
+sed ĝi estas ŝlosita. Ve!
+
+> malŝraŭbu la pordon per la ŝraŭbilo
+
+Vi ne povas malŝraŭbi la pordon. Eble se vi rigardos la pordon detale vi trovos precizan parton por malŝraŭbi.
+
+> malŝraŭbi la anson
+
+Vi ne povas malŝraŭbi la ŝraŭbojn per viaj manoj.
+
+> malŝraŭbi la anson per la blua ŝraŭbilo
+
+Vi malŝraŭbas la ŝraŭbojn de la anso de la pordo per la blua ŝraŭbilo.
+
+ La anso falas planken kaj la pordo malfermiĝas.
+
+> prenu baleilon
+
+Vi ne vidas baleilon.
+
+> rigardi
+
+Vi estas en malgranda ŝranko kie oni stokas la purigilojn. Ĉe la suda muro estas pordo por eliri. Vi vidas malnovan balailon.
+
+La ekrano de via telefono mallumiĝas pro malaktiveco.
+
+> tuŝi telefonon
+
+Vi tuŝas la ekranon de la telefono por veki ĝin. Ĝi eligas sufiĉe da lumo por vidi. La telefono ne kaptas retkonekton.
+
+> preni balailon
+
+La balailo estas tro granda por facile porti kaj vi preferas lasi ĝin kie ĝi estas.
+
+> suden
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+Sur la orienta muro vi vidas multkoloran afiŝon.
+
+> rigardi afiŝon
+
+Skribita sur la afiŝo estas «Renkontu esperantistojn per la aplikaĵo Amikumu». Sub tio estas foto de feliĉaj homoj kiuj portas siajn telefonojn.
+
+> prenu ĝin
+
+Vi prenas la multkoloran afiŝon. Malantaŭ ĝi vi rimarkas grandan rektangulan truon en la muro.
+
+> rigardi truon
+
+Ĝi aspektas kiel la malantaŭo de sekura monŝranko. Ĝi havas dikajn metalajn muretojn, sed mankas la mureto de ĉi tiu flanko kaj estas facile aliri ĝin. En ĝi vi vidas plastan stelon.
+
+> preni truon
+
+La monŝranko estas bone fiksita en la muro kaj ne eblas preni ĝin.
+
+La ekrano de via telefono mallumiĝas pro malaktiveco.
+
+> prenu stelon
+
+Vi prenis la plastan stelon.
+
+> rigardi ĝin
+
+Ĝi estas eta plasta ruĝa monero kun stelo sur ĝi. Oni uzas ilin dum kongresoj por aĉeti aferojn.
+
+> kion mi havas
+
+Vi kunportas androjdan saĝtelefonon, kvineŭran monbileton, ilaran keston, bluan ŝraŭbilon, multkoloran afiŝon kaj plastan stelon.
+
+> orienten
+
+Vi estas en la gufujo. Ĉe la profundo de la ĉambro estas tablo kun diversaj teoj sur ĝi. Homo malantaŭ la tablo rigardas vin. La koridoro troviĝas okcidente. Sur la okcidenta muro estas sekura monŝranko.
+
+> rigardi homon
+
+La viro malantaŭ la tablo vendas teojn. Li aspektas malkontenta kaj neparolema.
+
+> paroli al homo
+
+Vi diras saluton al la vendisto sed li nur grumblas kaj ne respondas.
+
+> paroli
+
+Vi diras saluton al la vendisto sed li nur grumblas kaj ne respondas.
+
+> kanti
+
+Vi kantas la rekantaĵon de 10 bovinoj. Nenio okazas.
+
+> rigardi bluan teon
+
+Vi ne vidas bluan teon.
+
+> rigardi ruĝan teon
+
+Sur la skatolo de la ruĝa teo estas skribite ke la teo povas doni al vi energion kaj veki vin el eĉ la plej profunda dormo.
+
+> rigardi teon
+
+Sur la tablo estas tri skatoloj de teo kun diversaj koloroj: ruĝa, flava kaj nigra.
+
+> rigardi flavan teon
+
+Sur la skatolo de la flava teo estas skribite ke la teo estas trankviliga kaj ĝi helpos vin bone dormi.
+
+> rigardi nigran teon
+
+Sur la skatolo de la nigra teo estas skribite ke la teo estas bona por la gorĝo.
+
+> aĉeti nigran teon
+
+Per kio vi volas aĉeti la nigran teon?
+
+> aĉeti teon
+
+Kiun teon vi volas aĉeti? La ruĝan, la flavan aŭ la nigran?
+
+> aĉeti nigran teon per la stelo
+
+Vi donas la stelon al la vendisto. Li metas ĝin en la monŝrankon sur la okcidenta muro. Sekve li komencas prepari nigran teon por vi. Post minuto li donas al vi varman tason.
+
+> kion mi havas
+
+Vi kunportas androjdan saĝtelefonon, kvineŭran monbileton, ilaran keston, bluan ŝraŭbilon, multkoloran afiŝon kaj varman tason.
+
+> rigardi tason
+
+La teo ankoraŭ estas varma. Ĝi havas mielan odoron.
+
+> okcidenten
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> okcidente
+
+Mi ne komprenas vin.
+
+> okcidenten
+
+Vi estas en eta ĉambro kun du seĝoj kaj skribotablo. Sur la skribotablo estas skribita «aŭskulta servo». Malantaŭ la skribotablo juna virino rigardas vin.
+
+> paroli
+
+Vi diras «saluton» al la virino sed ŝi seke respondas «Hej, unue montru vian nomŝildon. Mi aŭskultas nur kongresanojn.»
+
+> saluti
+
+Vi diras «saluton» al la virino sed ŝi seke respondas «Hej, unue montru vian nomŝildon. Mi aŭskultas nur kongresanojn.»
+
+> saluti la virinon
+
+Vi diras «saluton» al la virino sed ŝi seke respondas «Hej, unue montru vian nomŝildon. Mi aŭskultas nur kongresanojn.»
+
+> orienten
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> rigardi truon
+
+Ĝi aspektas kiel la malantaŭo de sekura monŝranko. Ĝi havas dikajn metalajn muretojn, sed mankas la mureto de ĉi tiu flanko kaj estas facile aliri ĝin. En ĝi vi vidas plastan stelon.
+
+> preni stelon
+
+Vi prenis la plastan stelon.
+
+> suden
+
+Vi estas en klasĉambro. Estas multaj skribotabloj kaj sur unu muro estas granda skribtabulo. La koridoro troviĝas norde.
+
+> rigardi skribotabulon
+
+Estas skribita sur la tabulo per kreto: La Ĝusta Esperanto: Leciono 1.
+
+> rigardi skribotablon
+
+Vi ne vidas skribotablon.
+
+> rigardi tablojn
+
+Ili estas malgrandaj lignaj tabloj por lernejanoj.
+
+Sur unu el la tabloj estas manskribita noto.
+
+> rigardi tablon
+
+Ili estas malgrandaj lignaj tabloj por lernejanoj.
+
+Sur unu el la tabloj estas manskribita noto.
+
+> rigardi skribotablojn
+
+Ili estas malgrandaj lignaj tabloj por lernejanoj.
+
+Sur unu el la tabloj estas manskribita noto.
+
+> legi noton
+
+Sur la papero estas skribita permane per malfacile legebla skribmaniero:\
+\
+«per cHi tiu letEro malLonga mi Promesas Uzi nur la fundaMentan lIngvoN Sen fUŝaj aBomenaĵoj kieL nAismo. Por LA boNo de nia Kara lingvO. subskribite,».\
+\
+Sub tio estas nelegebla nomo.
+
+> preni ĝin
+
+Vi prenis la manskribitan noton.
+
+> manĝi ĝin
+
+Vi ne povas manĝi la manskribitan noton.
+
+> rigardi plankon
+
+Vi detale rigardas la plankon de la klasĉambro kaj rimarkas ke antaŭ la skribtabulo troviĝas klappordo en la planko.
+
+> malfermi pordon
+
+Vi ne vidas pordon.
+
+> malfermi klappordon
+
+Vi malfermas la klappordon. Vi rimarkas etan ŝtuparon sub ĝi.
+
+> iru malsupren
+
+Sub la klappordo estas eta ŝtuparo. Vi malsupreniras ĝin al la spaco sub la klasĉambro.
+
+Vi estas sub la klasĉambro. La planko kaj la muroj estas el betono. La plafono estas apenaŭ sufiĉe alta por stariĝi.
+
+En fora flanko de la spaco vi vidas dormantan viron.
+
+> rigardi viron
+
+La viro dormas profunde.
+
+> preni nomŝildon
+
+Vi ne vidas nomŝildon.
+
+> doni teon al viro
+
+Vi metas la varman tason apud la dormanta viro por ke li trinku ĝin. Li daŭre dormas kaj entute ne respondas.
+
+> preni teon
+
+Vi prenis la varman tason.
+
+> trinku ĝin
+
+Vi fortrinkis la teon. Ĝi estis tro dolĉa kaj ne bongusta.
+
+> supreniru
+
+Vi estas en klasĉambro. Estas multaj skribotabloj kaj sur unu muro estas granda skribtabulo. La koridoro troviĝas norde.
+
+> norde
+
+Mi ne komprenas vin.
+
+> norden
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> okcidenten
+
+Vi estas en eta ĉambro kun du seĝoj kaj skribotablo. Sur la skribotablo estas skribita «aŭskulta servo». Malantaŭ la skribotablo juna virino rigardas vin.
+
+> orienten
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> o
+
+Vi estas en la gufujo. Ĉe la profundo de la ĉambro estas tablo kun diversaj teoj sur ĝi. Homo malantaŭ la tablo rigardas vin. La koridoro troviĝas okcidente. Sur la okcidenta muro estas sekura monŝranko.
+
+> aĉeti ruĝan teon per la stelo
+
+La vendisto diras ke li ne vendos al vi plian teon ĝis vi redonos la antaŭan tason. Sekve li grumble akuzas vin esti malŝparema kapitalisto kiu detruas la planedon.
+
+> redonu tason
+
+Vi redonas la malplenan tason al la gufuja vendisto. Li ne dankas vin.
+
+> aĉeti ruĝan teon per la stelo
+
+Vi donas la stelon al la vendisto. Li metas ĝin en la monŝrankon sur la okcidenta muro. Sekve li komencas prepari ruĝan teon por vi. Post minuto li donas al vi varman tason.
+
+> rigardi tason
+
+La teo ankoraŭ estas varma. Ĝi havas spican odoron.
+
+> trinku ĝin
+
+Vi fortrinkis la teon. Nun vi sentas vin tre vigla.
+
+> redoni tason
+
+Vi redonas la malplenan tason al la gufuja vendisto. Li ne dankas vin.
+
+> aĉeti flavan teon per la stelo
+
+Vi ne vidas stelon.
+
+> orienten
+
+Vi ne povas iri orienten de ĉi tie.
+
+> okcidenten
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> preni stelon
+
+Vi prenis la plastan stelon.
+
+> orienten
+
+Vi estas en la gufujo. Ĉe la profundo de la ĉambro estas tablo kun diversaj teoj sur ĝi. Homo malantaŭ la tablo rigardas vin. La koridoro troviĝas okcidente. Sur la okcidenta muro estas sekura monŝranko.
+
+> aĉeto flavan teon per la stelo
+
+Mi ne komprenas vin. Bonvole faru komandojn aŭ komencu frazon per “mi”.
+
+> aĉeti flavan teon per la stelo
+
+Vi donas la stelon al la vendisto. Li metas ĝin en la monŝrankon sur la okcidenta muro. Sekve li komencas prepari flavan teon por vi. Post minuto li donas al vi varman tason.
+
+> flari teon
+
+Ĝi havas odoron de kamomilo.
+
+> okc
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> suden
+
+Vi estas en klasĉambro. Estas multaj skribotabloj kaj sur unu muro estas granda skribtabulo. La koridoro troviĝas norde.
+
+> malsupren
+
+Sub la klappordo estas eta ŝtuparo. Vi malsupreniras ĝin al la spaco sub la klasĉambro.
+
+Vi estas sub la klasĉambro. La planko kaj la muroj estas el betono. La plafono estas apenaŭ sufiĉe alta por stariĝi.
+
+En fora flanko de la spaco vi vidas dormantan viron.
+
+> doni teon al viro
+
+Vi metas la varman tason apud la dormanta viro por ke li trinku ĝin. Li daŭre dormas kaj entute ne respondas.
+
+> drinki teon
+
+Vi ne povas drinki la varman tason.
+
+> rigardi teon
+
+La teo ankoraŭ estas varma. Ĝi havas odoron de kamomilo.
+
+> trinki teon
+
+Vi fortrinkis la teon. Nun vi sentas vin iomete dormema.
+
+> supren
+
+Vi estas en klasĉambro. Estas multaj skribotabloj kaj sur unu muro estas granda skribtabulo. La koridoro troviĝas norde.
+
+> n
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> o
+
+Vi estas en la gufujo. Ĉe la profundo de la ĉambro estas tablo kun diversaj teoj sur ĝi. Homo malantaŭ la tablo rigardas vin. La koridoro troviĝas okcidente. Sur la okcidenta muro estas sekura monŝranko.
+
+> okc
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> preni stelon
+
+Vi prenis la plastan stelon.
+
+> o
+
+Vi estas en la gufujo. Ĉe la profundo de la ĉambro estas tablo kun diversaj teoj sur ĝi. Homo malantaŭ la tablo rigardas vin. La koridoro troviĝas okcidente. Sur la okcidenta muro estas sekura monŝranko.
+
+> aĉetu ruĝan teon per la stelo
+
+La vendisto diras ke li ne vendos al vi plian teon ĝis vi redonos la antaŭan tason. Sekve li grumble akuzas vin esti malŝparema kapitalisto kiu detruas la planedon.
+
+> redoni tason
+
+Vi redonas la malplenan tason al la gufuja vendisto. Li ne dankas vin.
+
+> aĉetu ruĝan teon per la stelo
+
+Vi donas la stelon al la vendisto. Li metas ĝin en la monŝrankon sur la okcidenta muro. Sekve li komencas prepari ruĝan teon por vi. Post minuto li donas al vi varman tason.
+
+> faligi ilaron
+
+Vi ĵetis la ilaran keston.
+
+> rigardi
+
+Vi estas en la gufujo. Ĉe la profundo de la ĉambro estas tablo kun diversaj teoj sur ĝi. Homo malantaŭ la tablo rigardas vin. La koridoro troviĝas okcidente. Sur la okcidenta muro estas sekura monŝranko. Vi vidas ilaran keston.
+
+> metu telefonon en la keston
+
+La ilaro estas por iloj, ne por telefonoj.
+
+> okc
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> suden
+
+Vi estas en klasĉambro. Estas multaj skribotabloj kaj sur unu muro estas granda skribtabulo. La koridoro troviĝas norde.
+
+> malsupren
+
+Sub la klappordo estas eta ŝtuparo. Vi malsupreniras ĝin al la spaco sub la klasĉambro.
+
+Vi estas sub la klasĉambro. La planko kaj la muroj estas el betono. La plafono estas apenaŭ sufiĉe alta por stariĝi.
+
+En fora flanko de la spaco vi vidas dormantan viron.
+
+> doni teon al viro
+
+Vi metas la varman tason apud la dormanta viro por ke li trinku ĝin. La spica odoro atingas lian nazon kaj li malrapide malfermas la okulojn. Sekve li leviĝas kaj komencas paroli kun konfuzita mieno.\
+\
+«Kie mi estas? Uf, mi estas laca. La lasta afero kiun mi memoras estas ke mi partoprenis la kurson pri la “ĝusta Esperanto”. Mi trovis la nomon tre stranga kaj mi aliĝis pro scivolemo. Fine mi estis la sola partoprenanto en la klasĉambro. La instruisto komencis paroli pri neologismoj kaj reformoj kaj kiel ili estas ideoj de la diablo por devojigi nin de la ĝusta vojo de la vera Esperanto. Mi trovis lin iomete ridinda kaj mi demandis al li pri naismo ĉefe por provoki lin. Li koleregiĝis kaj kuris al mia seĝo. Li minacis malliberigi min sub la klasĉambro. Sekve li tenis mian kolon per la brako kaj devigis min promesi en letero ke mi neniam uzos naismon. Mi multe timis sed mi havis la ideon kaŝi mesaĝon en la noto okaze ke mi ne eskapos. Kia bonŝanco ke vi trovis mian mesaĝon! Ho ve, mi sentas min stranga, mi devos iri al malsanulejo.»\
+\
+Sekve li supreniris la ŝtuparon kaj malaperis. Vi rimarkas ke li forgesis ion malantaŭ si.
+
+> rigardi
+
+Vi estas sub la klasĉambro. La planko kaj la muroj estas el betono. La plafono estas apenaŭ sufiĉe alta por stariĝi. Vi vidas varman tason kaj nomŝildon.
+
+> preni nomŝildon
+
+Vi prenis la nomŝildon.
+
+> rigardi ĝin
+
+Estas skribita sur ĝi: IJK, nomo: Koralo Aleksandro. Vegana manĝo. Ĝi ankaŭ surhavas multe da glumarkoj.
+
+> legi ĝin
+
+Vi ne povas legi la nomŝildon.
+
+> supren
+
+Vi estas en klasĉambro. Estas multaj skribotabloj kaj sur unu muro estas granda skribtabulo. La koridoro troviĝas norde.
+
+> orienten
+
+Vi ne povas iri orienten de ĉi tie.
+
+> nodren
+
+Mi ne komprenas vin. Bonvole faru komandojn aŭ komencu frazon per “mi”.
+
+> norden
+
+Vi estas en mallonga koridoro. Estas pordoj norde, oriente, okcidente kaj sude.
+
+En la orienta muro vi vidas grandan truon.
+
+> okc
+
+Vi estas en eta ĉambro kun du seĝoj kaj skribotablo. Sur la skribotablo estas skribita «aŭskulta servo». Malantaŭ la skribotablo juna virino rigardas vin.
+
+> paroli
+
+Vi diras «saluton» al la virino sed ŝi seke respondas «Hej, unue montru vian nomŝildon. Mi aŭskultas nur kongresanojn.»
+
+> saluti
+
+Vi diras «saluton» al la virino sed ŝi seke respondas «Hej, unue montru vian nomŝildon. Mi aŭskultas nur kongresanojn.»
+
+> montri nomŝildon al la aŭskultistino
+
+Vi montras la nomŝildon al la aŭskultisto. Ŝia mieno ekaspektas pli afabla kaj ŝi diras «Saluton Koralo, mi aŭskultas vin».
+
+> saluti la virinon
+
+Vi rakontas al la aŭskultisto pri la freneza homo kiu frapis vin kaj kaptis vin en la ŝranko kaj pri Koralo sub la klasĉambro. Ŝi aspektas ŝokita. Ŝi tuj foriras por paroli kun la aliaj organizantoj de la kongreso. Post unu horo vi legas artikolon en Libera Folio pri la skandalo de la IJK. La organizantoj forpelis la homon de la kongreso kaj telefonis la policon. Li neniam plu povos partopreni esperantujon.\
+\
+Vi savis la kongreson! Gratulon!
+
+Vi kunportis androjdan saĝtelefonon, kvineŭran monbileton, bluan ŝraŭbilon, multkoloran afiŝon, manskribitan noton kaj nomŝildon. Vi havis 5 poentojn.
+
+Fino.
