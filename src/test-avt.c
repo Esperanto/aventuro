@@ -77,9 +77,15 @@ read_line(struct data *data)
 
                 data->command_buffer.length += got;
 
-                if (got > 0 && read_start[got - 1] == '\n') {
-                        read_start[got - 1] = '\0';
-                        return true;
+                if (got > 0 &&
+                    read_start[got - 1] == '\n') {
+                        if (got >= 2 && read_start[got - 2] == '\\') {
+                                read_start[got - 2] = '\n';
+                                data->command_buffer.length--;
+                        } else {
+                                read_start[got - 1] = '\0';
+                                return true;
+                        }
                 }
         }
 }
