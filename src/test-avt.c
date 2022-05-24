@@ -181,18 +181,6 @@ run_test(struct data *data)
                 data->line_num++;
 
                 char *command = (char *) data->command_buffer.data;
-                size_t len = data->command_buffer.length;
-
-                while (len > 0 && command[len - 1] == ' ')
-                        len--;
-
-                command[len] = '\0';
-
-                while (*command == ' ')
-                        command++;
-
-                if (*command == '#' || *command == '\0')
-                        continue;
 
                 if (!pcx_utf8_is_valid_string(command)) {
                         fprintf(stderr,
@@ -202,17 +190,38 @@ run_test(struct data *data)
                         return false;
                 }
 
-                if (*command == '>') {
-                        while (*(++command) == ' ');
+                char *first_character = command;
+
+                while (*first_character == ' ')
+                        first_character++;
+
+                if (*first_character == '#' || *first_character == '\0')
+                        continue;
+
+                if (*first_character == '>') {
+                        const char *typed_text = first_character + 1;
+
+                        while (*typed_text == ' ')
+                                typed_text++;
 
                         if (!ensure_empty_message_queue(data))
                                 return false;
 
-                        pcx_avt_state_run_command(data->state, command);
-                } else if (*command == '@') {
-                        while (*(++command) == ' ');
+                        pcx_avt_state_run_command(data->state, typed_text);
+                } else if (*first_character == '@') {
+                        char *at_command = first_character + 1;
 
-                        if (!handle_test_command(data, command))
+                        while (*at_command == ' ')
+                                at_command++;
+
+                        size_t len = strlen(at_command);
+
+                        while (len > 0 && at_command[len - 1] == ' ')
+                                len--;
+
+                        at_command[len] = '\0';
+
+                        if (!handle_test_command(data, at_command))
                                 return false;
                 } else {
                         const struct pcx_avt_state_message *msg =
