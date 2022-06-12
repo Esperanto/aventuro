@@ -36,6 +36,7 @@
    var currentExportDownload = null;
    var downloadsFinished = 0;
    var sourceElem = null;
+   var currentMessageGroup = null;
 
    const exportDownloads = [
      [ "background.png", replaceImageWithInline, "blob" ],
@@ -395,9 +396,14 @@
 
    function addMessage(klass, text)
    {
+     if (currentMessageGroup == null) {
+       currentMessageGroup = document.createElement("div");
+       messagesDiv.appendChild(currentMessageGroup);
+     }
+
      var messageDiv = document.createElement("div");
      messageDiv.className = "message " + klass;
-     messagesDiv.appendChild(messageDiv);
+     currentMessageGroup.appendChild(messageDiv);
 
      var innerDiv = document.createElement("div");
      innerDiv.className = "messageInner";
@@ -455,9 +461,7 @@
        }
      }
 
-     messagesDiv.scrollTo(0,
-                          messagesDiv.scrollHeight -
-                          messagesDiv.clientHeight);
+     currentMessageGroup.scrollIntoView();
    }
 
    function setRoomName()
@@ -481,6 +485,8 @@
        return;
 
      inputbox.innerHTML = "";
+
+     currentMessageGroup = null;
 
      addMessage("command", text);
 
@@ -553,6 +559,7 @@
        _pcx_avt_state_free(avtState);
 
      messagesDiv.innerHTML = "";
+     currentMessageGroup = null;
      restartButton.style.display = "none";
      inputbox.contentEditable = true;
      gameIsOver = false;
